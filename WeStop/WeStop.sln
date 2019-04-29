@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Domain", "WeStop.Domain\WeStop.Domain.csproj", "{3D32C9B9-B3CA-41B9-A697-97892CD9E721}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Domain", "WeStop.Domain\WeStop.Domain.csproj", "{3D32C9B9-B3CA-41B9-A697-97892CD9E721}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Application", "WeStop.Application\WeStop.Application.csproj", "{105B1AB6-A606-4736-89B8-FDFBBDDF6D02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Application", "WeStop.Application\WeStop.Application.csproj", "{105B1AB6-A606-4736-89B8-FDFBBDDF6D02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Infra", "WeStop.Infra\WeStop.Infra.csproj", "{F0277000-2A5D-4CFA-ADBC-D81D0595C83C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Infra", "WeStop.Infra\WeStop.Infra.csproj", "{F0277000-2A5D-4CFA-ADBC-D81D0595C83C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Common", "WeStop.Common\WeStop.Common.csproj", "{93339936-3680-4CC3-B91B-0C8149D3DF92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Common", "WeStop.Common\WeStop.Common.csproj", "{93339936-3680-4CC3-B91B-0C8149D3DF92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Api", "WeStop.Api\WeStop.Api.csproj", "{BB1898B4-5B9A-4F3B-A259-79F39DC59673}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Api", "WeStop.Api\WeStop.Api.csproj", "{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{93339936-3680-4CC3-B91B-0C8149D3DF92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93339936-3680-4CC3-B91B-0C8149D3DF92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93339936-3680-4CC3-B91B-0C8149D3DF92}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB1898B4-5B9A-4F3B-A259-79F39DC59673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB1898B4-5B9A-4F3B-A259-79F39DC59673}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB1898B4-5B9A-4F3B-A259-79F39DC59673}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB1898B4-5B9A-4F3B-A259-79F39DC59673}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
