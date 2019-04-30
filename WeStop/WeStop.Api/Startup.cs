@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using WeStop.Api.Extensions;
+using WeStop.Api.Filters;
 using WeStop.Api.Infra.Hubs;
 
 namespace WeStop.Api
@@ -23,12 +24,15 @@ namespace WeStop.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                });
+            services.AddMvc(options => 
+            {
+                options.Filters.Add(new ExceptionFilter());
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            });
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Application");
 

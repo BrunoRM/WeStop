@@ -17,14 +17,7 @@ namespace WeStop.Api.Controllers
         }
 
         [Route("api/players.create"), HttpPost]
-        public async Task<IActionResult> Register(RegisterPlayerRequest request)
-        {
-            var result = await _mediator.Send(request);
-
-            if (result.Ok)
-                return Ok(result);
-            else
-                return BadRequest(result);
-        }
+        public async Task<IActionResult> Register(RegisterPlayerRequest request) =>
+            Ok(await _mediator.Send(request));
     }
 }
