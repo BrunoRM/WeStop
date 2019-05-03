@@ -2,9 +2,9 @@
 using WeStop.Application.Dtos.Player;
 using WeStop.Common.Handlers;
 
-namespace WeStop.Application.Commands
+namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class RegisterPlayerRequest : IRequest<PlayerDto>
+    public class RegisterPlayerCommand : IRequest<PlayerDto>
     {
         public string Name { get; set; }
         public string Email { get; set; }

@@ -8,18 +8,18 @@ using WeStop.Common.Handlers;
 using WeStop.Domain;
 using WeStop.Domain.Repositories;
 
-namespace WeStop.Application.Handlers
+namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class CreateGameRoomRequestHandler : BaseRequestHandler<CreateGameRoomRequest>, IRequestHandler<CreateGameRoomRequest, Response<GameRoomDto>>
+    public class CreateGameRoomCommandHandler : BaseRequestHandler<CreateGameRoomCommand>, IRequestHandler<CreateGameRoomCommand, Response<GameRoomDto>>
     {
         private readonly IGameRoomRepository _gameRoomRepository;
 
-        public CreateGameRoomRequestHandler(IGameRoomRepository gameRoomRepository)
+        public CreateGameRoomCommandHandler(IGameRoomRepository gameRoomRepository)
         {
             _gameRoomRepository = gameRoomRepository;
         }
 
-        public async Task<Response<GameRoomDto>> Handle(CreateGameRoomRequest request, CancellationToken cancellationToken)
+        public async Task<Response<GameRoomDto>> Handle(CreateGameRoomCommand request, CancellationToken cancellationToken)
         {
             request.Name = request.Name.Trim();
 

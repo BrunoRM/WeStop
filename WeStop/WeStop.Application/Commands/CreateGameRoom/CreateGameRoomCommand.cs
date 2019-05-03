@@ -2,9 +2,9 @@
 using WeStop.Application.Dtos.GameRoom;
 using WeStop.Common.Handlers;
 
-namespace WeStop.Application.Commands
+namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class CreateGameRoomRequest : IRequest<Response<GameRoomDto>>
+    public class CreateGameRoomCommand : IRequest<Response<GameRoomDto>>
     {
         public string Name { get; set; }
         public bool IsPrivate { get; set; }

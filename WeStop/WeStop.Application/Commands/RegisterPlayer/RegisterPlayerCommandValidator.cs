@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
 using WeStop.Application.Commands;
 
-namespace WeStop.Application.Validators
+namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class RegisterPlayerRequestValidator : AbstractValidator<RegisterPlayerRequest>
+    public class RegisterPlayerCommandValidator : AbstractValidator<RegisterPlayerCommand>
     {
-        public RegisterPlayerRequestValidator()
+        public RegisterPlayerCommandValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("name is required");

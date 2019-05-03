@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WeStop.Common\WeStop.Common.csproj" />
     <ProjectReference Include="..\WeStop.Domain\WeStop.Domain.csproj" />
+    <ProjectReference Include="..\WeStop.Infra\WeStop.Infra.csproj" />
   </ItemGroup>
 
 </Project>

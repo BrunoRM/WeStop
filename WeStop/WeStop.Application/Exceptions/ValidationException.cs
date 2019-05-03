@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
+using WeStop.Application.Errors;
 
 namespace WeStop.Application.Exceptions
 {
@@ -10,6 +11,7 @@ namespace WeStop.Application.Exceptions
         public ValidationException()
             : base("One or more validation failures have occurred.")
         {
+            Error = CommonErrors.InvalidRequest;
             Failures = new Dictionary<string, string[]>();
         }
         
@@ -31,5 +33,6 @@ namespace WeStop.Application.Exceptions
         }
 
         public IDictionary<string, string[]> Failures { get; }
+        public string Error { get; private set; }
     }
 }

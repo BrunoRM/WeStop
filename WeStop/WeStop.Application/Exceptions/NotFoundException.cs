@@ -1,14 +1,15 @@
+using System;
 using WeStop.Application.Errors;
 
 namespace WeStop.Application.Exceptions
 {
-    public class NotFoundException
+    public class NotFoundException : Exception
     {
         public string Error { get; private set; }
 
-        public NotFoundException(string errorMessage)
+        public NotFoundException()
         {
-            Error = errorMessage;
+            Error = CommonErrors.NotFound;
         }
     }
 }

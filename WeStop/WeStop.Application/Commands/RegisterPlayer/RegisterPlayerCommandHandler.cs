@@ -1,52 +1,45 @@
-﻿using FluentValidation;
-using MediatR;
-using System.Linq;
+﻿using MediatR;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WeStop.Application.Commands;
 using WeStop.Application.Dtos.Player;
 using WeStop.Application.Errors;
 using WeStop.Application.Exceptions;
 using WeStop.Common.Handlers;
 using WeStop.Domain;
 using WeStop.Domain.Repositories;
+using WeStop.Infra;
+using WeStop.Infra.Extensions.Queries;
 
-namespace WeStop.Application.Handlers
+namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class RegisterPlayerRequestHandler : BaseRequestHandler<RegisterPlayerRequest>, IRequestHandler<RegisterPlayerRequest, PlayerDto>
+    public class RegisterPlayerCommandHandler : BaseRequestHandler<RegisterPlayerCommand>, IRequestHandler<RegisterPlayerCommand, PlayerDto>
     {
-        private readonly IPlayerRepository _playerRepository;
-        private readonly IValidator<RegisterPlayerRequest> _validator;
+        private readonly WeStopDbContext _db;
 
-        public RegisterPlayerRequestHandler(IValidator<RegisterPlayerRequest> validator)
+        public RegisterPlayerCommandHandler(IPlayerRepository playerRepository, WeStopDbContext db)
         {
-            _validator = validator;
+            _db = db;
         }
 
-        public RegisterPlayerRequestHandler(IPlayerRepository playerRepository)
+        public async Task<PlayerDto> Handle(RegisterPlayerCommand request, CancellationToken cancellationToken)
         {
-            _playerRepository = playerRepository;
-        }
-
-        public async Task<PlayerDto> Handle(RegisterPlayerRequest request, CancellationToken cancellationToken)
-        {
-            await _validator.ValidateAndThrowAsync(request);
-
             request.Name = request.Name.Trim();
             request.UserName = request.UserName.Trim();
             request.Email = request.Email.Trim();
 
-            if (await _playerRepository.UserNameAlreadyExistsAsync(request.UserName))
+            if (await _db.Players.UserNameExistsAsync(request.UserName))
                 throw new ErrorException(PlayerErrors.UserNameAlreadyTaken);
 
-            if (await _playerRepository.EmailAlreadyExistsAsync(request.Email))
+            if (await _db.Players.EmailExistsAsync(request.Email))
                 throw new ErrorException(PlayerErrors.EmailAlreadyTaken);
 
             string passwordHash = GetMD5Hash(request.Password);
             var player = new Player(request.Name, request.UserName, passwordHash, request.Email);
-            await _playerRepository.AddAsync(player);
+
+            await _db.Players.AddAsync(player);
+            await _db.SaveChangesAsync();
 
             return new PlayerDto
             {

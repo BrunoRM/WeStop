@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WeStop.Application.Commands;
+using WeStop.Application.Commands.RegisterPlayer;
 
 namespace WeStop.Api.Controllers
 {
@@ -16,7 +16,7 @@ namespace WeStop.Api.Controllers
         }
 
         [Route("api/gamerooms.create"), HttpPost]
-        public async Task<IActionResult> CreateNewGameRoom(CreateGameRoomRequest request)
+        public async Task<IActionResult> CreateNewGameRoom(CreateGameRoomCommand request)
         {
             var result = await _mediator.Send(request);
 

@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
-using WeStop.Application.Commands;
+using WeStop.Application.Commands.RegisterPlayer;
 
 namespace WeStop.Api.Controllers
 {
@@ -17,7 +16,7 @@ namespace WeStop.Api.Controllers
         }
 
         [Route("api/players.create"), HttpPost]
-        public async Task<IActionResult> Register(RegisterPlayerRequest request) =>
+        public async Task<IActionResult> Register(RegisterPlayerCommand request) =>
             Ok(await _mediator.Send(request));
     }
 }
