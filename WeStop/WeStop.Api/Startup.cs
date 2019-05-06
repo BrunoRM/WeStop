@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using System;
 using WeStop.Api.Extensions;
 using WeStop.Api.Filters;
 using WeStop.Api.Infra.Hubs;
+using WeStop.Application.Behaviors;
 
 namespace WeStop.Api
 {
@@ -37,6 +39,12 @@ namespace WeStop.Api
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Application");
 
             services.AddMediatR(assembly);
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
+
+            // Para adicionar as classes de validação ao container de dependências
+            AssemblyScanner
+                .FindValidatorsInAssembly(assembly)
+                .ForEach(result => services.AddScoped(result.InterfaceType, result.ValidatorType));
 
             services.AddSignalR();
             services.AddServices();

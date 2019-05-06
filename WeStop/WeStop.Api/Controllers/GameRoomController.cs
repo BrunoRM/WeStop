@@ -16,11 +16,16 @@ namespace WeStop.Api.Controllers
         }
 
         [Route("api/gamerooms.create"), HttpPost]
-        public async Task<IActionResult> CreateNewGameRoom(CreateGameRoomCommand request)
+        public async Task<IActionResult> CreateNewGameRoomAsync(CreateGameRoomCommand request)
         {
-            var result = await _mediator.Send(request);
+            var gameroom = await _mediator.Send(request);
 
-            return Ok(result);
+            return Ok(new
+            {
+                ok = true,
+                gameroom
+            });
         }
+
     }
 }

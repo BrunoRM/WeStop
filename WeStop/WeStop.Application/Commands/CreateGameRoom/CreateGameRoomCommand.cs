@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using WeStop.Application.Dtos.GameRoom;
-using WeStop.Common.Handlers;
 
 namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class CreateGameRoomCommand : IRequest<Response<GameRoomDto>>
+    public class CreateGameRoomCommand : IRequest<GameRoomDto>
     {
         public string Name { get; set; }
-        public bool IsPrivate { get; set; }
+        public string Password { get; set; }
+        public int NumberOfRounds { get; set; }
+        public int NumberOfPlayers { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WeStop.Application.Exceptions;
+using WeStop.Domain.Errors;
 
 namespace WeStop.Application.Behaviors
 {
@@ -19,6 +21,9 @@ namespace WeStop.Application.Behaviors
 
         public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
+            if (request is null)
+                throw new WeStop.Application.Exceptions.ValidationException();
+
             var context = new ValidationContext(request);
 
             var failures = _validators
@@ -27,8 +32,8 @@ namespace WeStop.Application.Behaviors
                 .Where(f => f != null)
                 .ToList();
 
-            if (failures.Count != 0)
-                throw new ValidationException(failures);
+            if (failures.Any())
+                throw new WeStop.Application.Exceptions.ValidationException(failures);
 
             return next();
         }

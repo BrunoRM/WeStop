@@ -5,12 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="8.3.0" />
     <PackageReference Include="MediatR" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WeStop.Common\WeStop.Common.csproj" />
     <ProjectReference Include="..\WeStop.Domain\WeStop.Domain.csproj" />
+    <ProjectReference Include="..\WeStop.Helpers\WeStop.Helpers.csproj" />
     <ProjectReference Include="..\WeStop.Infra\WeStop.Infra.csproj" />
   </ItemGroup>
 

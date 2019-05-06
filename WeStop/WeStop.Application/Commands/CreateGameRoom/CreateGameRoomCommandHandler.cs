@@ -1,41 +1,50 @@
 ﻿using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
-using WeStop.Application.Commands;
 using WeStop.Application.Dtos.GameRoom;
-using WeStop.Application.Errors;
-using WeStop.Common.Handlers;
+using WeStop.Application.Exceptions;
 using WeStop.Domain;
-using WeStop.Domain.Repositories;
+using WeStop.Domain.Errors;
+using WeStop.Helpers.Criptography;
+using WeStop.Infra;
+using WeStop.Infra.Extensions.Queries;
 
 namespace WeStop.Application.Commands.RegisterPlayer
 {
-    public class CreateGameRoomCommandHandler : BaseRequestHandler<CreateGameRoomCommand>, IRequestHandler<CreateGameRoomCommand, Response<GameRoomDto>>
+    public class CreateGameRoomCommandHandler : IRequestHandler<CreateGameRoomCommand, GameRoomDto>
     {
-        private readonly IGameRoomRepository _gameRoomRepository;
+        private readonly WeStopDbContext _db;
 
-        public CreateGameRoomCommandHandler(IGameRoomRepository gameRoomRepository)
+        public CreateGameRoomCommandHandler(WeStopDbContext db)
         {
-            _gameRoomRepository = gameRoomRepository;
+            _db = db;
         }
 
-        public async Task<Response<GameRoomDto>> Handle(CreateGameRoomCommand request, CancellationToken cancellationToken)
+        public async Task<GameRoomDto> Handle(CreateGameRoomCommand request, CancellationToken cancellationToken)
         {
             request.Name = request.Name.Trim();
 
-            if (await _gameRoomRepository.NameAlreadyExistsAsync(request.Name))
-                return new Response<GameRoomDto>(GameRoomErrors.NameAlreadyExists);
+            if (await _db.GameRooms.NameExistsAsync(request.Name))
+                throw new ErrorException(GameRoomErrors.NameAlreadyExists);
 
-            GameRoom gameRoom = new GameRoom(request.Name, request.IsPrivate);
+            string passwordHash = string.Empty;
+            if (!string.IsNullOrEmpty(request.Password))
+                passwordHash = new MD5HashGenerator().GetMD5Hash(request.Password);
 
-            await _gameRoomRepository.AddAsync(gameRoom);
+            GameRoom gameRoom = new GameRoom(request.Name, passwordHash, request.NumberOfRounds, request.NumberOfPlayers);
 
-            return new Response<GameRoomDto>(new GameRoomDto
+            await _db.GameRooms.AddAsync(gameRoom);
+            await _db.SaveChangesAsync();
+
+            return new GameRoomDto
             {
                 Id = gameRoom.Id,
                 Name = gameRoom.Name,
-                Status = gameRoom.Status
-            });
+                Status = gameRoom.Status.ToString("g"),
+                NumberOfRounds = gameRoom.NumberOfRounds,
+                NumberOfPlayers = gameRoom.NumberOfPlayers,
+                IsPrivate = string.IsNullOrEmpty(gameRoom.Password) ? false : true
+            };
         }
     }
 }

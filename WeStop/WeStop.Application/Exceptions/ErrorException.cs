@@ -1,15 +1,13 @@
 using System;
+using WeStop.Domain.Exceptions;
 
 namespace WeStop.Application.Exceptions
 {
-    
-    public class ErrorException : Exception
+
+    public class ErrorException : WeStopException
     {
-        public string Error { get; private set; }
-        
-        public ErrorException(string errorMessage)
+        public ErrorException(string error) : base(error)
         {
-            Error = errorMessage;
         }
     }
 }

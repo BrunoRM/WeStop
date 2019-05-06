@@ -1,4 +1,4 @@
-﻿namespace WeStop.Application.Errors
+﻿namespace WeStop.Domain.Errors
 {
     public class CommonErrors
     {

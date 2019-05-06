@@ -7,6 +7,8 @@ namespace WeStop.Infra
     public class WeStopDbContext : DbContext
     {
         public DbSet<Player> Players { get; set; }
+        public DbSet<GameRoom> GameRooms { get; set; }
+        public DbSet<Theme> Themes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -17,7 +19,11 @@ namespace WeStop.Infra
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Ignore<Entity>();
+
             modelBuilder.ApplyConfiguration(new PlayerMap());
+            modelBuilder.ApplyConfiguration(new GameRoomMap());
+            modelBuilder.ApplyConfiguration(new ThemeMap());
+
             base.OnModelCreating(modelBuilder);
         }
     }

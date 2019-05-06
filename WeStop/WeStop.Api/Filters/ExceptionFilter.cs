@@ -18,7 +18,7 @@ namespace WeStop.Api.Filters
             }
             else if (context.Exception is ValidationException)
             {
-                context.Result = new OkObjectResult(new
+                context.Result = new BadRequestObjectResult(new
                 {
                     Ok = false,
                     ((ValidationException)context.Exception).Error,
@@ -27,7 +27,7 @@ namespace WeStop.Api.Filters
             }
             else if (context.Exception is NotFoundException)
             {
-                context.Result = new OkObjectResult(new
+                context.Result = new NotFoundObjectResult(new
                 {
                     Ok = false,
                     ((NotFoundException)context.Exception).Error
@@ -38,7 +38,7 @@ namespace WeStop.Api.Filters
                 context.Result = new OkObjectResult(new
                 {
                     Ok = false,
-                    Error = "Ocorreu um erro interno não tratado"
+                    Error = "fatal_error"
                 });
             }
         }

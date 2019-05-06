@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeStop.Infra;
@@ -9,9 +10,10 @@ using WeStop.Infra;
 namespace WeStop.Infra.Migrations
 {
     [DbContext(typeof(WeStopDbContext))]
-    partial class WeStopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190504170225_Alteração da coluna status da tabela gameroom para varchar(15)")]
+    partial class Alteraçãodacolunastatusdatabelagameroomparavarchar15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,69 +92,6 @@ namespace WeStop.Infra.Migrations
                     b.HasIndex("GameRoomId");
 
                     b.ToTable("player","public");
-                });
-
-            modelBuilder.Entity("WeStop.Domain.Theme", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnName("name")
-                        .HasMaxLength(20);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("theme","public");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("395cc6f2-3018-4a7c-90f3-369087faacbb"),
-                            Name = "Nome"
-                        },
-                        new
-                        {
-                            Id = new Guid("695cf63d-2760-4b1d-b8f7-39879bd4ee29"),
-                            Name = "Sobrenome"
-                        },
-                        new
-                        {
-                            Id = new Guid("03911ab8-5e9c-4f19-9e0d-d94c5d87ab3e"),
-                            Name = "CEP"
-                        },
-                        new
-                        {
-                            Id = new Guid("0402a910-fd0c-4de0-a871-17ccc93640ca"),
-                            Name = "FDS"
-                        },
-                        new
-                        {
-                            Id = new Guid("210ec31e-db11-485d-b4a7-fb15d0d8721a"),
-                            Name = "Carro"
-                        },
-                        new
-                        {
-                            Id = new Guid("5208928f-47ed-44ff-8ee7-e2c32574a53e"),
-                            Name = "Marca"
-                        },
-                        new
-                        {
-                            Id = new Guid("7015fdbb-3179-450f-9c7f-bac658957812"),
-                            Name = "Objeto"
-                        },
-                        new
-                        {
-                            Id = new Guid("9114719c-64bb-46a5-879f-9c3fb3d8e674"),
-                            Name = "Cor"
-                        },
-                        new
-                        {
-                            Id = new Guid("05a69df1-a1eb-441b-85a8-00d5231fb034"),
-                            Name = "Fruta"
-                        });
                 });
 
             modelBuilder.Entity("WeStop.Domain.Player", b =>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeStop.Domain.Exceptions;
 
 namespace WeStop.Domain
 {
@@ -8,19 +9,23 @@ namespace WeStop.Domain
     {
         private ICollection<Player> _players;
 
-        public GameRoom(string name, bool isPrivate)
+        public GameRoom(string name, string password, int numberOfRounds, int numberOfPlayers)
         {
             Name = name;
-            IsPrivate = isPrivate;
+            Password = password;
+            NumberOfRounds = numberOfRounds;
+            NumberOfPlayers = numberOfPlayers;
             CreatedAt = DateTime.Now;
             Expiration = DateTime.Now.AddHours(1);
-            Status = "Aguardando";
+            Status = GameRoomStatus.Waiting;
             _players = new List<Player>();
         }
 
         public string Name { get; set; }
-        public bool IsPrivate { get; set; }
-        public string Status { get; set; }
+        public string Password { get; set; }
+        public int NumberOfRounds { get; set; }
+        public int NumberOfPlayers { get; set; }
+        public GameRoomStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime Expiration { get; set; }
         public IReadOnlyCollection<Player> Players { get { return _players.ToList(); } }
@@ -28,6 +33,9 @@ namespace WeStop.Domain
         public bool AddPlayer(Player player)
         {
             if (player is null) return false;
+
+            if (Players.Count >= NumberOfPlayers)
+                throw new GameRoomIsFullException();
 
             // Se o jogador já esta na sala, retorna uma resposta de sucesso
             if (_players.FirstOrDefault(x => x.Id == player.Id) != null)

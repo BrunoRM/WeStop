@@ -1,30 +1,29 @@
-using System;
+using FluentValidation.Results;
 using System.Collections.Generic;
 using System.Linq;
-using FluentValidation.Results;
-using WeStop.Application.Errors;
+using WeStop.Domain.Errors;
+using WeStop.Domain.Exceptions;
 
 namespace WeStop.Application.Exceptions
 {
-    public class ValidationException : Exception
+    public class ValidationException : WeStopException
     {
-        public ValidationException()
-            : base("One or more validation failures have occurred.")
+        public ValidationException()    
+            :base(CommonErrors.InvalidRequest)
         {
-            Error = CommonErrors.InvalidRequest;
             Failures = new Dictionary<string, string[]>();
         }
         
-        public ValidationException(List<ValidationFailure> failures)
+        public ValidationException(List<ValidationFailure> failures) : this()
         {
             var propertyNames = failures
-                .Select(e => e.PropertyName)
+                .Select(e => e.PropertyName.ToLower())
                 .Distinct();
 
             foreach (var propertyName in propertyNames)
             {
                 var propertyFailures = failures
-                    .Where(e => e.PropertyName == propertyName)
+                    .Where(e => e.PropertyName.ToLower() == propertyName)
                     .Select(e => e.ErrorMessage)
                     .ToArray();
 
@@ -33,6 +32,5 @@ namespace WeStop.Application.Exceptions
         }
 
         public IDictionary<string, string[]> Failures { get; }
-        public string Error { get; private set; }
     }
 }

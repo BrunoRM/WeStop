@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using WeStop.Application.Dtos.Player;
-using WeStop.Common.Handlers;
 
 namespace WeStop.Application.Commands.RegisterPlayer
 {
