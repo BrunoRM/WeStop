@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using WeStop.Infra;
+using WeStop.Infra.Database;
 
 namespace WeStop.Api.Extensions
 {
@@ -7,7 +8,7 @@ namespace WeStop.Api.Extensions
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddTransient<WeStopDbContext, WeStopDbContext>();
+            services.AddTransient<WeStopDbContext, WeStopSqlServerDbContext>();
         }
     }
 }

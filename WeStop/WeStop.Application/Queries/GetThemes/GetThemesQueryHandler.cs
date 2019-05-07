@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using WeStop.Application.Dtos.Theme;
 using WeStop.Infra;
 
 namespace WeStop.Application.Queries.GetThemes
 {
-    public class GetThemesQueryHandler : IRequestHandler<GetThemesQuery, IEnumerable<ThemeDto>>
+    public class GetThemesQueryHandler : IRequestHandler<GetThemesQuery, IEnumerable<string>>
     {
         private readonly WeStopDbContext _db;
 
@@ -18,14 +17,11 @@ namespace WeStop.Application.Queries.GetThemes
             _db = db;
         }
 
-        public async Task<IEnumerable<ThemeDto>> Handle(GetThemesQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<string>> Handle(GetThemesQuery request, CancellationToken cancellationToken)
         {
             var themes = await _db.Themes.ToListAsync();
 
-            return themes.Select(t => new ThemeDto
-            {
-                Name = t.Name
-            });
+            return themes.Select(t => t.Name);
         }
     }
 }

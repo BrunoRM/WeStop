@@ -16,5 +16,7 @@
 
         public const string UserNameAlreadyTaken = "username_already_taken";
         public const string EmailAlreadyTaken = "email_already_taken";
+
+        public const string PlayerNotFound = "player_not_found";
     }
 }

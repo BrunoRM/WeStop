@@ -1,0 +1,39 @@
+<table ng-if="!showGameRommDetails">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr ng-repeat="gameRoom in gameRooms" ng-click="details(gameRoom)">
+            <td>{{gameRoom.name}}</td>
+            <td>{{gameRoom.isPrivate}}</td>
+            <td>{{gameRoom.status}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div ng-if="showGameRommDetails">
+    
+    <button ng-click="backToGameRooms()">Voltar</button>
+
+    <h1>{{gameRoomDetails.name}}</h1>
+    <h4>{{gameRoomDetails.numberOfRounds}}</h4>
+    
+    <h4>Temas</h4>
+    <div ng-repeat="theme in gameRoomDetails.themes">
+        {{ theme }}
+    </div>
+
+    <h4>Letras</h4>
+    <div ng-repeat="letter in gameRoomDetails.availableLetters">
+        {{ letter }}
+    </div>
+
+    <button ng-click="joinGame()">Participar</button>
+
+</div>

@@ -1,0 +1,17 @@
+{
+  "name": "westop.web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@aspnet/signalr": "^1.1.4",
+    "angular": "^1.7.8",
+    "angular-route": "^1.7.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

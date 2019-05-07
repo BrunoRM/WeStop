@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,6 +37,14 @@ namespace WeStop.Api
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
+            services.AddCors(options => options.AddPolicy("CorsPolicy",
+                builder =>
+                {
+                    builder.AllowAnyMethod().AllowAnyHeader()
+                           .WithOrigins("http://localhost:5001")
+                           .AllowCredentials();
+                }));
+
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Application");
 
             services.AddMediatR(assembly);
@@ -48,11 +57,14 @@ namespace WeStop.Api
 
             services.AddSignalR();
             services.AddServices();
+            services.AddAutoMapper(assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCors("CorsPolicy");
+
             app.UseSignalR(routeConfig =>
             {
                 routeConfig.MapHub<GameRoomHub>("/gameroom");

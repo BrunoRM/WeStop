@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WeStop.Application.Dtos.GameRoom;
@@ -6,6 +7,7 @@ using WeStop.Application.Exceptions;
 using WeStop.Domain;
 using WeStop.Domain.Errors;
 using WeStop.Helpers.Criptography;
+using WeStop.Helpers.Extensions;
 using WeStop.Infra;
 using WeStop.Infra.Extensions.Queries;
 
@@ -31,7 +33,10 @@ namespace WeStop.Application.Commands.RegisterPlayer
             if (!string.IsNullOrEmpty(request.Password))
                 passwordHash = new MD5HashGenerator().GetMD5Hash(request.Password);
 
-            GameRoom gameRoom = new GameRoom(request.Name, passwordHash, request.NumberOfRounds, request.NumberOfPlayers);
+            var themes = request.Themes.Distinct().ToArray().ToStringWithCommaDelimiter();
+            var availableLetters = request.AvailableLetters.Distinct().ToArray().ToStringWithCommaDelimiter();
+
+            GameRoom gameRoom = new GameRoom(request.Name, passwordHash, request.NumberOfRounds, request.NumberOfPlayers, themes, availableLetters);
 
             await _db.GameRooms.AddAsync(gameRoom);
             await _db.SaveChangesAsync();

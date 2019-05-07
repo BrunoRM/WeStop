@@ -9,5 +9,7 @@ namespace WeStop.Application.Commands.RegisterPlayer
         public string Password { get; set; }
         public int NumberOfRounds { get; set; }
         public int NumberOfPlayers { get; set; }
+        public string[] Themes { get; set; }
+        public string[] AvailableLetters { get; set; }
     }
 }

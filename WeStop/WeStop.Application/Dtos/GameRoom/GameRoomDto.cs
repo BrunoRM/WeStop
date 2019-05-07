@@ -10,5 +10,7 @@ namespace WeStop.Application.Dtos.GameRoom
         public int NumberOfRounds { get; set; }
         public int NumberOfPlayers { get; set; }
         public bool IsPrivate { get; set; }
+        public string[] Themes { get; set; }
+        public string[] AvailableLetters { get; set; }
     }
 }

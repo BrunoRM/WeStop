@@ -1,4 +1,6 @@
-﻿namespace WeStop.Domain
+﻿using System.Collections.Generic;
+
+namespace WeStop.Domain
 {
     public class Player : Entity
     {
