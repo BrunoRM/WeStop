@@ -42,11 +42,14 @@ namespace WeStop.Api.Infra.Hubs
         public Player()
         {
             Pontuations = new List<PlayerPontuation>();
+            IsReady = false;
+            IsAdmin = false;
         }
 
         public Guid Id { get; set; }
         public string UserName { get; set; }
         public bool IsAdmin { get; set; }
+        public bool IsReady { get; set; }
         public ICollection<PlayerPontuation> Pontuations { get; set; }
     }
 
@@ -173,12 +176,14 @@ namespace WeStop.Api.Infra.Hubs
             }
             else
             {
-                game.Players.Add(new Player
+                var playerJoined = new Player
                 {
                     Id = player.Id,
                     UserName = player.UserName,
                     IsAdmin = false
-                });
+                };
+
+                game.Players.Add(playerJoined);
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
@@ -188,25 +193,14 @@ namespace WeStop.Api.Infra.Hubs
                     is_admin = false,
                     game
                 });
+
+                await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("playerJoinedToGame", new
+                {
+                    ok = true,
+                    player = playerJoined
+                });
             }
-        }
-
-        public override Task OnDisconnectedAsync(Exception exception)
-        {
-            return base.OnDisconnectedAsync(exception);
-        }
-
-        [HubMethodName("sendMessageToGroup")]
-        public async Task SendMessageToGroup(Guid gameId)
-        {
-            await Clients.Group(gameId.ToString()).SendAsync("groupMessage", "Oláaaaaa");
-        }
-        
-        public class StartGameDto
-        {
-            public string UserName { get; set; }
-            public Guid GameRoomId { get; set; }
-        }
+        }        
 
         [HubMethodName("startGame")]
         public async Task StartGame(StartGameDto dto)
@@ -230,30 +224,38 @@ namespace WeStop.Api.Infra.Hubs
                 SortedLetter = sortedLetter
             });
 
-            await Clients.Group(game.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { game.Id, themes = game.Options.Themes, round = game.Rounds.Last() } });
+            await Clients.Group(game.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { game.Id, themes = game.Options.Themes, currentRound = game.Rounds.Last() } });
         }
 
-        //private async Task ValidatePassword(string password, Domain.Player player, GameRoom gameRoom)
-        //{
-        //    if (string.IsNullOrEmpty(password))
-        //        await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.InvalidPasswordRequired });
+        [HubMethodName("player.ready")]
+        public async Task PlayerReady(Guid gameId, string userName)
+        {
+            var player = GetPlayerInGame(gameId, userName);
 
-        //    var hashGenerator = new MD5HashGenerator();
-        //    string passwordHash = hashGenerator.GetMD5Hash(password);
 
-        //    if (hashGenerator.VerifyMd5Hash(passwordHash, gameRoom.Password))
-        //        await ConnectToGameroom(player, gameRoom);
-        //}
+        }
 
-        //public class UserProvider : IUserIdProvider
-        //{
-        //    public string GetUserId(HubConnectionContext connection)
-        //    {
-        //        connection.
-        //        throw new NotImplementedException();
-        //    }
-        //}
+        [HubMethodName("player.notReady")]
+        public async Task PlayerNotReady(Guid gameId, string userName)
+        {
+
+        }
+
+        private Player GetPlayerInGame(Guid gameId, string userName)
+        {
+            var game = _games[gameId];
+
+            if (game is null)
+                return null;
+
+            return game.Players.FirstOrDefault(x => x.UserName == userName);
+        }
     }
+    public class StartGameDto
+        {
+            public string UserName { get; set; }
+            public Guid GameRoomId { get; set; }
+        }
 
     public class ConnectToGameRoom
     {

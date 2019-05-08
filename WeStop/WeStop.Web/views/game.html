@@ -5,8 +5,27 @@
     <button ng-click="confirm()">Confirmar</button>
 </div>
 
-<div ng-if="userNameValidated">
+<div ng-if="userNameValidated && !gameStarted">
+
+    <h2>Jogadores</h2>
+    <ul>
+        <li ng-repeat="player in players">
+            {{player.userName}}
+        </li>
+    </ul>
 
     <button ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
+
+</div>
+
+<div ng-if="gameStarted">
+    
+    <h1>Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h1>
+    <h2>Rodada {{gameConfig.currentRound.number}}</h2>
+
+    <div ng-repeat="theme in gameConfig.themes">
+        <label for="theme">{{theme}}</label>
+        <input type="text" name="{{theme}}" />
+    </div>
 
 </div>

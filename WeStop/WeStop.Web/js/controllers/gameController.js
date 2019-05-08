@@ -16,6 +16,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     
             $game.on("joinedToGame").then(data => {
                 $scope.userNameValidated = true;
+                $scope.players = data.game.players;
                 $scope.player.isAdmin = data.is_admin;
             });
         });
@@ -31,6 +32,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         console.log(data);
         $scope.gameConfig = data.gameRoomConfig;
         $scope.gameStarted = true;
+    });
+
+    $game.on('playerJoinedToGame').then(data => {
+        $scope.players.push(data.player);
     });
 
     
