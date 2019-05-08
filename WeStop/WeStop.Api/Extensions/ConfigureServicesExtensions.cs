@@ -8,7 +8,7 @@ namespace WeStop.Api.Extensions
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddTransient<WeStopDbContext, WeStopSqlServerDbContext>();
+            services.AddTransient<WeStopDbContext, WeStopNPgDbContext>();
         }
     }
 }

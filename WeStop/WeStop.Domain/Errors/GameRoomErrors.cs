@@ -30,6 +30,7 @@
         public const string NameAlreadyExists = "name_already_exists";
         public const string GameRoomNotFound = "game_room_not_found";
         public const string InvalidPasswordRequired = "invalid_passsword_required";
+        public const string NotAdmin = "not_admin";
 
     }
 }
