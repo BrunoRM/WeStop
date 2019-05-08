@@ -1,6 +1,11 @@
-angular.module('WeStop').controller('lobbyController', ['gameRooms', '$scope', '$location', function (gameRooms, $scope, $location) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$game', function ($scope, $location, $game) {
 
-    $scope.gameRooms = gameRooms;
+    $game.connect().then(function() {
+        $game.invoke('getGames');
+        $game.on('getGamesResponse').then(data => {
+            $scope.gameRooms = data.games;
+        });
+    });
 
     $scope.gameRoomDetails = null;
     $scope.showGameRommDetails = false;

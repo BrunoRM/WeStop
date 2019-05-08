@@ -15,10 +15,17 @@ namespace WeStop.Api.Infra.Hubs
 {
     class Game
     {
+        public Game()
+        {
+            Players = new List<Player>();
+            Rounds = new List<Round>();
+        }
+
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
         public GameOptions Options { get; set; }
+        public ICollection<Round> Rounds { get; set; }
         public ICollection<Player> Players { get; set; }
     }
 
@@ -32,15 +39,44 @@ namespace WeStop.Api.Infra.Hubs
 
     class Player
     {
+        public Player()
+        {
+            Pontuations = new List<PlayerPontuation>();
+        }
+
         public Guid Id { get; set; }
+        public string UserName { get; set; }
         public bool IsAdmin { get; set; }
-        public ICollection<PlayerPontuation> Pontuation { get; set; }
+        public ICollection<PlayerPontuation> Pontuations { get; set; }
+    }
+
+    class RoundPontuation
+    {
+        public Round Round { get; set; }
+        public int Points { get; set; }
     }
 
     class PlayerPontuation
     {
-        public int Round { get; set; }
-        public int Points { get; set; }
+        public PlayerPontuation()
+        {
+            RoundsPontuations = new List<RoundPontuation>();
+        }
+
+        public ICollection<RoundPontuation> RoundsPontuations { get; set; }
+        public int TotalPontuation => RoundsPontuations.Sum(x => x.Points);
+    }
+
+    class Round
+    {
+        public Round()
+        {
+            Finished = false;
+        }
+
+        public int Number { get; set; }
+        public string SortedLetter { get; set; }
+        public bool Finished { get; set; }
     }
 
     public class GameRoomHub : Hub
@@ -62,11 +98,14 @@ namespace WeStop.Api.Infra.Hubs
             public GameOptions GameOptions { get; set; }
         }
 
+        [HubMethodName("createGame")]
         public async Task CreateGame(CreateGameDto dto)
         {
-            var gameInfo = new Game
+            var player = await _db.Players.FirstOrDefaultAsync(x => x.UserName == dto.UserName);
+
+            var game = new Game
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Name = dto.Name,
                 Options = new GameOptions
                 {
@@ -74,92 +113,137 @@ namespace WeStop.Api.Infra.Hubs
                     AvailableLetters = dto.GameOptions.AvailableLetters,
                     NumberOfPlayers = dto.GameOptions.NumberOfPlayers,
                     Rounds = dto.GameOptions.Rounds
-                }
+                },
+                Players = { new Player { Id = player.Id, UserName = player.UserName, IsAdmin = true } }
             };
 
-            _games.Add(gameInfo.Id, gameInfo);
+            _games.Add(game.Id, game);
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
+
+            await Clients.Caller.SendAsync("gameCreated", new
+            {
+                ok = true,
+                is_admin = true,
+                game
+            });
         }
 
-        //public async Task CreateGame(CreateGameDto data)
-        //{
-        //    var gameRoomPlayer = await _db.GameRoomPlayers
-        //        .Include(x => x.Player)
-        //        .Include(x => x.GameRoom)
-        //        .FirstOrDefaultAsync(x => x.GameRoomId == data.GameRoomId);
-
-        //    if (gameRoomPlayer is null)
-        //        await Clients.Caller.SendAsync("error", new { ok = false, error = "" });
-
-        //    if (gameRoomPlayer.IsAdmin)
-
-        //}
+        [HubMethodName("getGames")]
+        public async Task GetGames()
+        {
+            await Clients.Caller.SendAsync("getGamesResponse", new
+            {
+                ok = true,
+                games = _games.Values.Where(x => x.Players.Count < x.Options.NumberOfPlayers).Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    numberOfPlayersAccepted = x.Options.NumberOfPlayers,
+                    numberOfPlayers = x.Players.Count
+                })
+            });
+        }
 
         [HubMethodName("join")]
         public async Task Join(JoinToGameRoomDto data)
         {
-            var player = await _db.Players.FirstOrDefaultAsync(x => x.Id == data.PlayerId);
+            var player = await _db.Players.FirstOrDefaultAsync(x => x.UserName == data.UserName);
 
-            var gameRoomToJoin = await _db.GameRooms
-                .Include(x => x.Players)
-                .FirstOrDefaultAsync(x => x.Id == data.GameRoomId);
+            var game = _games[data.GameRoomId];
 
-            if (gameRoomToJoin is null)
-                await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.GameRoomNotFound });
+            if (game is null)
+                return;
 
-            var gameRoomPlayerIsAlready = (await _db.GameRoomPlayers
-                .Include(x => x.GameRoom)
-                .FirstOrDefaultAsync(x => x.PlayerId == player.Id)).GameRoom;
+            if (game.Players.Any(x => x.Id == player.Id))
+            {
+                var gamePlayer = game.Players.FirstOrDefault(x => x.Id == player.Id);
 
-            if (gameRoomPlayerIsAlready != null && gameRoomPlayerIsAlready.Id != gameRoomToJoin.Id)
-                await Clients.Caller.SendAsync("error", new { ok = false, alread_in_gameRoom = true, gameRoom = _mapper.Map<GameRoom, GameRoomDto>(gameRoomPlayerIsAlready) });
+                if (gamePlayer.IsAdmin)
+                {
+                    await Clients.Caller.SendAsync("joinedToGame", new
+                    {
+                        ok = true,
+                        is_admin = gamePlayer.IsAdmin,
+                        game
+                    });
+                }
+                else
+                    await Clients.Caller.SendAsync("error");
+            }
+            else
+            {
+                game.Players.Add(new Player
+                {
+                    Id = player.Id,
+                    UserName = player.UserName,
+                    IsAdmin = false
+                });
 
-            //if (!string.IsNullOrEmpty(gameRoomToJoin.Password))
-            //    await ValidatePassword(data.Password, player, gameRoomToJoin);
+                await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            await ConnectToGameroom(player, gameRoomToJoin);
+                await Clients.Caller.SendAsync("joinedToGame", new
+                {
+                    ok = true,
+                    is_admin = false,
+                    game
+                });
+            }
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            return base.OnDisconnectedAsync(exception);
+        }
+
+        [HubMethodName("sendMessageToGroup")]
+        public async Task SendMessageToGroup(Guid gameId)
+        {
+            await Clients.Group(gameId.ToString()).SendAsync("groupMessage", "Oláaaaaa");
         }
         
         public class StartGameDto
         {
-            public Guid PlayerId { get; set; }
+            public string UserName { get; set; }
             public Guid GameRoomId { get; set; }
         }
 
         [HubMethodName("startGame")]
         public async Task StartGame(StartGameDto dto)
         {
-            var gameRoom = await _db.GameRooms
-                .Include(x => x.Players)
-                .FirstOrDefaultAsync(x => x.Id == dto.GameRoomId);
+            var game = _games[dto.GameRoomId];
 
-            if (gameRoom is null)
+            if (game is null)
                 await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.GameRoomNotFound });
 
-            if (!gameRoom.Players.FirstOrDefault(x => x.PlayerId == dto.PlayerId).IsAdmin)
+            if (!game.Players.FirstOrDefault(x => x.UserName == dto.UserName).IsAdmin)
                 await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.NotAdmin });
 
-            if (gameRoom.Players.Count() < 2)
+            if (game.Players.Count() < 2)
                 await Clients.Caller.SendAsync("error", new { ok = false, error = "insuficient_players" });
 
-            var availableLetters = gameRoom.AvailableLetters.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            string sortedLetter = game.Options.AvailableLetters[new Random().Next(0, game.Options.AvailableLetters.Length - 1)];
 
-            string sortedLetter = availableLetters[new Random().Next(0, availableLetters.Length - 1)];
-            var themes = gameRoom.Themes.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            game.Rounds.Add(new Round
+            {
+                Number = 1,
+                SortedLetter = sortedLetter
+            });
 
-            await Clients.Group(gameRoom.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { gameRoom.Id, sortedLetter, themes } });
+            await Clients.Group(game.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { game.Id, themes = game.Options.Themes, round = game.Rounds.Last() } });
         }
 
-        private async Task ValidatePassword(string password, Domain.Player player, GameRoom gameRoom)
-        {
-            if (string.IsNullOrEmpty(password))
-                await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.InvalidPasswordRequired });
+        //private async Task ValidatePassword(string password, Domain.Player player, GameRoom gameRoom)
+        //{
+        //    if (string.IsNullOrEmpty(password))
+        //        await Clients.Caller.SendAsync("error", new { ok = false, error = GameRoomErrors.InvalidPasswordRequired });
 
-            var hashGenerator = new MD5HashGenerator();
-            string passwordHash = hashGenerator.GetMD5Hash(password);
+        //    var hashGenerator = new MD5HashGenerator();
+        //    string passwordHash = hashGenerator.GetMD5Hash(password);
 
-            if (hashGenerator.VerifyMd5Hash(passwordHash, gameRoom.Password))
-                await ConnectToGameroom(player, gameRoom);
-        }
+        //    if (hashGenerator.VerifyMd5Hash(passwordHash, gameRoom.Password))
+        //        await ConnectToGameroom(player, gameRoom);
+        //}
 
         //public class UserProvider : IUserIdProvider
         //{
@@ -169,15 +253,6 @@ namespace WeStop.Api.Infra.Hubs
         //        throw new NotImplementedException();
         //    }
         //}
-
-        private async Task ConnectToGameroom(Domain.Player player, GameRoom gameRoom)
-        {
-            var playerIsAdmin = gameRoom.Players.FirstOrDefault(x => x.PlayerId == player.Id).IsAdmin;
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, gameRoom.Id.ToString());
-
-            await Clients.Caller.SendAsync("connected", new { ok = true, is_admin = playerIsAdmin, gameRoom = _mapper.Map<GameRoom, GameRoomDto>(gameRoom) });
-        }
     }
 
     public class ConnectToGameRoom
@@ -188,7 +263,7 @@ namespace WeStop.Api.Infra.Hubs
 
     public class JoinToGameRoomDto
     {
-        public Guid PlayerId { get; set; }
+        public string UserName { get; set; }
         public Guid GameRoomId { get; set; }
     }
 }

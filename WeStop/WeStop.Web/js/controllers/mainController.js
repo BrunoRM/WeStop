@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('mainController', ['$scope', function($scope) {
+angular.module('WeStop').controller('mainController', ['$scope', '$game', function ($scope, $game) {
 
     // $scope.text = 'Olá';
 

@@ -17,16 +17,13 @@ angular.module('WeStop').config(['$routeProvider', '$locationProvider', function
         .when('/lobby', {
             controller: 'lobbyController',
             templateUrl: 'views/lobby.html',
-            secure: true,
-            resolve: {
-                gameRooms: ['$http', function ($http) {
+            secure: true
+        })
 
-                    return $http.get('http://localhost:5000/api/gamerooms.list?onlyPublic=false').then(function (resp) {
-                        return resp.data.gameRooms;
-                    });
-
-                }]
-            }
+        .when('/game/create', {
+            controller: 'createGameController',
+            templateUrl: 'views/create-game.html',
+            secure: true
         })
         
         .when('/game/:id', {

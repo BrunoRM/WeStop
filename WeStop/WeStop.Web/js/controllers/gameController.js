@@ -1,33 +1,20 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', function ($routeParams, $scope) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', function ($routeParams, $scope, $game) {
 
     $scope.userNameValidated = false;
+    $scope.gameStarted = false;
     $scope.player = {
         userName: ''
     }
-
-    let connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://localhost:5000/gameroom")
-        .build();
-
-    connection.start().then((resp) => {
-    }, (error) => {
-        console.log(error);
-    });
-    
-    connection.on("error", data => {
-        console.log(data);
-    });
     
     $scope.confirm = () => {
         
         if ($scope.player.userName === '')
             return;
         
-        connection.invoke("join", { gameRoomId: $routeParams.id, playerId: $scope.player.userName });
-
-        connection.on("connected", data => {
-            console.log(data);
-            $scope.$apply(() => {
+        $game.connect().then(() => {
+            $game.invoke("join", { gameRoomId: $routeParams.id, userName: $scope.player.userName });
+    
+            $game.on("joinedToGame").then(data => {
                 $scope.userNameValidated = true;
                 $scope.player.isAdmin = data.is_admin;
             });
@@ -36,12 +23,15 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.startGame = () => {
 
-        connection.invoke('startGame', { gameRoomId: $routeParams.id, playerId: $scope.player.userName });
+        $game.invoke('startGame', { gameRoomId: $routeParams.id, userName: $scope.player.userName });
 
-        connection.on('gameStarted', data => {
-            console.log(data);
-        });
     };
+
+    $game.on('gameStarted').then(data => {
+        console.log(data);
+        $scope.gameConfig = data.gameRoomConfig;
+        $scope.gameStarted = true;
+    });
 
     
 }]);
