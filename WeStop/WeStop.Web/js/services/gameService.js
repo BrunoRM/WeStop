@@ -1,14 +1,15 @@
-angular.module('WeStop').factory('$game', ['$rootScope', '$q', function ($rootScope, $q) {
+angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
 
     var connection = null;
 
-    function connect () {
+    function onConnectionClose() {
+        console.log('Connection has closed');
+    }
 
-        let deferred = $q.defer();
+    function connect (sCallback, eCallback) {
 
         if (connection) {
-            deferred.resolve();
-            return deferred.promise;
+            sCallback();
         }
 
         connection = new signalR.HubConnectionBuilder()
@@ -16,47 +17,39 @@ angular.module('WeStop').factory('$game', ['$rootScope', '$q', function ($rootSc
             .build();
 
         connection.onclose(function () {
-            console.log('connection closed');
+            onConnectionClose();
         });
 
         connection.start().then(() => { 
-            $rootScope.$apply(() => deferred.resolve());
+            $rootScope.$apply(() => sCallback());
         }, (e) => { 
-            $rootScope.$apply(() => deferred.reject(e));
+            $rootScope.$apply(() => eCallback(e));
         });
-
-        return deferred.promise;
     }
 
-    function on(eventName) {
+    function on(eventName, sCallback, eCallback) {
 
-        let deferred = $q.defer();
-
-        if (!connection) deferred.reject('Não existe nenhuma conexão estabelecida com o servidor');
+        if (!connection) eCallback('Não existe nenhuma conexão estabelecida com o servidor');
         
         connection.on(eventName, data => {
             $rootScope.$apply(() => {
-                deferred.resolve(data);
+                sCallback(data);
             });
         });
-        
-        return deferred.promise;
     }
 
     function invoke(eventName, params) {
 
-        // let deferred = $q.defer();
-        if (!connection) deferred.reject('Não existe nenhuma conexão estabelecida com o servidor');
+        if (!connection) console.log('Não existe nenhuma conexão estabelecida com o servidor');
 
         if (params)
             connection.invoke(eventName, params);
         else
             connection.invoke(eventName);
-
-        // return deferred.promise;
     }
 
     return {
+        onConnectionClose: onConnectionClose,
         connect: connect,
         on: on,
         invoke: invoke

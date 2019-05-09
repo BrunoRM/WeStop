@@ -31,15 +31,15 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.confirm = function() {
 
-        $game.connect().then(function () {
+        $game.connect(function () {
             $game.invoke('createGame', $scope.game);
-            $game.on('gameCreated').then((resp) => {
+            $game.on('gameCreated', resp => {
                 if (resp && resp.ok) {
                     $location.path('/game/' + resp.game.id);
                 }
             });
         }, (error) => {
-
+            console.log(error);
         });
     };
 
