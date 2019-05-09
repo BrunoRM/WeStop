@@ -22,14 +22,36 @@
 
 </div>
 
-<div ng-if="gameStarted">
+<div ng-if="gameStarted && !roundFinished">
     
     <h1>Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h1>
     <h2>Rodada {{gameConfig.currentRound.number}}</h2>
 
     <div ng-repeat="theme in gameConfig.themes">
         <label for="theme">{{theme}}</label>
-        <input type="text" name="{{theme}}" />
+        <input ng-disabled="stopCalled" type="text" name="{{theme}}" ng-model="answers[gameConfig.themes[$index]]" />
     </div>
+
+    <button ng-disabled="stopCalled" ng-click="stop()">STOP</button>
+
+</div>
+
+<div ng-if="roundFinished">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Jogador</th>
+                <th ng-repeat="theme in gameConfig.themes">{{theme}}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr ng-repeat="player in playersAnswers">
+                <td>{{player.userName}}</td>
+                <td ng-repeat="answer in player.answers">{{answer}}</td>
+            </tr>
+        </tbody>
+    </table>
 
 </div>

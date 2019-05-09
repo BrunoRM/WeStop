@@ -6,6 +6,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.player = {
         userName: ''
     }
+    $scope.stopCalled = false;
+    $scope.playersAnswers = [];
+    $scope.roundFinished = false;
     
     $scope.confirm = () => {
         
@@ -25,10 +28,14 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $game.invoke('startGame', { gameRoomId: $routeParams.id, userName: $scope.player.userName });
     };
 
-    $game.on('gameStarted', data => {
-        console.log(data);
+    $game.on('roundStarted', data => {
         $scope.gameConfig = data.gameRoomConfig;
         $scope.gameStarted = true;
+        $scope.answers = { }
+
+        for (let i = 0; i < $scope.gameConfig.themes.length; i++) {
+            $scope.answers[$scope.gameConfig.themes[i]] = '';
+        }
     });
 
     $game.on('playerJoinedToGame', data => {
@@ -36,20 +43,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     function checkAllPlayersReady() {
-
-        // for (let i = 0; i < $scope.players.length; i++) {
-
-        //     let player = $scope.players[i];
-
-        //     if (player.userName == $scope.player.userName) continue;
-        //     else if (player.userName !== $scope.player.userName && !player.isReady) {
-        //         $scope.allPlayersReady = false;
-        //         break;
-        //     } else if (player.isReady) continue;
-
-        //     $scope.allPlayersReady = true;            
-        // }
-
         $scope.allPlayersReady = !$scope.players.some(player => {
             return player.userName !== $scope.player.userName && !player.isReady;
         });
@@ -79,5 +72,39 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         $scope.player.isReady = player.isReady = !$scope.player.isReady;        
     };
+
+    $scope.stop = () => {
+
+        $game.invoke('stop', {
+            gameId: $routeParams.id,
+            userName: $scope.player.userName
+        });
+
+    };
+
+    $game.on('stopCalled', (resp) => {
+
+        $scope.stopCalled = true;
+        if (resp.userName !== $scope.player.userName) {
+            alert(resp.userName + ' chamou STOP');
+        }
+
+        $game.invoke('player.sendAnswers', {
+            gameId: $routeParams.id,
+            userName: $scope.player.userName,
+            answers: $scope.answers
+        });
+
+        $scope.roundFinished = true;
+
+    });
+    
+    $game.on('player.answersReceived', (resp) => {
+        $scope.playersAnswers.push({
+            userName: resp.userName,
+            answers: resp.answers
+        });
+
+    });
     
 }]);

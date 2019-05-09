@@ -47,7 +47,7 @@ namespace WeStop.Api.Infra.Hubs
     {
         public Player()
         {
-            Pontuations = new List<PlayerPontuation>();
+            Rounds = new Dictionary<int, PlayerRound>();
             IsReady = false;
             IsAdmin = false;
         }
@@ -56,24 +56,13 @@ namespace WeStop.Api.Infra.Hubs
         public string UserName { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
-        public ICollection<PlayerPontuation> Pontuations { get; set; }
+        public IDictionary<int, PlayerRound> Rounds { get; set; }
     }
 
-    class RoundPontuation
+    class PlayerRound
     {
-        public Round Round { get; set; }
-        public int Points { get; set; }
-    }
-
-    class PlayerPontuation
-    {
-        public PlayerPontuation()
-        {
-            RoundsPontuations = new List<RoundPontuation>();
-        }
-
-        public ICollection<RoundPontuation> RoundsPontuations { get; set; }
-        public int TotalPontuation => RoundsPontuations.Sum(x => x.Points);
+        public IDictionary<string, string> Answers { get; set; }
+        public int EarnedPoints { get; set; }
     }
 
     class Round
@@ -90,8 +79,6 @@ namespace WeStop.Api.Infra.Hubs
 
     public class GameRoomHub : Hub
     {
-        // private readonly WeStopDbContext _db;
-        // private readonly IMapper _mapper;
         private static IDictionary<Guid, Game> _games = new Dictionary<Guid, Game>();
         private static ICollection<User> _users = new List<User>
         {
@@ -122,11 +109,10 @@ namespace WeStop.Api.Infra.Hubs
             }
         };
 
-        public GameRoomHub(WeStopDbContext db, IMapper mapper)
+        public GameRoomHub()
         {
-            // _db = db;
-            // _mapper = mapper;
         }
+
         public class CreateGameDto
         {
             public string UserName { get; set; }
@@ -257,7 +243,50 @@ namespace WeStop.Api.Infra.Hubs
                 SortedLetter = sortedLetter
             });
 
-            await Clients.Group(game.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { game.Id, themes = game.Options.Themes, currentRound = game.Rounds.Last() } });
+            await Clients.Group(game.Id.ToString()).SendAsync("roundStarted", new
+            {
+                ok = true,
+                gameRoomConfig = new
+                {
+                    game.Id,
+                    themes = game.Options.Themes,
+                    currentRound = game.Rounds.Last()
+                }
+            });
+        }
+
+        [HubMethodName("stop")]
+        public async Task Stop(StopDto dto)
+        {
+            var game = _games[dto.GameId];
+
+            var playerCalledStop = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
+
+            await Clients.Group(dto.GameId.ToString()).SendAsync("stopCalled", new
+            {
+                ok = true,
+                userName = playerCalledStop.UserName
+            });
+        }
+
+        [HubMethodName("player.sendAnswers")]
+        public async Task SendAnswers(SendAnswersDto dto)
+        {
+            var game = _games[dto.GameId];
+
+            var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
+
+            player.Rounds.Add(game.Rounds.Last().Number, new PlayerRound
+            {
+                Answers = dto.Answers
+            });
+
+            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answersReceived", new
+            {
+                ok = true,
+                player.UserName,
+                answers = player.Rounds.FirstOrDefault(x => x.Key == game.Rounds.Last().Number).Value.Answers
+            });
         }
 
         [HubMethodName("player.changeStatus")]
@@ -276,6 +305,19 @@ namespace WeStop.Api.Infra.Hubs
 
         private Player GetPlayerInGame(Guid gameId, string userName) =>
             _games[gameId].Players.FirstOrDefault(x => x.UserName == userName);
+    }
+
+    public class SendAnswersDto
+    {
+        public Guid GameId { get; set; }
+        public string UserName { get; set; }
+        public IDictionary<string, string> Answers { get; set; }
+    }
+
+    public class StopDto
+    {
+        public Guid GameId { get; set; }
+        public string UserName { get; set; }
     }
 
     public class ChangePlayerStatusDto
