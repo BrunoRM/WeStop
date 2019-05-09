@@ -21,7 +21,7 @@ namespace WeStop.Application.Behaviors
 
         public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            if (request is null)
+            if (request == null)
                 throw new WeStop.Application.Exceptions.ValidationException();
 
             var context = new ValidationContext(request);

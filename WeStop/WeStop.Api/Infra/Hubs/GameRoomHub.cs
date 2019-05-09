@@ -13,6 +13,12 @@ using WeStop.Infra;
 
 namespace WeStop.Api.Infra.Hubs
 {
+    class User
+    {
+        public Guid Id { get; set; }
+        public string UserName { get; set; }
+    }
+
     class Game
     {
         public Game()
@@ -84,15 +90,42 @@ namespace WeStop.Api.Infra.Hubs
 
     public class GameRoomHub : Hub
     {
-        private readonly WeStopDbContext _db;
-        private readonly IMapper _mapper;
+        // private readonly WeStopDbContext _db;
+        // private readonly IMapper _mapper;
         private static IDictionary<Guid, Game> _games = new Dictionary<Guid, Game>();
-        private static IDictionary<Guid, Player> _userTracking = new Dictionary<Guid, Player>();
+        private static ICollection<User> _users = new List<User>
+        {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "Bruno"
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "Gustavo"
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "Giovani"
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "Lucas"
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "Davi"
+            }
+        };
 
         public GameRoomHub(WeStopDbContext db, IMapper mapper)
         {
-            _db = db;
-            _mapper = mapper;
+            // _db = db;
+            // _mapper = mapper;
         }
         public class CreateGameDto
         {
@@ -104,7 +137,7 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("createGame")]
         public async Task CreateGame(CreateGameDto dto)
         {
-            var player = await _db.Players.FirstOrDefaultAsync(x => x.UserName == dto.UserName);
+            var user = _users.FirstOrDefault(x => x.UserName == dto.UserName);
 
             var game = new Game
             {
@@ -117,7 +150,7 @@ namespace WeStop.Api.Infra.Hubs
                     NumberOfPlayers = dto.GameOptions.NumberOfPlayers,
                     Rounds = dto.GameOptions.Rounds
                 },
-                Players = { new Player { Id = player.Id, UserName = player.UserName, IsAdmin = true } }
+                Players = { new Player { Id = user.Id, UserName = user.UserName, IsAdmin = true } }
             };
 
             _games.Add(game.Id, game);
@@ -151,16 +184,16 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("join")]
         public async Task Join(JoinToGameRoomDto data)
         {
-            var player = await _db.Players.FirstOrDefaultAsync(x => x.UserName == data.UserName);
+            var user = _users.FirstOrDefault(x => x.UserName == data.UserName);
 
             var game = _games[data.GameRoomId];
 
             if (game is null)
                 return;
 
-            if (game.Players.Any(x => x.Id == player.Id))
+            if (game.Players.Any(x => x.Id == user.Id))
             {
-                var gamePlayer = game.Players.FirstOrDefault(x => x.Id == player.Id);
+                var gamePlayer = game.Players.FirstOrDefault(x => x.Id == user.Id);
 
                 if (gamePlayer.IsAdmin)
                 {
@@ -178,8 +211,8 @@ namespace WeStop.Api.Infra.Hubs
             {
                 var playerJoined = new Player
                 {
-                    Id = player.Id,
-                    UserName = player.UserName,
+                    Id = user.Id,
+                    UserName = user.UserName,
                     IsAdmin = false
                 };
 
