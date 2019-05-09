@@ -10,11 +10,15 @@
     <h2>Jogadores</h2>
     <ul>
         <li ng-repeat="player in players">
-            {{player.userName}}
+            {{player.userName}} 
+            <span ng-if="player.isReady" style="color: lightgreen;">Pronto</span>
+            <span ng-if="!player.isReady" style="color: red;">Aguardando</span>
         </li>
     </ul>
 
-    <button ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
+    <button ng-click="changeStatus()" ng-if="!player.isAdmin"><span ng-if="player.isReady">Cancelar</span> <span ng-if="!player.isReady">Pronto</span></button>
+    <button ng-disabled="!allPlayersReady" ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
+    <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
 
 </div>
 

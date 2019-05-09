@@ -260,30 +260,31 @@ namespace WeStop.Api.Infra.Hubs
             await Clients.Group(game.Id.ToString()).SendAsync("gameStarted", new { ok = true, gameRoomConfig = new { game.Id, themes = game.Options.Themes, currentRound = game.Rounds.Last() } });
         }
 
-        [HubMethodName("player.ready")]
-        public async Task PlayerReady(Guid gameId, string userName)
+        [HubMethodName("player.changeStatus")]
+        public async Task ChangePlayerStatus(ChangePlayerStatusDto dto)
         {
-            var player = GetPlayerInGame(gameId, userName);
+            var player = GetPlayerInGame(dto.GameId, dto.UserName);
 
+            player.IsReady = dto.IsReady;
 
+            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.statusChanged", new
+            {
+                ok = true,
+                player
+            });
         }
 
-        [HubMethodName("player.notReady")]
-        public async Task PlayerNotReady(Guid gameId, string userName)
-        {
-
-        }
-
-        private Player GetPlayerInGame(Guid gameId, string userName)
-        {
-            var game = _games[gameId];
-
-            if (game is null)
-                return null;
-
-            return game.Players.FirstOrDefault(x => x.UserName == userName);
-        }
+        private Player GetPlayerInGame(Guid gameId, string userName) =>
+            _games[gameId].Players.FirstOrDefault(x => x.UserName == userName);
     }
+
+    public class ChangePlayerStatusDto
+    {
+        public Guid GameId { get; set; }
+        public string UserName { get; set; }
+        public bool IsReady { get; set; }
+    }
+
     public class StartGameDto
         {
             public string UserName { get; set; }
