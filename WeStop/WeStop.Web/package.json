@@ -6,7 +6,8 @@
   "dependencies": {
     "@aspnet/signalr": "^1.1.4",
     "angular": "^1.7.8",
-    "angular-route": "^1.7.8"
+    "angular-route": "^1.7.8",
+    "nes.css": "^2.1.1"
   },
   "devDependencies": {},
   "scripts": {

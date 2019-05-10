@@ -265,12 +265,28 @@ namespace WeStop.Api.Infra.Hubs
                 Answers = dto.Answers
             });
 
+            var playerAnswers = player.Rounds.FirstOrDefault(x => x.Key == game.Rounds.Last().Number).Value.Answers;
+
+            var answers = new Dictionary<string, string>();
+
+            // Remove os espaços em branco das respostas
+            foreach (var key in playerAnswers.Keys)
+            {
+                if (!string.IsNullOrEmpty(playerAnswers[key]))
+                    answers.Add(key, playerAnswers[key].Trim());
+            }
+
             await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answersReceived", new
             {
                 ok = true,
-                player.UserName,
-                answers = player.Rounds.FirstOrDefault(x => x.Key == game.Rounds.Last().Number).Value.Answers
+                answers
             });
+        }
+
+        [HubMethodName("player.sendThemeAnswersValidation")]
+        public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
+        {
+
         }
 
         [HubMethodName("player.changeStatus")]
@@ -289,6 +305,19 @@ namespace WeStop.Api.Infra.Hubs
 
         private Player GetPlayerInGame(Guid gameId, string userName) =>
             _games[gameId].Players.FirstOrDefault(x => x.UserName == userName);
+    }
+
+    public class SendThemeAnswersValidationDto
+    {
+        public Guid GameId { get; set; }
+        public string UserName { get; set; }
+        public ThemeValidationDto Validation { get; set; }
+
+    }
+    public class ThemeValidationDto
+    {
+        public string Theme { get; set; }
+        public IDictionary<string, bool> Validations { get; set; }
     }
 
     public class SendAnswersDto

@@ -23,7 +23,10 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
         connection.start().then(() => { 
             $rootScope.$apply(() => sCallback());
         }, (e) => { 
-            $rootScope.$apply(() => eCallback(e));
+            $rootScope.$apply(() => {
+                if (eCallback)
+                    eCallback(e);
+            })
         });
     }
 

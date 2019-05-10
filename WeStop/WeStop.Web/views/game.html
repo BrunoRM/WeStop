@@ -37,21 +37,18 @@
 </div>
 
 <div ng-if="roundFinished">
-
-    <table>
-        <thead>
-            <tr>
-                <th>Jogador</th>
-                <th ng-repeat="theme in gameConfig.themes">{{theme}}</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <tr ng-repeat="player in playersAnswers">
-                <td>{{player.userName}}</td>
-                <td ng-repeat="answer in player.answers">{{answer}}</td>
-            </tr>
-        </tbody>
-    </table>
+    
+    {{ answersValidations }}
+    <h1>Valide as respostas dos outros jogadores</h1>
+    <div ng-repeat="answerValidation in answersValidations">
+            
+        <h3>{{answerValidation.theme}}</h3>
+        Respostas dos jogadores
+        <div ng-repeat="(key, value) in answerValidation.validations">
+            {{key}}
+            <input type="checkbox" ng-model="answerValidation.validations[key]" />
+        </div>
+        <button ng-click="validate(answerValidation)">Validar</button>
+    </div>
 
 </div>

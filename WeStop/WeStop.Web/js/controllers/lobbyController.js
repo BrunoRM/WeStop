@@ -35,4 +35,7 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     $scope.joinGame = () => 
         $location.path('/game/' + $scope.gameRoomDetails.id);
 
+    $scope.newGame = () =>
+        $location.path('/game/create');
+
 }]);

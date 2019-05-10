@@ -45,6 +45,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         if (!player)
             $scope.players.push(data.player);
+
+        checkAllPlayersReady();
     });
 
     function checkAllPlayersReady() {
@@ -104,12 +106,32 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     });
     
+    $scope.answersValidations = [];
     $game.on('player.answersReceived', (resp) => {
-        $scope.playersAnswers.push({
-            userName: resp.userName,
-            answers: resp.answers
-        });
 
+        let answers = resp.answers;
+
+        for (let key in answers) {
+
+            let themeValidation = answersValidations.find((validation) => validation.theme === key);
+
+            if (!themeValidation) {
+                let obj = {
+                    theme: key,
+                    validations: {}
+                }
+
+                obj.validations[answers[key]] = true;
+                answersValidations.push(obj);
+            } else {
+                if (!themeValidation.validations[answers[key]])
+                    themeValidation.validations[answers[key]] = true;
+            }
+        }
     });
+
+    $scope.validate = (answerValidation) => {
+        console.log(answerValidation);
+    };
     
 }]);
