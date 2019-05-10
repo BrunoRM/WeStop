@@ -174,51 +174,35 @@ namespace WeStop.Api.Infra.Hubs
 
             var game = _games[data.GameRoomId];
 
-            if (game is null)
-                return;
+            var player = game.Players.FirstOrDefault(x => x.Id == user.Id);
 
-            if (game.Players.Any(x => x.Id == user.Id))
+            if (player is null)
             {
-                var gamePlayer = game.Players.FirstOrDefault(x => x.Id == user.Id);
-
-                if (gamePlayer.IsAdmin)
-                {
-                    await Clients.Caller.SendAsync("joinedToGame", new
-                    {
-                        ok = true,
-                        is_admin = gamePlayer.IsAdmin,
-                        game
-                    });
-                }
-                else
-                    await Clients.Caller.SendAsync("error");
-            }
-            else
-            {
-                var playerJoined = new Player
+                player = new Player
                 {
                     Id = user.Id,
                     UserName = user.UserName,
                     IsAdmin = false
                 };
 
-                game.Players.Add(playerJoined);
+                game.Players.Add(player);
 
-                await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
-
-                await Clients.Caller.SendAsync("joinedToGame", new
-                {
-                    ok = true,
-                    is_admin = false,
-                    game
-                });
-
-                await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("playerJoinedToGame", new
-                {
-                    ok = true,
-                    player = playerJoined
-                });
             }
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
+
+            await Clients.Caller.SendAsync("joinedToGame", new
+            {
+                ok = true,
+                player,
+                game
+            });
+
+            await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("playerJoinedToGame", new
+            {
+                ok = true,
+                player
+            });
         }        
 
         [HubMethodName("startGame")]

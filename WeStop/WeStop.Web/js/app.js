@@ -1,18 +1,11 @@
 angular.module('WeStop', [
     'ngRoute'
-]);
-
-angular.module('WeStop').config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+])
+.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
     $locationProvider.hashPrefix('');
 
     $routeProvider
-
-        .when('/login', {
-            controller: 'loginController',
-            templateUrl: 'views/login.html',
-            secure: false
-        })
 
         .when('/lobby', {
             controller: 'lobbyController',
@@ -31,6 +24,21 @@ angular.module('WeStop').config(['$routeProvider', '$locationProvider', function
             templateUrl: 'views/game.html',
             secure: true
         })
+        .otherwise({
+            redirectTo: '/lobby'
+        });
         
+
+}])
+.run(['$user', '$rootScope', '$location', ($user, $rootScope, $location) => {
+
+    $rootScope.user = $user.get();
+
+    $rootScope.$on('$routeChangeStart', (e, next, current) => {
+
+        if (next.$$route.secure == true && !$rootScope.user) {
+            $location.path('/lobby');
+        }
+    });
 
 }]);

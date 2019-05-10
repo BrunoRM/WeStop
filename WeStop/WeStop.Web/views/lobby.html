@@ -1,21 +1,37 @@
-<table ng-if="!showGameRommDetails">
-    <thead>
-        <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
+<div ng-show="!hasUser">
+    <h3>Crie um usuário</h3>
+    <input type="text" ng-model="newUser" />
+    <button ng-click="createUser()">Confirmar</button>
+</div>
 
-    <tbody>
-        <tr ng-repeat="gameRoom in gameRooms" ng-click="details(gameRoom)">
-            <td>{{gameRoom.name}}</td>
-            <td>{{gameRoom.isPrivate}}</td>
-            <td>{{gameRoom.status}}</td>
-        </tr>
-    </tbody>
-</table>
+<div ng-if="hasUser">
+    Seu usuário é: {{user}}
+</div>
+
+<br>
+
+<div ng-if="hasUser">
+    <h1>Salas disponíveis</h1>
+
+    <table ng-if="!showGameRommDetails">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr ng-repeat="gameRoom in gameRooms" ng-click="details(gameRoom)">
+                <td>{{gameRoom.name}}</td>
+                <td>{{gameRoom.isPrivate}}</td>
+                <td>{{gameRoom.status}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <div ng-if="showGameRommDetails">
     

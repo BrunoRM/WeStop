@@ -1,4 +1,14 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$game', function ($scope, $location, $game) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$game', '$rootScope', '$user', function ($scope, $location, $game, $rootScope, $user) {
+
+    $scope.hasUser = $rootScope.user !== null;
+    $scope.newUser = '';
+
+    $scope.createUser = () => {
+        if ($scope.newUser) {
+            $user.create($scope.newUser);
+            $scope.hasUser = true;
+        }
+    };
 
     $game.connect(function() {
         $game.invoke('getGames');

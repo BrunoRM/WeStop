@@ -29,23 +29,39 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
 
     function on(eventName, sCallback, eCallback) {
 
-        if (!connection) eCallback('Não existe nenhuma conexão estabelecida com o servidor');
-        
-        connection.on(eventName, data => {
-            $rootScope.$apply(() => {
-                sCallback(data);
+        if (!connection) {
+            connect(function () {
+                connection.on(eventName, data => {
+                    $rootScope.$apply(() => {
+                        sCallback(data);
+                    });
+                });        
             });
-        });
+        } else {
+            connection.on(eventName, data => {
+                $rootScope.$apply(() => {
+                    sCallback(data);
+                });
+            });
+        }        
     }
 
     function invoke(eventName, params) {
 
-        if (!connection) console.log('Não existe nenhuma conexão estabelecida com o servidor');
+        if (!connection) {
+            connect(() => {
+                if (params)
+                    connection.invoke(eventName, params);
+                else
+                    connection.invoke(eventName);
+            });
+        } else {
+            if (params)
+                connection.invoke(eventName, params);
+            else
+                connection.invoke(eventName);
+        }
 
-        if (params)
-            connection.invoke(eventName, params);
-        else
-            connection.invoke(eventName);
     }
 
     return {

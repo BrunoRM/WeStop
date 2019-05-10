@@ -1,31 +1,30 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', function ($routeParams, $scope, $game) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', function ($routeParams, $scope, $game, $rootScope) {
 
     $scope.allPlayersReady = false;
-    $scope.userNameValidated = false;
     $scope.gameStarted = false;
     $scope.player = {
-        userName: ''
+        userName: $rootScope.user
     }
     $scope.stopCalled = false;
     $scope.playersAnswers = [];
     $scope.roundFinished = false;
-    
-    $scope.confirm = () => {
-        
-        if ($scope.player.userName === '')
-            return;
 
-        $game.invoke("join", { gameRoomId: $routeParams.id, userName: $scope.player.userName });
-    };
+    $game.invoke("join", { 
+        gameRoomId: $routeParams.id, 
+        userName: $scope.player.userName 
+    });
 
     $game.on("joinedToGame", (data) => {
-        $scope.userNameValidated = true;
         $scope.players = data.game.players;
-        $scope.player.isAdmin = data.is_admin;
+        $scope.player = data.player;
+        checkAllPlayersReady();
     });
 
     $scope.startGame = () => {
-        $game.invoke('startGame', { gameRoomId: $routeParams.id, userName: $scope.player.userName });
+        $game.invoke('startGame', { 
+            gameRoomId: $routeParams.id, 
+            userName: $scope.player.userName 
+        });
     };
 
     $game.on('roundStarted', data => {
@@ -39,7 +38,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('playerJoinedToGame', data => {
-        $scope.players.push(data.player);
+        
+        let player = $scope.players.find((player) => {
+            return player.userName == data.player.userName;
+        });
+
+        if (!player)
+            $scope.players.push(data.player);
     });
 
     function checkAllPlayersReady() {
@@ -50,8 +55,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('player.statusChanged', resp => {
         
-        var player = $scope.players.find((player) => {
-            return player.id == resp.player.id;
+        let player = $scope.players.find((player) => {
+            return player.userName === resp.player.userName;
         });
 
         player.isReady = resp.player.isReady;

@@ -1,6 +1,7 @@
-angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', function ($game, $scope, $location) {
+angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', function ($game, $scope, $location, $rootScope) {
 
     $scope.game = {
+        userName: $rootScope.user,
         gameOptions: {
             themes: [
                 'Nome',
@@ -31,15 +32,12 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.confirm = function() {
 
-        $game.connect(function () {
-            $game.invoke('createGame', $scope.game);
-            $game.on('gameCreated', resp => {
-                if (resp && resp.ok) {
-                    $location.path('/game/' + resp.game.id);
-                }
-            });
-        }, (error) => {
-            console.log(error);
+        $game.invoke('createGame', $scope.game);
+
+        $game.on('gameCreated', resp => {
+            if (resp && resp.ok) {
+                $location.path('/game/' + resp.game.id);
+            }
         });
     };
 
