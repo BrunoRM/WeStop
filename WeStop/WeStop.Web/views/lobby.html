@@ -9,24 +9,28 @@
 
 </div> -->
 
-<div class="nes-container with-title is-centered" ng-show="!hasUser">
-    <p class="title">Crie um usuário</p>
-    
-    <div class="nes-field">
-        <label>UserName</label>
-        <input type="text" class="nes-input" ng-model="newUser" />
+<div class="container-fluid" ng-show="!hasUser">
+    <div class="col-md-6 offset-md-3">
+        <div class="nes-container with-title">
+                <p class="title">Crie um usuário</p>
+            
+            <div class="nes-field">
+                <label>UserName</label>
+                <input type="text" class="nes-input" ng-model="newUser" />
+            </div>
+            <button type="button" class="nes-btn is-primary" ng-click="createUser()">Confirmar</button>
+            
+        </div>
     </div>
-    <button type="button" class="nes-btn is-primary" ng-click="createUser()">Confirmar</button>
-
 </div>
 
 <div ng-if="hasUser">
-    Seu usuário é: {{user}}
+    <span class="nes-text is-primary">Seu usuário é: {{user}}</span>
 </div>
 
 <div ng-if="hasUser">
 
-    <button ng-click="newGame()">Novo jogo</button>
+    <button class="nes-btn is-primary" ng-click="newGame()">Novo jogo</button>
 
     <h1>Jogos disponíveis</h1>
 

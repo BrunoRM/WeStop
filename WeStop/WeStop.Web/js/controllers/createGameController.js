@@ -1,5 +1,34 @@
 angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', function ($game, $scope, $location, $rootScope) {
 
+    $scope.availableLetters = [
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z'
+    ];
+
     $scope.game = {
         userName: $rootScope.user,
         gameOptions: {

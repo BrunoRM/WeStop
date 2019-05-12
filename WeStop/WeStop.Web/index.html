@@ -8,10 +8,11 @@
 
         <!-- Bootstrap CSS -->
         <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
+        <link href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
         <link href="node_modules/nes.css/css/nes.css" rel="stylesheet">
 
         <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
-        <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
+        <!-- <link href="fonts/PressStart2P-Regular.ttf" rel="stylesheet"> -->
         
         <style>
             html,
@@ -20,11 +21,16 @@
             code,
             kbd,
             samp {
-                font-family: "font-family you want to use";
+                font-family: 'Press Start 2P', cursive;
+                src: url(fonts/PressStart2P-Regular.ttf)
             }
         </style>
 
+        
+
         <!-- Libs -->
+        <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
+        <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
         <script type="text/javascript" src="node_modules/@aspnet/signalr/dist/browser/signalr.js"></script>
         <script type="text/javascript" src="node_modules/angular/angular.js"></script>
         <script type="text/javascript" src="node_modules/angular-route/angular-route.js"></script>

@@ -1,6 +1,82 @@
-<h1>Criar jogo</h1>
+<style>
+    .nes-input {
+        padding: 0px;
+    }
 
-<label>Nome do jogo</label>
-<input type="text" ng-model="game.name" />
+    .nes-select > select {
+        padding: 0px;
+    }
+</style>
 
-<button ng-click="confirm()">Confirmar</button>
+<div class="col-md-3 offset-md-4" style="margin-top: 5%;">
+    <!-- <div class="nes-container with-title is-rounded">
+        
+        <p class="title">Novo jogo</p> -->
+    
+        <form name="frmCreateGame" novalidate autocomplete="off">
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Nome do jogo</label>
+                    <input class="nes-input" type="text" ng-model="game.name" />
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Número de rodadas</label>
+                    <div class="nes-select">
+                        <select required id="default_select" ng-model="game.rounds">
+                            <option selected value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Número de jogadores</label>
+                    <div class="nes-select">
+                        <select required id="default_select" ng-model="game.numberOfPlayers">
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- <br />
+            
+            <div class="col-md-12 nes-container with-title is-rounded">
+                <p class="title">Letras do sorteio</p>
+                <div class="row">
+                    <div ng-repeat="letter in availableLetters">
+                        <span style="font-size: 25px;" class="col-md-2 nes-text is-primary">{{ letter }}</span>
+                    </div>
+                </div>
+            </div> -->
+
+            <br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="nes-btn is-success" ng-click="confirm()">Confirmar</button>
+                </div>
+            </div>
+
+        </form>
+    <!-- </div> -->
+</div>
