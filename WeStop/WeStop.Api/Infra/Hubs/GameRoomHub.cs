@@ -13,16 +13,20 @@ using WeStop.Infra;
 
 namespace WeStop.Api.Infra.Hubs
 {
-    class User
+    public class User
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }
     }
 
-    class Game
+    public class Game
     {
-        public Game()
+        public Game(string name, string password, GameOptions options)
         {
+            Id = Guid.NewGuid();
+            Name = name;
+            Password = password;
+            Options = options;
             Players = new List<Player>();
             Rounds = new List<Round>();
         }
@@ -33,48 +37,218 @@ namespace WeStop.Api.Infra.Hubs
         public GameOptions Options { get; set; }
         public ICollection<Round> Rounds { get; set; }
         public ICollection<Player> Players { get; set; }
+        public Round CurrentRound { get; private set; }
+
+        public void AddPlayer(Player player)
+        {
+            if (!Players.Any(x => x.Id == player.Id))
+                Players.Add(player);
+        }
+
+        public PlayerRound GetPlayerCurrentRound(Guid playerId)
+        {
+            return CurrentRound.Players.First(x => x.Player.Id == playerId);
+        }
+
+        public void StartNextRound()
+        {
+            string sortedLetter = Options.AvailableLetters[new Random().Next(0, Options.AvailableLetters.Length - 1)];
+
+            CurrentRound = new Round
+            {
+                Number = Rounds.Any() ? Rounds.Last().Number + 1 : 1,
+                Finished = false,
+                SortedLetter = sortedLetter,
+                Players = this.Players.Select(x => new PlayerRound
+                {
+                    Player = x
+                }).ToList()
+            };
+
+            Rounds.Add(CurrentRound);
+        }
+
+        public bool AllPlayersSendValidationsOfTheme(string theme)
+        {
+            foreach (var player in Players)
+            {
+                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[theme].Any())
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool AllPlayersSendValidationsOfAllThemes()
+        {
+            foreach (var player in Players)
+            {
+                foreach (var theme in Options.Themes)
+                {
+                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[theme].Any())
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void ProccessPontuationForTheme(string theme)
+        {
+            // Buscar as validações dos jogadores para as respostas desse tema na rodada atual
+            var validationsOfTheme = CurrentRound.Players
+                .Select(x => x.ThemesAnswersValidations[theme]);
+
+            // Verificar se a resposta é válida para a maioria dos jogadores
+
+            var validations = new Dictionary<string, ICollection<bool>>();
+            foreach (var answers in validationsOfTheme)
+            {
+                foreach (var answer in answers)
+                {
+                    if (validations.ContainsKey(answer.Key))
+                        validations[answer.Key].Add(answer.Value);
+                    else
+                        validations.Add(answer.Key, new List<bool> { answer.Value });
+                }
+            }
+
+            foreach (var answerValidations in validations)
+            {
+                if (answerValidations.Value.Count(x => x == true) > answerValidations.Value.Count(x => x == false))
+                {
+                    // Se for válida para a maioria, Verificar quantos jogadores informaram esse tema
+                    var players = CurrentRound.Players.Where(x => x.Answers[theme] == answerValidations.Key);
+
+                    // Se for mais de um, dar 5 pontos para cada jogador
+                    if (players.Count() > 1)
+                    {
+                        foreach (var player in players)
+                            player.GeneratePointsForTheme(theme, 5);
+                    }
+                    else
+                    {
+                        foreach (var player in players)
+                            player.GeneratePointsForTheme(theme, 10);
+                    }
+                }
+                else
+                {
+                    var players = CurrentRound.Players.Where(x => x.Answers[theme] == answerValidations.Key);
+
+                    foreach (var player in players)
+                        player.GeneratePointsForTheme(theme, 0);
+                }
+            }
+
+        }
     }
 
     public class GameOptions
     {
+        public GameOptions(string[] themes, string[] availableLetters, int rounds, int numberOfPlayers)
+        {
+            Themes = themes;
+            AvailableLetters = availableLetters;
+            Rounds = rounds;
+            NumberOfPlayers = numberOfPlayers;
+        }
+
         public string[] Themes { get; set; }
         public string[] AvailableLetters { get; set; }
         public int Rounds { get; set; }
         public int NumberOfPlayers { get; set; }
     }
 
-    class Player
+    public class Player
     {
         public Player()
         {
-            Rounds = new Dictionary<int, PlayerRound>();
             IsReady = false;
             IsAdmin = false;
+            ThemesValidations = new List<PlayerThemeValidation>();            
         }
 
         public Guid Id { get; set; }
         public string UserName { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
-        public IDictionary<int, PlayerRound> Rounds { get; set; }
-    }
-
-    class PlayerRound
-    {
-        public IDictionary<string, string> Answers { get; set; }
+        public ICollection<PlayerThemeValidation> ThemesValidations { get; set; }
         public int EarnedPoints { get; set; }
     }
 
-    class Round
+    public class PlayerRound
+    {
+        public PlayerRound()
+        {
+            ThemesAnswersValidations = new Dictionary<string, IDictionary<string, bool>>();
+            ThemesPontuations = new Dictionary<string, int>();
+            Answers = new Dictionary<string, string>();
+        }
+
+        public Player Player { get; set; }
+        public IDictionary<string, string> Answers { get; set; }
+        public IDictionary<string, int> ThemesPontuations { get; set; }
+        public IDictionary<string, IDictionary<string, bool>> ThemesAnswersValidations { get; set; }
+        public int EarnedPoints => ThemesPontuations.Values.Sum();
+
+        public void AddThemeAnswerValidations(string theme, string answer, bool valid)
+        {
+            if (ThemesAnswersValidations.ContainsKey(theme))
+                ThemesAnswersValidations[theme].Add(answer, valid);
+            else
+            {
+                var answerValidation = new Dictionary<string, bool>();
+                answerValidation.Add(answer, valid);
+                ThemesAnswersValidations.Add(theme, answerValidation);
+            }
+        }
+
+        public void AddThemeAnswersValidations(string theme, IDictionary<string, bool> validations)
+        {
+            if (ThemesAnswersValidations.ContainsKey(theme))
+                ThemesAnswersValidations[theme] = validations;
+            else
+                ThemesAnswersValidations.Add(theme, validations);
+        }
+
+        public void AddAnswer(string theme, string answer)
+        {
+            if (Answers.ContainsKey(theme))
+                return;
+
+            Answers.Add(theme, answer);
+        }
+
+        public void GeneratePointsForTheme(string theme, int points)
+        {
+            ThemesPontuations.Add(theme, points);
+        }
+    }
+
+    public class Round
     {
         public Round()
         {
             Finished = false;
+            Players = new List<PlayerRound>();
         }
 
         public int Number { get; set; }
         public string SortedLetter { get; set; }
         public bool Finished { get; set; }
+        public ICollection<PlayerRound> Players { get; set; }
+    }
+
+    public class PlayerThemeValidation
+    {
+        public PlayerThemeValidation()
+        {
+            Validations = new Dictionary<string, bool>();
+        }
+
+        public string Theme { get; set; }
+        public IDictionary<string, bool> Validations { get; set; }
     }
 
     public class GameRoomHub : Hub
@@ -109,10 +283,6 @@ namespace WeStop.Api.Infra.Hubs
             }
         };
 
-        public GameRoomHub()
-        {
-        }
-
         public class CreateGameDto
         {
             public string UserName { get; set; }
@@ -120,30 +290,25 @@ namespace WeStop.Api.Infra.Hubs
             public GameOptions GameOptions { get; set; }
         }
 
-        [HubMethodName("createGame")]
+        [HubMethodName("games.create")]
         public async Task CreateGame(CreateGameDto dto)
         {
             var user = _users.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            var game = new Game
+            var game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers));
+
+            game.AddPlayer(new Player
             {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Options = new GameOptions
-                {
-                    Themes = dto.GameOptions.Themes,
-                    AvailableLetters = dto.GameOptions.AvailableLetters,
-                    NumberOfPlayers = dto.GameOptions.NumberOfPlayers,
-                    Rounds = dto.GameOptions.Rounds
-                },
-                Players = { new Player { Id = user.Id, UserName = user.UserName, IsAdmin = true } }
-            };
+                Id = user.Id,
+                UserName = user.UserName,
+                IsAdmin = true
+            });
 
             _games.Add(game.Id, game);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            await Clients.Caller.SendAsync("gameCreated", new
+            await Clients.Caller.SendAsync("game.created", new
             {
                 ok = true,
                 is_admin = true,
@@ -151,10 +316,10 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("getGames")]
+        [HubMethodName("games.get")]
         public async Task GetGames()
         {
-            await Clients.Caller.SendAsync("getGamesResponse", new
+            await Clients.Caller.SendAsync("games.get.response", new
             {
                 ok = true,
                 games = _games.Values.Where(x => x.Players.Count < x.Options.NumberOfPlayers).Select(x => new
@@ -167,7 +332,7 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("join")]
+        [HubMethodName("game.join")]
         public async Task Join(JoinToGameRoomDto data)
         {
             var user = _users.FirstOrDefault(x => x.UserName == data.UserName);
@@ -185,25 +350,25 @@ namespace WeStop.Api.Infra.Hubs
                     IsAdmin = false
                 };
 
-                game.Players.Add(player);
+                game.AddPlayer(player);
 
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            await Clients.Caller.SendAsync("joinedToGame", new
+            await Clients.Caller.SendAsync("game.player.joined", new
             {
                 ok = true,
                 player,
                 game
             });
 
-            await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("playerJoinedToGame", new
+            await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("game.players.joined", new
             {
                 ok = true,
                 player
             });
-        }        
+        }
 
         [HubMethodName("startGame")]
         public async Task StartGame(StartGameDto dto)
@@ -219,13 +384,7 @@ namespace WeStop.Api.Infra.Hubs
             if (game.Players.Count() < 2)
                 await Clients.Caller.SendAsync("error", new { ok = false, error = "insuficient_players" });
 
-            string sortedLetter = game.Options.AvailableLetters[new Random().Next(0, game.Options.AvailableLetters.Length - 1)];
-
-            game.Rounds.Add(new Round
-            {
-                Number = 1,
-                SortedLetter = sortedLetter
-            });
+            game.StartNextRound();
 
             await Clients.Group(game.Id.ToString()).SendAsync("roundStarted", new
             {
@@ -239,14 +398,14 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("stop")]
+        [HubMethodName("players.stop")]
         public async Task Stop(StopDto dto)
         {
             var game = _games[dto.GameId];
 
             var playerCalledStop = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            await Clients.Group(dto.GameId.ToString()).SendAsync("stopCalled", new
+            await Clients.Group(dto.GameId.ToString()).SendAsync("players.stopCalled", new
             {
                 ok = true,
                 userName = playerCalledStop.UserName
@@ -260,12 +419,9 @@ namespace WeStop.Api.Infra.Hubs
 
             var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            player.Rounds.Add(game.Rounds.Last().Number, new PlayerRound
-            {
-                Answers = dto.Answers
-            });
+            game.GetPlayerCurrentRound(player.Id).Answers = dto.Answers;
 
-            var playerAnswers = player.Rounds.FirstOrDefault(x => x.Key == game.Rounds.Last().Number).Value.Answers;
+            var playerAnswers = game.GetPlayerCurrentRound(player.Id).Answers;
 
             var answers = new Dictionary<string, string>();
 
@@ -276,17 +432,36 @@ namespace WeStop.Api.Infra.Hubs
                     answers.Add(key, playerAnswers[key].Trim());
             }
 
-            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answersReceived", new
+            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answers", new
             {
                 ok = true,
                 answers
             });
         }
 
-        [HubMethodName("player.sendThemeAnswersValidation")]
+        [HubMethodName("player.sendValidations")]
         public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
         {
+            var game = _games[dto.GameId];
 
+            var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
+
+            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[dto.Validation.Theme].Any())
+                return;
+
+            game.GetPlayerCurrentRound(player.Id).AddThemeAnswersValidations(dto.Validation.Theme, dto.Validation.Validations);
+
+            await Clients.Caller.SendAsync("player.validationsSended", new
+            {
+                ok = true,
+                dto.Validation
+            });
+
+            // Se todos os jogadores ja enviaram as validações para esse tema, a pontuação já pode ser processada
+            if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
+            {
+
+            }
         }
 
         [HubMethodName("player.changeStatus")]
@@ -341,10 +516,10 @@ namespace WeStop.Api.Infra.Hubs
     }
 
     public class StartGameDto
-        {
-            public string UserName { get; set; }
-            public Guid GameRoomId { get; set; }
-        }
+    {
+        public string UserName { get; set; }
+        public Guid GameRoomId { get; set; }
+    }
 
     public class ConnectToGameRoom
     {

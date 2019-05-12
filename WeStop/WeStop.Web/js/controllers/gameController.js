@@ -9,12 +9,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.playersAnswers = [];
     $scope.roundFinished = false;
 
-    $game.invoke("join", { 
+    $game.invoke("game.join", { 
         gameRoomId: $routeParams.id, 
         userName: $scope.player.userName 
     });
 
-    $game.on("joinedToGame", (data) => {
+    $game.on("game.player.joined", (data) => {
         $scope.players = data.game.players;
         $scope.player = data.player;
         checkAllPlayersReady();
@@ -37,7 +37,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         }
     });
 
-    $game.on('playerJoinedToGame', data => {
+    $game.on('game.players.joined', data => {
         
         let player = $scope.players.find((player) => {
             return player.userName == data.player.userName;
@@ -55,6 +55,21 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         });
     }
 
+    $scope.changeStatus = () => {
+        
+        $game.invoke('player.changeStatus', {
+            gameId: $routeParams.id,
+            userName: $scope.player.userName,
+            isReady: !$scope.player.isReady
+        });
+        
+        var player = $scope.players.find((player) => {
+            return player.userName == $scope.player.userName;
+        });
+
+        $scope.player.isReady = player.isReady = !$scope.player.isReady;        
+    };
+    
     $game.on('player.statusChanged', resp => {
         
         let player = $scope.players.find((player) => {
@@ -65,31 +80,16 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         checkAllPlayersReady();
     });
 
-    $scope.changeStatus = () => {
-        
-        $game.invoke('player.changeStatus', {
-            gameId: $routeParams.id,
-            userName: $scope.player.userName,
-            isReady: !$scope.player.isReady
-        });
-
-        var player = $scope.players.find((player) => {
-            return player.userName == $scope.player.userName;
-        });
-
-        $scope.player.isReady = player.isReady = !$scope.player.isReady;        
-    };
-
     $scope.stop = () => {
-
-        $game.invoke('stop', {
+        
+        $game.invoke('players.stop', {
             gameId: $routeParams.id,
             userName: $scope.player.userName
         });
 
     };
 
-    $game.on('stopCalled', (resp) => {
+    $game.on('players.stopCalled', (resp) => {
 
         $scope.stopCalled = true;
         if (resp.userName !== $scope.player.userName) {
@@ -107,13 +107,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
     
     $scope.answersValidations = [];
-    $game.on('player.answersReceived', (resp) => {
+    $game.on('player.answers', (resp) => {
 
         let answers = resp.answers;
 
         for (let key in answers) {
 
-            let themeValidation = answersValidations.find((validation) => validation.theme === key);
+            let themeValidation = $scope.answersValidations.find((validation) => validation.theme === key);
 
             if (!themeValidation) {
                 let obj = {
@@ -122,7 +122,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 }
 
                 obj.validations[answers[key]] = true;
-                answersValidations.push(obj);
+                $scope.answersValidations.push(obj);
             } else {
                 if (!themeValidation.validations[answers[key]])
                     themeValidation.validations[answers[key]] = true;
@@ -132,6 +132,15 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.validate = (answerValidation) => {
         console.log(answerValidation);
+        let obj = {
+            gameId: $routeParams.id,
+            userName: $user.get(),
+            validation: answerValidation
+        }
+
+        $game.invoke('player.sendValidations');
+
+        
     };
     
 }]);

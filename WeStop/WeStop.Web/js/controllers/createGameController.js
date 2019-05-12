@@ -32,9 +32,9 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.confirm = function() {
 
-        $game.invoke('createGame', $scope.game);
+        $game.invoke('games.create', $scope.game);
 
-        $game.on('gameCreated', resp => {
+        $game.on('game.created', resp => {
             if (resp && resp.ok) {
                 $location.path('/game/' + resp.game.id);
             }

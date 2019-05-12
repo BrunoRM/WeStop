@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Infra", "WeStop.Infr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Api", "WeStop.Api\WeStop.Api.csproj", "{A51C4B4D-BB78-4ACD-B294-8ACF35D3EFC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Helpers", "WeStop.Helpers\WeStop.Helpers.csproj", "{03DDE509-7573-4B54-AF77-0B28EBEE2DA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.Helpers", "WeStop.Helpers\WeStop.Helpers.csproj", "{03DDE509-7573-4B54-AF77-0B28EBEE2DA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.UnitTest", "WeStop.UnitTest\WeStop.UnitTest.csproj", "{FB60CB68-5365-411B-BCF4-AF2722C1278A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{03DDE509-7573-4B54-AF77-0B28EBEE2DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03DDE509-7573-4B54-AF77-0B28EBEE2DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03DDE509-7573-4B54-AF77-0B28EBEE2DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB60CB68-5365-411B-BCF4-AF2722C1278A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB60CB68-5365-411B-BCF4-AF2722C1278A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB60CB68-5365-411B-BCF4-AF2722C1278A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB60CB68-5365-411B-BCF4-AF2722C1278A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

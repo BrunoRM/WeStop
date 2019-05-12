@@ -11,8 +11,8 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     };
 
     $game.connect(function() {
-        $game.invoke('getGames');
-        $game.on('getGamesResponse', data => {
+        $game.invoke('games.get');
+        $game.on('games.get.response', data => {
             $scope.gameRooms = data.games;
         });
     });
