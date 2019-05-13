@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', function ($routeParams, $scope, $game, $rootScope) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$user', function ($routeParams, $scope, $game, $rootScope, $user) {
 
     $scope.allPlayersReady = false;
     $scope.gameStarted = false;
@@ -21,13 +21,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.startGame = () => {
-        $game.invoke('startGame', { 
+        $game.invoke('game.startRound', { 
             gameRoomId: $routeParams.id, 
             userName: $scope.player.userName 
         });
     };
 
-    $game.on('roundStarted', data => {
+    $game.on('game.roundStarted', data => {
         $scope.gameConfig = data.gameRoomConfig;
         $scope.gameStarted = true;
         $scope.answers = { }
@@ -130,17 +130,20 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         }
     });
 
-    $scope.validate = (answerValidation) => {
-        console.log(answerValidation);
+    $scope.validate = (answersValidations) => {
+        console.log(answersValidations);
+        
         let obj = {
             gameId: $routeParams.id,
             userName: $user.get(),
-            validation: answerValidation
+            validation: answersValidations
         }
-
-        $game.invoke('player.sendValidations');
-
         
+        $game.invoke('player.sendAnswersValidations', obj);        
     };
+
+    $game.on('player.themeValidationsReceived', data => {
+        console.log(data);
+    });
     
 }]);

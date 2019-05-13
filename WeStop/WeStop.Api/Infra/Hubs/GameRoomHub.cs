@@ -1,15 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Application.Dtos.GameRoom;
-using WeStop.Domain;
 using WeStop.Domain.Errors;
-using WeStop.Helpers.Criptography;
-using WeStop.Infra;
 
 namespace WeStop.Api.Infra.Hubs
 {
@@ -72,7 +66,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             foreach (var player in Players)
             {
-                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[theme].Any())
+                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(theme))
                     return false;
             }
 
@@ -85,7 +79,7 @@ namespace WeStop.Api.Infra.Hubs
             {
                 foreach (var theme in Options.Themes)
                 {
-                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[theme].Any())
+                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(theme))
                         return false;
                 }
             }
@@ -115,13 +109,13 @@ namespace WeStop.Api.Infra.Hubs
 
             foreach (var answerValidations in validations)
             {
-                if (answerValidations.Value.Count(x => x == true) > answerValidations.Value.Count(x => x == false))
+                if (answerValidations.Value.Count(x => x == true) >= answerValidations.Value.Count(x => x == false))
                 {
                     // Se for válida para a maioria, Verificar quantos jogadores informaram esse tema
                     var players = CurrentRound.Players.Where(x => x.Answers[theme] == answerValidations.Key);
 
                     // Se for mais de um, dar 5 pontos para cada jogador
-                    if (players.Count() > 1)
+                    if (players?.Count() > 1)
                     {
                         foreach (var player in players)
                             player.GeneratePointsForTheme(theme, 5);
@@ -191,18 +185,6 @@ namespace WeStop.Api.Infra.Hubs
         public IDictionary<string, int> ThemesPontuations { get; set; }
         public IDictionary<string, IDictionary<string, bool>> ThemesAnswersValidations { get; set; }
         public int EarnedPoints => ThemesPontuations.Values.Sum();
-
-        public void AddThemeAnswerValidations(string theme, string answer, bool valid)
-        {
-            if (ThemesAnswersValidations.ContainsKey(theme))
-                ThemesAnswersValidations[theme].Add(answer, valid);
-            else
-            {
-                var answerValidation = new Dictionary<string, bool>();
-                answerValidation.Add(answer, valid);
-                ThemesAnswersValidations.Add(theme, answerValidation);
-            }
-        }
 
         public void AddThemeAnswersValidations(string theme, IDictionary<string, bool> validations)
         {
@@ -370,7 +352,7 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("startGame")]
+        [HubMethodName("game.startRound")]
         public async Task StartGame(StartGameDto dto)
         {
             var game = _games[dto.GameRoomId];
@@ -386,7 +368,7 @@ namespace WeStop.Api.Infra.Hubs
 
             game.StartNextRound();
 
-            await Clients.Group(game.Id.ToString()).SendAsync("roundStarted", new
+            await Clients.Group(game.Id.ToString()).SendAsync("game.roundStarted", new
             {
                 ok = true,
                 gameRoomConfig = new
@@ -439,19 +421,19 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("player.sendValidations")]
+        [HubMethodName("player.sendAnswersValidations")]
         public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
         {
             var game = _games[dto.GameId];
 
             var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations[dto.Validation.Theme].Any())
+            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(dto.Validation.Theme))
                 return;
 
             game.GetPlayerCurrentRound(player.Id).AddThemeAnswersValidations(dto.Validation.Theme, dto.Validation.Validations);
 
-            await Clients.Caller.SendAsync("player.validationsSended", new
+            await Clients.Caller.SendAsync("player.themeValidationsReceived", new
             {
                 ok = true,
                 dto.Validation
@@ -459,8 +441,14 @@ namespace WeStop.Api.Infra.Hubs
 
             // Se todos os jogadores ja enviaram as validações para esse tema, a pontuação já pode ser processada
             if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
-            {
+                game.ProccessPontuationForTheme(dto.Validation.Theme);
 
+            if (game.AllPlayersSendValidationsOfAllThemes())
+            {
+                await Clients.Group(dto.GameId.ToString()).SendAsync("players.allAnswersValidationsReceived", new
+                {
+                    ok = true
+                });
             }
         }
 
