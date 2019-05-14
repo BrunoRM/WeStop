@@ -66,7 +66,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             foreach (var player in Players)
             {
-                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(theme))
+                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
                     return false;
             }
 
@@ -79,7 +79,7 @@ namespace WeStop.Api.Infra.Hubs
             {
                 foreach (var theme in Options.Themes)
                 {
-                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(theme))
+                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
                         return false;
                 }
             }
@@ -90,20 +90,21 @@ namespace WeStop.Api.Infra.Hubs
         public void ProccessPontuationForTheme(string theme)
         {
             // Buscar as validações dos jogadores para as respostas desse tema na rodada atual
-            var validationsOfTheme = CurrentRound.Players
-                .Select(x => x.ThemesAnswersValidations[theme]);
+            var playersValidations = CurrentRound.Players
+                .Select(x => x.ThemesAnswersValidations)
+                .Select(x => x.First(y => y.Theme == theme))
+                .Select(x => x.AnswersValidations);
 
             // Verificar se a resposta é válida para a maioria dos jogadores
-
             var validations = new Dictionary<string, ICollection<bool>>();
-            foreach (var answers in validationsOfTheme)
+            foreach (var playerValidation in playersValidations)
             {
-                foreach (var answer in answers)
+                foreach (var validation in playerValidation)
                 {
-                    if (validations.ContainsKey(answer.Key))
-                        validations[answer.Key].Add(answer.Value);
+                    if (validations.ContainsKey(validation.Answer))
+                        validations[validation.Answer].Add(validation.Valid);
                     else
-                        validations.Add(answer.Key, new List<bool> { answer.Value });
+                        validations.Add(validation.Answer, new List<bool> { validation.Valid });
                 }
             }
 
@@ -112,7 +113,8 @@ namespace WeStop.Api.Infra.Hubs
                 if (answerValidations.Value.Count(x => x == true) >= answerValidations.Value.Count(x => x == false))
                 {
                     // Se for válida para a maioria, Verificar quantos jogadores informaram esse tema
-                    var players = CurrentRound.Players.Where(x => x.Answers[theme] == answerValidations.Key);
+                    var players = CurrentRound.Players
+                        .Where(x => x.Answers.Where(y => y.Theme == theme && y.Answer == answerValidations.Key).Count() > 0);
 
                     // Se for mais de um, dar 5 pontos para cada jogador
                     if (players?.Count() > 1)
@@ -128,7 +130,8 @@ namespace WeStop.Api.Infra.Hubs
                 }
                 else
                 {
-                    var players = CurrentRound.Players.Where(x => x.Answers[theme] == answerValidations.Key);
+                    var players = CurrentRound.Players
+                        .Where(x => x.Answers.Where(y => y.Theme == theme && y.Answer == answerValidations.Key).Count() > 0);
 
                     foreach (var player in players)
                         player.GeneratePointsForTheme(theme, 0);
@@ -171,41 +174,83 @@ namespace WeStop.Api.Infra.Hubs
         public int EarnedPoints { get; set; }
     }
 
+    public class ThemeAnswer
+    {
+        public ThemeAnswer(string theme, string answer)
+        {
+            Theme = theme;
+            Answer = answer;
+        }
+
+        public string Theme { get; set; }
+        public string Answer { get; set; }
+    }
+
     public class PlayerRound
     {
         public PlayerRound()
         {
-            ThemesAnswersValidations = new Dictionary<string, IDictionary<string, bool>>();
+            ThemesAnswersValidations = new List<ThemeValidation>();
             ThemesPontuations = new Dictionary<string, int>();
-            Answers = new Dictionary<string, string>();
+            Answers = new List<ThemeAnswer>();
         }
 
         public Player Player { get; set; }
-        public IDictionary<string, string> Answers { get; set; }
+        public ICollection<ThemeAnswer> Answers { get; set; }
         public IDictionary<string, int> ThemesPontuations { get; set; }
-        public IDictionary<string, IDictionary<string, bool>> ThemesAnswersValidations { get; set; }
+        public ICollection<ThemeValidation> ThemesAnswersValidations { get; set; }
         public int EarnedPoints => ThemesPontuations.Values.Sum();
 
-        public void AddThemeAnswersValidations(string theme, IDictionary<string, bool> validations)
+        public void AddThemeAnswersValidations(ThemeValidation validation)
         {
-            if (ThemesAnswersValidations.ContainsKey(theme))
-                ThemesAnswersValidations[theme] = validations;
-            else
-                ThemesAnswersValidations.Add(theme, validations);
+            if (!ThemesAnswersValidations.Any(x => x.Theme == validation.Theme))
+                ThemesAnswersValidations.Add(validation);
         }
 
-        public void AddAnswer(string theme, string answer)
+        private void AddAnswer(ThemeAnswer themeAnswer)
         {
-            if (Answers.ContainsKey(theme))
+            if (Answers.Any(x => x.Theme == themeAnswer.Theme))
                 return;
 
-            Answers.Add(theme, answer);
+            themeAnswer.Answer = themeAnswer.Answer.Trim();
+
+            Answers.Add(themeAnswer);
+        }
+
+        public void AddAnswers(ICollection<ThemeAnswer> answers)
+        {
+            foreach (var answer in answers)
+                AddAnswer(answer);
         }
 
         public void GeneratePointsForTheme(string theme, int points)
         {
             ThemesPontuations.Add(theme, points);
         }
+    }
+
+    public class ThemeValidation
+    {
+        public ThemeValidation(string theme, ICollection<AnswerValidation> answersValidations)
+        {
+            Theme = theme;
+            AnswersValidations = answersValidations;
+        }
+
+        public string Theme { get; set; }
+        public ICollection<AnswerValidation> AnswersValidations { get; set; }
+    }
+
+    public class AnswerValidation
+    {
+        public AnswerValidation(string answer, bool valid)
+        {
+            Answer = answer;
+            Valid = valid;
+        }
+
+        public string Answer { get; set; }
+        public bool Valid { get; set; }
     }
 
     public class Round
@@ -401,23 +446,17 @@ namespace WeStop.Api.Infra.Hubs
 
             var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            game.GetPlayerCurrentRound(player.Id).Answers = dto.Answers;
+
+            game.GetPlayerCurrentRound(player.Id).AddAnswers(dto.Answers);
 
             var playerAnswers = game.GetPlayerCurrentRound(player.Id).Answers;
 
             var answers = new Dictionary<string, string>();
 
-            // Remove os espaços em branco das respostas
-            foreach (var key in playerAnswers.Keys)
-            {
-                if (!string.IsNullOrEmpty(playerAnswers[key]))
-                    answers.Add(key, playerAnswers[key].Trim());
-            }
-
-            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answers", new
+            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answersSended", new
             {
                 ok = true,
-                answers
+                answers = playerAnswers
             });
         }
 
@@ -428,15 +467,15 @@ namespace WeStop.Api.Infra.Hubs
 
             var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
 
-            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.ContainsKey(dto.Validation.Theme))
+            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(x => x.Theme == dto.Validation.Theme))
                 return;
 
-            game.GetPlayerCurrentRound(player.Id).AddThemeAnswersValidations(dto.Validation.Theme, dto.Validation.Validations);
+            game.GetPlayerCurrentRound(player.Id).AddThemeAnswersValidations(new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
 
             await Clients.Caller.SendAsync("player.themeValidationsReceived", new
             {
                 ok = true,
-                dto.Validation
+                dto.Validation.Theme
             });
 
             // Se todos os jogadores ja enviaram as validações para esse tema, a pontuação já pode ser processada
@@ -474,20 +513,14 @@ namespace WeStop.Api.Infra.Hubs
     {
         public Guid GameId { get; set; }
         public string UserName { get; set; }
-        public ThemeValidationDto Validation { get; set; }
-
-    }
-    public class ThemeValidationDto
-    {
-        public string Theme { get; set; }
-        public IDictionary<string, bool> Validations { get; set; }
+        public ThemeValidation Validation { get; set; }
     }
 
     public class SendAnswersDto
     {
         public Guid GameId { get; set; }
         public string UserName { get; set; }
-        public IDictionary<string, string> Answers { get; set; }
+        public ICollection<ThemeAnswer> Answers { get; set; }
     }
 
     public class StopDto

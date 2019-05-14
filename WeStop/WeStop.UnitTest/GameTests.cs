@@ -78,22 +78,22 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new AnswerValidation("Ben 10", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new AnswerValidation("Ben 10", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
@@ -123,25 +123,25 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Bruno");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bianca", true),
-                new KeyValuePair<string, bool>("Bruna", true)
+                new AnswerValidation("Bianca", true),
+                new AnswerValidation("Bruna", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Bianca");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruno", true),
-                new KeyValuePair<string, bool>("Bruna", true)
+                new AnswerValidation("Bruno", true),
+                new AnswerValidation("Bruna", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("Nome", "Bruna");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bianca", true),
-                new KeyValuePair<string, bool>("Bruno", true)
+                new AnswerValidation("Bianca", true),
+                new AnswerValidation("Bruno", true)
             }));
 
             _game.ProccessPontuationForTheme("Nome");
@@ -171,22 +171,22 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", false)
+                new AnswerValidation("Ben 10", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", false)
+                new AnswerValidation("Ben 10", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
@@ -216,24 +216,24 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true),
-                new KeyValuePair<string, bool>("Ben", false)
+                new AnswerValidation("Ben 10", true),
+                new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true),
-                new KeyValuePair<string, bool>("Ben", false)
+                new AnswerValidation("Ben 10", true),
+                new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("FDS", "Ben");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
@@ -263,42 +263,54 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Bruno");
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
             {
-                new KeyValuePair<string, bool>("Ben 10", true),
-                new KeyValuePair<string, bool>("Ben", false)
-            }));
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+                new ThemeAnswer("Nome", "Bruno"),
+                new ThemeAnswer("FDS", "Ben 10")
+            });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruna", true),
-                new KeyValuePair<string, bool>("Breno", true)
+                new AnswerValidation("Ben 10", true),
+                new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Bruna");
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("FDS", "Ben 10");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Ben 10", true),
-                new KeyValuePair<string, bool>("Ben", false)
-            }));
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
-            {
-                new KeyValuePair<string, bool>("Bruno", true),
-                new KeyValuePair<string, bool>("Breno", true)
+                new AnswerValidation("Bruna", true),
+                new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("Nome", "Breno");
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("FDS", "Ben");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("FDS", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer>
             {
-                new KeyValuePair<string, bool>("Ben 10", true)
+                new ThemeAnswer("Nome", "Bruna"),
+                new ThemeAnswer("FDS", "Ben 10")
+            });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Ben 10", true),
+                new AnswerValidation("Ben", false)
             }));
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruno", true),
-                new KeyValuePair<string, bool>("Bruna", true)
+                new AnswerValidation("Bruno", true),
+                new AnswerValidation("Breno", true)
+            }));
+
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer>
+            {
+                new ThemeAnswer("Nome", "Breno"),
+                new ThemeAnswer("FDS", "Ben")
+            });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Ben 10", true)
+            }));
+
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Bruno", true),
+                new AnswerValidation("Bruna", true)
             }));
 
             Assert.IsTrue(_game.AllPlayersSendValidationsOfAllThemes());
@@ -315,25 +327,25 @@ namespace WeStop.UnitTest
             _game.AddPlayer(_player3);
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Bruno");
-            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruna", true),
-                new KeyValuePair<string, bool>("Breno", true)
+                new AnswerValidation("Bruna", true),
+                new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Bruna");
-            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruno", true),
-                new KeyValuePair<string, bool>("Breno", true)
+                new AnswerValidation("Bruno", true),
+                new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.Id).AddAnswer("Nome", "Breno");
-            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations("Nome", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
-                new KeyValuePair<string, bool>("Bruno", true),
-                new KeyValuePair<string, bool>("Bruna", true)
+                new AnswerValidation("Bruno", true),
+                new AnswerValidation("Bruna", true)
             }));
 
             Assert.IsTrue(_game.AllPlayersSendValidationsOfTheme("Nome"));

@@ -30,10 +30,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('game.roundStarted', data => {
         $scope.gameConfig = data.gameRoomConfig;
         $scope.gameStarted = true;
-        $scope.answers = { }
+        $scope.answers = [];
 
         for (let i = 0; i < $scope.gameConfig.themes.length; i++) {
-            $scope.answers[$scope.gameConfig.themes[i]] = '';
+            $scope.answers.push({
+                theme: $scope.gameConfig.themes[i],
+                answer: ''
+            });
         }
     });
 
@@ -92,9 +95,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('players.stopCalled', (resp) => {
 
         $scope.stopCalled = true;
-        if (resp.userName !== $scope.player.userName) {
-            alert(resp.userName + ' chamou STOP');
-        }
 
         $game.invoke('player.sendAnswers', {
             gameId: $routeParams.id,
@@ -106,26 +106,32 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     });
     
-    $scope.answersValidations = [];
-    $game.on('player.answers', (resp) => {
+    $scope.themeAnswersValidations = [];
+    $game.on('player.answersSended', (resp) => {
 
         let answers = resp.answers;
 
-        for (let key in answers) {
-
-            let themeValidation = $scope.answersValidations.find((validation) => validation.theme === key);
+        for (let i = 0; i < answers.length; i++) {
+            let answer = answers[i];
+            
+            let themeValidation = $scope.themeAnswersValidations.find((validation) => validation.theme === answer.theme);
 
             if (!themeValidation) {
                 let obj = {
-                    theme: key,
-                    validations: {}
+                    theme: answer.theme,
+                    answerValidations: [{
+                            answer: answer.answer,
+                            valid: true
+                        }
+                    ]
                 }
 
-                obj.validations[answers[key]] = true;
-                $scope.answersValidations.push(obj);
+                $scope.themeAnswersValidations.push(obj);
             } else {
-                if (!themeValidation.validations[answers[key]])
-                    themeValidation.validations[answers[key]] = true;
+                themeValidation.answerValidations.push({
+                    answer: answer.answer,
+                    valid: true
+                });
             }
         }
     });
@@ -143,7 +149,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     $game.on('player.themeValidationsReceived', data => {
-        console.log(data);
+        $scope.themeAnswersValidations = $scope.themeAnswersValidations.filter((themeValidation) => {
+            if (themeValidation.theme !== data.theme)
+                return themeValidation;
+        });
     });
     
 }]);

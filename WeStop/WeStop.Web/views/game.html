@@ -1,10 +1,3 @@
-<!-- <div ng-if="!userNameValidated">
-    <h1>Informe seu nome de usuário</h1>
-    <input type="text" ng-model="player.userName" />
-    
-    <button ng-click="confirm()">Confirmar</button>
-</div> -->
-
 <div ng-if="!gameStarted">
 
     <h2>Jogadores</h2>
@@ -26,10 +19,10 @@
     
     <h1>Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h1>
     <h2>Rodada {{gameConfig.currentRound.number}}</h2>
-
-    <div ng-repeat="theme in gameConfig.themes">
-        <label for="theme">{{theme}}</label>
-        <input ng-disabled="stopCalled" type="text" name="{{theme}}" ng-model="answers[gameConfig.themes[$index]]" />
+    
+    <div ng-repeat="answer in answers">
+        <label for="{{answer.theme}}">{{answer.theme}}</label>
+        <input ng-disabled="stopCalled" type="text" name="{{answer.theme}}" ng-model="answer.answer" />
     </div>
 
     <button ng-disabled="stopCalled" ng-click="stop()">STOP</button>
@@ -39,15 +32,15 @@
 <div ng-if="roundFinished">
     
     <h1>Valide as respostas dos outros jogadores</h1>
-    <div ng-repeat="answerValidation in answersValidations">
+    <div ng-repeat="themeAnswersValidation in themeAnswersValidations">
             
-        <h3>{{answerValidation.theme}}</h3>
+        <h3>{{themeAnswersValidation.theme}}</h3>
         Respostas dos jogadores
-        <div ng-repeat="(key, value) in answerValidation.validations">
-            {{key}}
-            <input type="checkbox" ng-model="answerValidation.validations[key]" />
+        <div ng-repeat="answerValidation in themeAnswersValidation.answerValidations">
+            {{answerValidation.answer}}
+            <input type="checkbox" ng-model="answerValidation.valid" />
         </div>
-        <button ng-click="validate(answerValidation)">Validar</button>
+        <button ng-click="validate(themeAnswersValidation)">Validar</button>
     </div>
 
 </div>
