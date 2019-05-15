@@ -1,5 +1,24 @@
 <div ng-if="!gameStarted">
 
+    <div ng-if="scoreboard.length > 0">
+        <h1>Placar</h1>
+        <table>
+            <thead>
+                <th>Usuário</th>
+                <th>Pontuação da rodada</th>
+                <th>Pontuação do jogo</th>
+            </thead>
+            
+            <tbody>
+                <tr ng-repeat="score in scoreboard">
+                    <td>{{score.userName}}</td>
+                    <td>{{score.roundPontuation}}</td>
+                    <td>{{score.gamePontuation}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <h2>Jogadores</h2>
     <ul>
         <li ng-repeat="player in players">
@@ -15,7 +34,7 @@
 
 </div>
 
-<div ng-if="gameStarted && !roundFinished">
+<div ng-if="gameStarted && !stopCalled">
     
     <h1>Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h1>
     <h2>Rodada {{gameConfig.currentRound.number}}</h2>
@@ -29,9 +48,9 @@
 
 </div>
 
-<div ng-if="roundFinished">
+<div ng-if="stopCalled">
     
-    <h1>Valide as respostas dos outros jogadores</h1>
+    <h1 ng-if="themeAnswersValidations.length > 0">Valide as respostas dos outros jogadores</h1>
     <div ng-repeat="themeAnswersValidation in themeAnswersValidations">
             
         <h3>{{themeAnswersValidation.theme}}</h3>
@@ -41,5 +60,7 @@
         </div>
         <button ng-click="validate(themeAnswersValidation)">Validar</button>
     </div>
+
+    <p ng-if="themeAnswersValidations.length == 0">Aguarde a validação dos outros jogadores...</p>
 
 </div>

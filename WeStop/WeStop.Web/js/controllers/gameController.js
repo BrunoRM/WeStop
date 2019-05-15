@@ -8,6 +8,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.stopCalled = false;
     $scope.playersAnswers = [];
     $scope.roundFinished = false;
+    $scope.scoreboard = [];
 
     $game.invoke("game.join", { 
         gameRoomId: $routeParams.id, 
@@ -38,6 +39,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 answer: ''
             });
         }
+
+        $scope.roundFinished = false;
     });
 
     $game.on('game.players.joined', data => {
@@ -102,8 +105,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             answers: $scope.answers
         });
 
-        $scope.roundFinished = true;
-
     });
     
     $scope.themeAnswersValidations = [];
@@ -137,7 +138,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.validate = (answersValidations) => {
-        console.log(answersValidations);
         
         let obj = {
             gameId: $routeParams.id,
@@ -153,6 +153,19 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             if (themeValidation.theme !== data.theme)
                 return themeValidation;
         });
+    });
+
+    $game.on('game.updatedScoreboard', resp => {
+        $scope.scoreboard = resp.scoreboard;
+    });
+
+    $game.on('game.roundFinished', resp => {
+        $scope.roundFinished = true;
+        $scope.allPlayersReady = false;
+        $scope.player.isReady = false;
+        $scope.gameStarted = false;
+        $scope.stopCalled = false;
+        $scope.playersAnswers = [];
     });
     
 }]);

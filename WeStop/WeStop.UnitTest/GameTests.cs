@@ -14,7 +14,7 @@ namespace WeStop.UnitTest
         private readonly Player _player1;
         private readonly Player _player2;
         private readonly Player _player3;
-        private readonly Game _game;
+        private Game _game;
 
         public GameTests()
         {
@@ -57,17 +57,15 @@ namespace WeStop.UnitTest
                 IsAdmin = false,
                 IsReady = true
             };
-
-            _game = new Game("teste", "", new GameOptions(_themes, _availableLetters, 3, 5));
-            _game.AddPlayer(_player1);
-            _game.AddPlayer(_player2);
-            _game.AddPlayer(_player3);
         }
 
         [SetUp]
         public void SetUp()
         {
-
+            _game = new Game("teste", "", new GameOptions(_themes, _availableLetters, 3, 5));
+            _game.AddPlayer(_player1);
+            _game.AddPlayer(_player2);
+            _game.AddPlayer(_player3);
         }
 
         /// <summary>

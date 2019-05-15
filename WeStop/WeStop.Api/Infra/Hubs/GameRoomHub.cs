@@ -139,6 +139,12 @@ namespace WeStop.Api.Infra.Hubs
             }
 
         }
+
+        public void ChangeStatusOfAllPlayersToWait()
+        {
+            foreach (var player in Players)
+                player.IsReady = false;
+        }
     }
 
     public class GameOptions
@@ -162,7 +168,7 @@ namespace WeStop.Api.Infra.Hubs
         public Player()
         {
             IsReady = false;
-            IsAdmin = false;    
+            IsAdmin = false;
         }
 
         public Guid Id { get; set; }
@@ -224,6 +230,7 @@ namespace WeStop.Api.Infra.Hubs
         public void GeneratePointsForTheme(string theme, int points)
         {
             ThemesPontuations.Add(theme, points);
+            Player.EarnedPoints += points;
         }
     }
 
@@ -479,11 +486,28 @@ namespace WeStop.Api.Infra.Hubs
 
             if (game.AllPlayersSendValidationsOfAllThemes())
             {
-                await Clients.Group(dto.GameId.ToString()).SendAsync("players.allAnswersValidationsReceived", new
+                await Clients.Group(dto.GameId.ToString()).SendAsync("game.roundFinished", new
                 {
                     ok = true
                 });
+
+                game.ChangeStatusOfAllPlayersToWait();
+                await SendUpdatedScoreboardToAllConnections(dto.GameId, game);
             }
+        }
+
+        private async Task SendUpdatedScoreboardToAllConnections(Guid gameId, Game game)
+        {
+            await Clients.Group(gameId.ToString()).SendAsync("game.updatedScoreboard", new
+            {
+                ok = true,
+                scoreboard = game.CurrentRound.Players.Select(x => new
+                {
+                    x.Player.UserName,
+                    roundPontuation = x.EarnedPoints,
+                    gamePontuation = x.Player.EarnedPoints
+                })
+            });
         }
 
         [HubMethodName("player.changeStatus")]
