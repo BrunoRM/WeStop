@@ -35,8 +35,7 @@
     <div ng-repeat="themeAnswersValidation in themeAnswersValidations">
             
         <h3>{{themeAnswersValidation.theme}}</h3>
-        Respostas dos jogadores
-        <div ng-repeat="answerValidation in themeAnswersValidation.answerValidations">
+        <div ng-repeat="answerValidation in themeAnswersValidation.answersValidations">
             {{answerValidation.answer}}
             <input type="checkbox" ng-model="answerValidation.valid" />
         </div>

@@ -119,7 +119,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             if (!themeValidation) {
                 let obj = {
                     theme: answer.theme,
-                    answerValidations: [{
+                    answersValidations: [{
                             answer: answer.answer,
                             valid: true
                         }
@@ -128,7 +128,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
                 $scope.themeAnswersValidations.push(obj);
             } else {
-                themeValidation.answerValidations.push({
+                themeValidation.answersValidations.push({
                     answer: answer.answer,
                     valid: true
                 });

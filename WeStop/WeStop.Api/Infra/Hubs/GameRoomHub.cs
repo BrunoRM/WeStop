@@ -162,15 +162,13 @@ namespace WeStop.Api.Infra.Hubs
         public Player()
         {
             IsReady = false;
-            IsAdmin = false;
-            ThemesValidations = new List<PlayerThemeValidation>();            
+            IsAdmin = false;    
         }
 
         public Guid Id { get; set; }
         public string UserName { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
-        public ICollection<PlayerThemeValidation> ThemesValidations { get; set; }
         public int EarnedPoints { get; set; }
     }
 
@@ -466,9 +464,6 @@ namespace WeStop.Api.Infra.Hubs
             var game = _games[dto.GameId];
 
             var player = game.Players.FirstOrDefault(x => x.UserName == dto.UserName);
-
-            if (game.GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(x => x.Theme == dto.Validation.Theme))
-                return;
 
             game.GetPlayerCurrentRound(player.Id).AddThemeAnswersValidations(new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
 
