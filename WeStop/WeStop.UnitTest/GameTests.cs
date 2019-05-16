@@ -703,5 +703,75 @@ namespace WeStop.UnitTest
             Assert.AreEqual(10, player3Round.ThemesPontuations["FDS"]);
             Assert.AreEqual(40, player3Round.EarnedPoints);
         }
+
+        [Test]
+        public void TestReturnTrueWhenPlayerDidNotReportATheme()
+        {
+            GameOptions gameOptions = new GameOptions(_themes, _availableLetters, 2, 3);
+            var game = new Game("teste", "", gameOptions);
+            game.AddPlayer(_player1);
+            game.AddPlayer(_player2);
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
+            {
+                new ThemeAnswer("FDS", "Ben 10")
+            });
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Ben 10", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Bruna", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer>
+            {
+                new ThemeAnswer("Nome", "Bruna"),
+                new ThemeAnswer("FDS", "Ben 10")
+            });
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Ben 10", true)
+            }));
+
+            Assert.IsTrue(game.AllPlayersSendValidationsOfAllThemes());
+        }
+
+        [Test]
+        public void TestPontuationIsCorrectWhenPlayerDidNotReportATheme()
+        {
+            _game.StartNextRound();
+
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Bianca", true)
+            }));
+
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            {
+                new AnswerValidation("Brasil", true)
+            }));
+
+            _game.ProccessPontuationForTheme("Nome");
+            _game.ProccessPontuationForTheme("CEP");
+
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+
+            Assert.AreEqual(0, player1Round.ThemesPontuations["Nome"]);
+            Assert.AreEqual(10, player1Round.ThemesPontuations["CEP"]);
+            Assert.AreEqual(10, player1Round.EarnedPoints);
+
+            Assert.AreEqual(10, player2Round.ThemesPontuations["Nome"]);
+            Assert.AreEqual(0, player2Round.ThemesPontuations["CEP"]);
+            Assert.AreEqual(10, player2Round.EarnedPoints);
+        }
     }
 }

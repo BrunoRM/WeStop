@@ -77,10 +77,16 @@ namespace WeStop.Api.Infra.Hubs
         {
             foreach (var player in Players)
             {
-                foreach (var theme in Options.Themes)
+                var playersThemesAnswers = CurrentRound.Players.Where(p => p.Player.Id != player.Id)
+                    .Select(x => x.Answers.Select(y => y.Theme));
+
+                foreach (var playerThemeAnswer in playersThemesAnswers)
                 {
-                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
-                        return false;
+                    foreach (var theme in playerThemeAnswer)
+                    {
+                        if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
+                            return false;
+                    }
                 }
             }
 
@@ -92,19 +98,22 @@ namespace WeStop.Api.Infra.Hubs
             // Buscar as validações dos jogadores para as respostas desse tema na rodada atual
             var playersValidations = CurrentRound.Players
                 .Select(x => x.ThemesAnswersValidations)
-                .Select(x => x.First(y => y.Theme == theme))
-                .Select(x => x.AnswersValidations);
+                .Select(x => x.FirstOrDefault(y => y.Theme == theme))
+                .Select(x => x?.AnswersValidations);
 
             // Verificar se a resposta é válida para a maioria dos jogadores
             var validations = new Dictionary<string, ICollection<bool>>();
             foreach (var playerValidation in playersValidations)
             {
-                foreach (var validation in playerValidation)
+                if (playerValidation != null)
                 {
-                    if (validations.ContainsKey(validation.Answer))
-                        validations[validation.Answer].Add(validation.Valid);
-                    else
-                        validations.Add(validation.Answer, new List<bool> { validation.Valid });
+                    foreach (var validation in playerValidation)
+                    {
+                        if (validations.ContainsKey(validation.Answer))
+                            validations[validation.Answer].Add(validation.Valid);
+                        else
+                            validations.Add(validation.Answer, new List<bool> { validation.Valid });
+                    }
                 }
             }
 
@@ -137,6 +146,12 @@ namespace WeStop.Api.Infra.Hubs
                         player.GeneratePointsForTheme(theme, 0);
                 }
             }
+
+            // Busca os jogadores que não informaram resposta para esse tema e gera pontuação 0 para eles
+            var playersWithBlankThemeAnswer = CurrentRound.Players.Where(x => !x.Answers.Where(y => y.Theme == theme).Any());
+
+            foreach (var player in playersWithBlankThemeAnswer)
+                player.GeneratePointsForTheme(theme, 0);
 
         }
 
@@ -213,10 +228,13 @@ namespace WeStop.Api.Infra.Hubs
 
         private void AddAnswer(ThemeAnswer themeAnswer)
         {
-            if (Answers.Any(x => x.Theme == themeAnswer.Theme))
+            themeAnswer.Answer = themeAnswer.Answer.Trim();
+
+            if (string.IsNullOrEmpty(themeAnswer.Answer))
                 return;
 
-            themeAnswer.Answer = themeAnswer.Answer.Trim();
+            if (Answers.Any(x => x.Theme == themeAnswer.Theme))
+                return;
 
             Answers.Add(themeAnswer);
         }
