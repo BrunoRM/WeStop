@@ -66,8 +66,16 @@ namespace WeStop.Api.Infra.Hubs
         {
             foreach (var player in Players)
             {
-                if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
-                    return false;
+                var themesWithPlayersAnswers = CurrentRound.Players
+                    .Where(playerRound => playerRound.Player.Id != player.Id)
+                    .Select(playerRound => playerRound.Answers.Where(answer => answer.Theme == theme))
+                    .SelectMany(answers => answers.Select(answer => answer.Theme)).Distinct();
+
+                foreach (var t in themesWithPlayersAnswers)
+                {
+                    if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
+                        return false;
+                }
             }
 
             return true;
@@ -75,18 +83,21 @@ namespace WeStop.Api.Infra.Hubs
 
         public bool AllPlayersSendValidationsOfAllThemes()
         {
+            // Como um jogador ou mais podem acabar não informando resposta para algum dos N temas, 
+            // para cada jogador da rodada atual serão filtrados os temas para quais todos os outros
+            // jogadores informaram resposta, sendo assim, o jogador corrente na iteração terá de ter
+            // validado essas respostas
             foreach (var player in Players)
             {
-                var playersThemesAnswers = CurrentRound.Players.Where(p => p.Player.Id != player.Id)
-                    .Select(x => x.Answers.Select(y => y.Theme));
+                var themesWithPlayersAnswers = CurrentRound.Players
+                    .Where(playerRound => playerRound.Player.Id != player.Id)
+                    .Select(playerRound => playerRound.Answers)
+                    .SelectMany(answers => answers.Select(x => x.Theme)).Distinct();
 
-                foreach (var playerThemeAnswer in playersThemesAnswers)
+                foreach (var theme in themesWithPlayersAnswers)
                 {
-                    foreach (var theme in playerThemeAnswer)
-                    {
-                        if (!GetPlayerCurrentRound(player.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
-                            return false;
-                    }
+                    if (!AllPlayersSendValidationsOfTheme(theme))
+                        return false;
                 }
             }
 
@@ -98,23 +109,18 @@ namespace WeStop.Api.Infra.Hubs
             // Buscar as validações dos jogadores para as respostas desse tema na rodada atual
             var playersValidations = CurrentRound.Players
                 .Select(x => x.ThemesAnswersValidations)
-                .Select(x => x.FirstOrDefault(y => y.Theme == theme))
-                .Select(x => x?.AnswersValidations);
+                .Select(x => x.Where(y => y.Theme == theme))
+                .SelectMany(x => x.SelectMany(y => y.AnswersValidations));
 
             // Verificar se a resposta é válida para a maioria dos jogadores
             var validations = new Dictionary<string, ICollection<bool>>();
-            foreach (var playerValidation in playersValidations)
+
+            foreach (var validation in playersValidations)
             {
-                if (playerValidation != null)
-                {
-                    foreach (var validation in playerValidation)
-                    {
-                        if (validations.ContainsKey(validation.Answer))
-                            validations[validation.Answer].Add(validation.Valid);
-                        else
-                            validations.Add(validation.Answer, new List<bool> { validation.Valid });
-                    }
-                }
+                if (validations.ContainsKey(validation.Answer))
+                    validations[validation.Answer].Add(validation.Valid);
+                else
+                    validations.Add(validation.Answer, new List<bool> { validation.Valid });
             }
 
             foreach (var answerValidations in validations)
@@ -152,7 +158,6 @@ namespace WeStop.Api.Infra.Hubs
 
             foreach (var player in playersWithBlankThemeAnswer)
                 player.GeneratePointsForTheme(theme, 0);
-
         }
 
         public void ChangeStatusOfAllPlayersToWait()
