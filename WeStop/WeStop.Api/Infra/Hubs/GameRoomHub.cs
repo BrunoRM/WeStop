@@ -514,7 +514,7 @@ namespace WeStop.Api.Infra.Hubs
                     ok = true
                 });
 
-                game.ChangeStatusOfAllPlayersToWait();
+                //game.ChangeStatusOfAllPlayersToWait();
                 await SendUpdatedScoreboardToAllConnections(dto.GameId, game);
             }
         }

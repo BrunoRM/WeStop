@@ -22,6 +22,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.startGame = () => {
+        $scope.changeStatus();
         $game.invoke('game.startRound', { 
             gameRoomId: $routeParams.id, 
             userName: $scope.player.userName 
@@ -77,7 +78,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
     
     $game.on('player.statusChanged', resp => {
-        
         let player = $scope.players.find((player) => {
             return player.userName === resp.player.userName;
         });
@@ -162,10 +162,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('game.roundFinished', resp => {
         $scope.roundFinished = true;
         $scope.allPlayersReady = false;
-        $scope.player.isReady = false;
         $scope.gameStarted = false;
         $scope.stopCalled = false;
         $scope.playersAnswers = [];
+        $scope.changeStatus();
     });
     
 }]);
