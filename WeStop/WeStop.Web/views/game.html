@@ -48,7 +48,7 @@
 
 </div>
 
-<div ng-if="stopCalled">
+<div ng-if="stopCalled && !endGame">
     
     <h1 ng-if="themeAnswersValidations.length > 0">Valide as respostas dos outros jogadores</h1>
     <div ng-repeat="themeAnswersValidation in themeAnswersValidations">
@@ -62,5 +62,17 @@
     </div>
 
     <p ng-if="themeAnswersValidations.length == 0">Aguarde a validação dos outros jogadores...</p>
+
+</div>
+
+<div ng-if="endGame">
+
+    <h4>{{ finalScoreboard.winner }} foi o vencedor da partida!!</h4>
+    
+    <p ng-repeat="score in finalScoreboard.playersPontuations">
+        {{ score.userName }} - {{ score.pontuation }} pontos
+    </p>
+
+    <button ng-click="">Jogar novamente</button>
 
 </div>

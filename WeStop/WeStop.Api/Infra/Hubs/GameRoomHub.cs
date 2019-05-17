@@ -132,7 +132,7 @@ namespace WeStop.Api.Infra.Hubs
                         .Where(x => x.Answers.Where(y => y.Theme == theme && y.Answer == answerValidations.Key).Count() > 0);
 
                     // Se for mais de um, dar 5 pontos para cada jogador
-                    if (players?.Count() > 1)
+                    if (players.Count() > 1)
                     {
                         foreach (var player in players)
                             player.GeneratePointsForTheme(theme, 5);
@@ -160,11 +160,65 @@ namespace WeStop.Api.Infra.Hubs
                 player.GeneratePointsForTheme(theme, 0);
         }
 
-        public void ChangeStatusOfAllPlayersToWait()
+        public bool IsFinalRound() =>
+            CurrentRound.Number == Options.Rounds;
+
+        public ICollection<PlayerScore> GetScoreboard()
         {
-            foreach (var player in Players)
-                player.IsReady = false;
+            return CurrentRound.Players.Select(x => new PlayerScore
+            {
+                UserName = x.Player.UserName,
+                RoundPontuation = x.EarnedPoints,
+                GamePontuation = x.Player.EarnedPoints
+            }).OrderByDescending(x => x.RoundPontuation).ToList();
         }
+
+        public FinalScoreboard GetFinalPontuation() // Falta tratar empate
+        {
+            var playersPontuations = new List<PlayerFinalPontuation>();
+
+            foreach (var round in Rounds)
+            {
+                foreach (var playerRound in round.Players)
+                {
+                    var playerPontuation = playersPontuations.FirstOrDefault(p => p.UserName == playerRound.Player.UserName);
+
+                    if (playerPontuation is null)
+                    {
+                        playersPontuations.Add(new PlayerFinalPontuation
+                        {
+                            UserName = playerRound.Player.UserName,
+                            Pontuation = playerRound.EarnedPoints
+                        });
+                    }
+                    else
+                        playerPontuation.Pontuation += playerRound.EarnedPoints;
+                }
+            }
+
+            return new FinalScoreboard
+            {
+                Winner = playersPontuations.OrderByDescending(x => x.Pontuation).First().UserName,
+                PlayersPontuations = playersPontuations
+            };
+        }
+
+        public void StartNew()
+        {
+
+        }
+    }
+
+    public class FinalScoreboard
+    {
+        public string Winner { get; set; }
+        public ICollection<PlayerFinalPontuation> PlayersPontuations { get; set; }
+    }
+
+    public class PlayerFinalPontuation
+    {
+        public string UserName { get; set; }
+        public int Pontuation { get; set; }
     }
 
     public class GameOptions
@@ -177,10 +231,10 @@ namespace WeStop.Api.Infra.Hubs
             NumberOfPlayers = numberOfPlayers;
         }
 
-        public string[] Themes { get; set; }
-        public string[] AvailableLetters { get; set; }
-        public int Rounds { get; set; }
-        public int NumberOfPlayers { get; set; }
+        public string[] Themes { get; private set; }
+        public string[] AvailableLetters { get; private set; }
+        public int Rounds { get; private set; }
+        public int NumberOfPlayers { get; private set; }
     }
 
     public class Player
@@ -304,6 +358,13 @@ namespace WeStop.Api.Infra.Hubs
 
         public string Theme { get; set; }
         public IDictionary<string, bool> Validations { get; set; }
+    }
+
+    public class PlayerScore
+    {
+        public string UserName { get; set; }
+        public int RoundPontuation { get; set; }
+        public int GamePontuation { get; set; }
     }
 
     public class GameRoomHub : Hub
@@ -509,28 +570,23 @@ namespace WeStop.Api.Infra.Hubs
 
             if (game.AllPlayersSendValidationsOfAllThemes())
             {
-                await Clients.Group(dto.GameId.ToString()).SendAsync("game.roundFinished", new
+                if (game.IsFinalRound())
                 {
-                    ok = true
-                });
-
-                //game.ChangeStatusOfAllPlayersToWait();
-                await SendUpdatedScoreboardToAllConnections(dto.GameId, game);
+                    await Clients.Group(dto.GameId.ToString()).SendAsync("game.end", new
+                    {
+                        ok = true,
+                        finalScoreboard = game.GetFinalPontuation()
+                    });
+                }
+                else
+                {
+                    await Clients.Group(dto.GameId.ToString()).SendAsync("game.roundFinished", new
+                    {
+                        ok = true,
+                        scoreboard = game.GetScoreboard()
+                    });
+                }
             }
-        }
-
-        private async Task SendUpdatedScoreboardToAllConnections(Guid gameId, Game game)
-        {
-            await Clients.Group(gameId.ToString()).SendAsync("game.updatedScoreboard", new
-            {
-                ok = true,
-                scoreboard = game.CurrentRound.Players.Select(x => new
-                {
-                    x.Player.UserName,
-                    roundPontuation = x.EarnedPoints,
-                    gamePontuation = x.Player.EarnedPoints
-                })
-            });
         }
 
         [HubMethodName("player.changeStatus")]

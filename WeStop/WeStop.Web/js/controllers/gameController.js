@@ -9,6 +9,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.playersAnswers = [];
     $scope.roundFinished = false;
     $scope.scoreboard = [];
+    $scope.endGame = false;
+    $scope.finalScoreboard = [];
 
     $game.invoke("game.join", { 
         gameRoomId: $routeParams.id, 
@@ -155,17 +157,19 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         });
     });
 
-    $game.on('game.updatedScoreboard', resp => {
-        $scope.scoreboard = resp.scoreboard;
-    });
-
     $game.on('game.roundFinished', resp => {
+        $scope.scoreboard = resp.scoreboard;
         $scope.roundFinished = true;
         $scope.allPlayersReady = false;
         $scope.gameStarted = false;
         $scope.stopCalled = false;
         $scope.playersAnswers = [];
         $scope.changeStatus();
+    });
+
+    $game.on('game.end', resp => {
+        $scope.endGame = true;
+        $scope.finalScoreboard = resp.finalScoreboard;
     });
     
 }]);
