@@ -1,12 +1,12 @@
 angular.module('WeStop').service('$user', ['$rootScope', function($rootScope) {
 
-    this.create = (userName) => {
-        sessionStorage.setItem('user', userName);
-        $rootScope.user = userName;
+    this.create = (user) => {
+        sessionStorage.setItem('user', JSON.stringify(user));
+        $rootScope.user = user;
     }
 
     this.get = () => {
-        return sessionStorage.getItem('user');
+        return JSON.parse(sessionStorage.getItem('user'));
     }
 
 }]);

@@ -27,7 +27,7 @@
             <span ng-if="!player.isReady" style="color: red;">Aguardando</span>
         </li>
     </ul>
-
+    
     <button ng-click="changeStatus()" ng-if="!player.isAdmin"><span ng-if="player.isReady">Cancelar</span> <span ng-if="!player.isReady">Pronto</span></button>
     <button ng-disabled="!allPlayersReady" ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
     <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
@@ -73,6 +73,6 @@
         {{ score.userName }} - {{ score.pontuation }} pontos
     </p>
 
-    <button ng-click="">Jogar novamente</button>
+    <!-- <button ng-click="">Jogar novamente</button> -->
 
 </div>

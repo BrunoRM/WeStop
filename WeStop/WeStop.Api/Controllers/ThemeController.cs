@@ -1,24 +1,23 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WeStop.Application.Queries.GetThemes;
+using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Controllers
 {
     [ApiController]
     public class ThemeController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IThemeStorage _themeStorage;
 
-        public ThemeController(IMediator mediator)
+        public ThemeController(IThemeStorage themeStorage)
         {
-            _mediator = mediator;
+            _themeStorage = themeStorage;
         }
 
         [Route("api/themes.list"), HttpGet]
         public async Task<IActionResult> GetThemesAsync()
         {
-            var themes = await _mediator.Send(new GetThemesQuery());
+            var themes = await _themeStorage.GetAsync();
 
             return Ok(new
             {

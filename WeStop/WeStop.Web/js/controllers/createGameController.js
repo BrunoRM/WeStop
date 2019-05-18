@@ -30,7 +30,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
     ];
 
     $scope.game = {
-        userName: $rootScope.user,
+        userId: $rootScope.user.id,
         gameOptions: {
             themes: [
                 'Nome',

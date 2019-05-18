@@ -1,6 +1,9 @@
 angular.module('WeStop', [
     'ngRoute'
 ])
+
+.value('API_SETTINGS', { uri: 'http://localhost:5000/api' })
+
 .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
     $locationProvider.hashPrefix('');

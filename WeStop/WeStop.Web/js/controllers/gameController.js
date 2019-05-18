@@ -1,10 +1,8 @@
 angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$user', function ($routeParams, $scope, $game, $rootScope, $user) {
 
+    console.log($rootScope.user)
     $scope.allPlayersReady = false;
     $scope.gameStarted = false;
-    $scope.player = {
-        userName: $rootScope.user
-    }
     $scope.stopCalled = false;
     $scope.playersAnswers = [];
     $scope.roundFinished = false;
@@ -13,8 +11,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.finalScoreboard = [];
 
     $game.invoke("game.join", { 
-        gameRoomId: $routeParams.id, 
-        userName: $scope.player.userName 
+        gameId: $routeParams.id, 
+        userId: $rootScope.user.id
     });
 
     $game.on("game.player.joined", (data) => {
@@ -27,7 +25,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.changeStatus();
         $game.invoke('game.startRound', { 
             gameRoomId: $routeParams.id, 
-            userName: $scope.player.userName 
+            userId: $rootScope.user.id
         });
     };
 
@@ -47,7 +45,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('game.players.joined', data => {
-        
+        console.log(data)
         let player = $scope.players.find((player) => {
             return player.userName == data.player.userName;
         });
@@ -68,7 +66,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         
         $game.invoke('player.changeStatus', {
             gameId: $routeParams.id,
-            userName: $scope.player.userName,
+            userId: $rootScope.user.id,
             isReady: !$scope.player.isReady
         });
         
@@ -92,7 +90,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         
         $game.invoke('players.stop', {
             gameId: $routeParams.id,
-            userName: $scope.player.userName
+            userId: $rootScope.user.id
         });
 
     };
@@ -103,7 +101,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         $game.invoke('player.sendAnswers', {
             gameId: $routeParams.id,
-            userName: $scope.player.userName,
+            userId: $rootScope.user.id,
             answers: $scope.answers
         });
 
@@ -143,7 +141,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         
         let obj = {
             gameId: $routeParams.id,
-            userName: $user.get(),
+            userId: $rootScope.user.id,
             validation: answersValidations
         }
         
