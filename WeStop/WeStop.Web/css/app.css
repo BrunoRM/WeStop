@@ -1,0 +1,22 @@
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('../fonts/PressStart2P-Regular.ttf');
+}
+
+html {
+    margin: 0;
+    height: 100%;
+    background-color: #91B9FF;
+    font-family: 'Press Start 2P', cursive;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    background-color: #91B9FF;
+    padding: 3%;
+}
+
+.game-container {
+    margin-bottom: 1%;
+}

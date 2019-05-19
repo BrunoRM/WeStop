@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WeStop.Api.Infra.Storages.Interfaces;
@@ -22,7 +23,18 @@ namespace WeStop.Api.Controllers
             return Ok(new
             {
                 ok = true,
-                games
+                games = games.Select(g => new 
+                {
+                    g.Id,
+                    g.Name,
+                    isPrivate = string.IsNullOrEmpty(g.Password) ? false : true,
+                    g.Options.Themes,
+                    g.Options.Rounds,
+                    g.Options.AvailableLetters,
+                    g.Options.NumberOfPlayers,
+                    playersInGame = g.Players.Count,
+                    currentRound = g.CurrentRound?.Number ?? 0,
+                })
             });
         }
     }

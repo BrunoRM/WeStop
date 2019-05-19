@@ -1,82 +1,142 @@
-<style>
-    .nes-input {
-        padding: 0px;
-    }
+<div class="col-md-6 offset-md-3 container">
 
-    .nes-select > select {
-        padding: 0px;
-    }
-</style>
+    <div ng-if="currentStep === 1">
 
-<div class="col-md-3 offset-md-4" style="margin-top: 5%;">
-    <!-- <div class="nes-container with-title is-rounded">
-        
-        <p class="title">Novo jogo</p> -->
-    
-        <form name="frmCreateGame" novalidate autocomplete="off">
-            
-            <div class="row">
-                <div class="col-md-12">
-                    <label>Nome do jogo</label>
-                    <input class="nes-input" type="text" ng-model="game.name" />
-                </div>
+        <div class="row">
+            <div class="col-md-12 offset-md-12">
+                <button class="nes-btn is-warning" ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Voltar para o lobby</button>
             </div>
-            
-            <div class="row">
-                <div class="col-md-12">
-                    <label>Número de rodadas</label>
-                    <div class="nes-select">
-                        <select required id="default_select" ng-model="game.rounds">
-                            <option selected value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+        </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <label>Número de jogadores</label>
-                    <div class="nes-select">
-                        <select required id="default_select" ng-model="game.numberOfPlayers">
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- <br />
-            
-            <div class="col-md-12 nes-container with-title is-rounded">
-                <p class="title">Letras do sorteio</p>
+        <br />
+
+        <div class="nes-container is-rounded container-fluid">
+            <form name="frmCreateGame" novalidate autocomplete="off">
                 <div class="row">
-                    <div ng-repeat="letter in availableLetters">
-                        <span style="font-size: 25px;" class="col-md-2 nes-text is-primary">{{ letter }}</span>
+                    <div class="col-md-12">
+                        <label>Nome do jogo</label>
+                        <input maxlength="15" ng-class="{ 'is-error': frmCreateGame.$invalid && frmCreateGame.$dirty }" ng-required="true" class="nes-input" type="text" ng-model="game.name" />
                     </div>
                 </div>
-            </div> -->
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Número de rodadas</label>
+                        <div class="nes-select">
+                            <select required ng-model="game.gameOptions.rounds">
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Número de jogadores</label>
+                        <div class="nes-select">
+                            <select required ng-model="game.gameOptions.numberOfPlayers">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12 offset-md-12">
+                        <button ng-class="{ 'is-success': frmCreateGame.$valid, 'is-disabled': frmCreateGame.$invalid }" ng-disabled="frmCreateGame.$invalid" style="float: right;" class="nes-btn" ng-click="nextStep()">Prosseguir <i class="fa fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div ng-if="currentStep === 2">
+        
+        <div class="row">
+            <div class="col-md-12 offset-md-12">
+                <button class="nes-btn is-warning" ng-click="previousStep()"><i class="fa fa-arrow-left"></i> Voltar</button>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="nes-container with-title is-rounded">            
+            <div class="row">
+                <button ng-class="{ 'is-primary': availableLetter.enabled, 'is-error': !availableLetter.enabled }" ng-click="changeStatus(availableLetter)" class="nes-btn" ng-repeat="availableLetter in availableLetters">
+                    {{ availableLetter.letter }}
+                </button>
+            </div>
+            
+            <br />
+
+            <div class="row">
+                <div class="col-md-12 offset-md-12">
+                    <button style="float: right;" class="nes-btn is-success" ng-click="confirmLetters()">Prosseguir <i class="fa fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div ng-if="currentStep === 3">
+        
+        <div class="row">
+            <div class="col-md-12">
+                <button class="nes-btn is-warning" ng-click="previousStep()"><i class="fa fa-arrow-left"></i> Voltar</button>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="nes-container is-rounded">
+
+            <form name="frmAddTheme" novalidate autocomplete="off">
+                <div class="row">
+                    
+                    <div class="nes-field col-md-9">
+                        <input ng-class="{ 'is-error': frmAddTheme.$invalid && frmAddTheme.$dirty }" ng-model="themeToAdd.name" ng-required="true" placeholder="Adicionar tema" type="text" class="nes-input">
+                    </div>
+    
+                    <div class="col-md-3">
+                        <button ng-disabled="frmAddTheme.$invalid" class="nes-btn" ng-click="addTheme()">+</button>
+                    </div>
+                </div>
+            </form>
 
             <br />
 
             <div class="row">
+                <button ng-class="{ 'is-primary': theme.enabled, 'is-error': !theme.enabled }" ng-click="changeStatus(theme)" class="nes-btn" ng-repeat="theme in themes">
+                    {{ theme.name }}
+                </button>
+            </div>
+    
+            <br />
+
+            <div class="row">
                 <div class="col-md-12">
-                    <button class="nes-btn is-success" ng-click="confirm()">Confirmar</button>
+                    <button style="float: right;" class="nes-btn is-success" ng-click="confirmThemes()">Concluído <i class="fa fa-check"></i></button>
                 </div>
             </div>
 
-        </form>
-    <!-- </div> -->
+        </div>
+    </div>
 </div>

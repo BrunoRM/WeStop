@@ -25,8 +25,11 @@ namespace WeStop.Api.Infra.Storages
                 new Theme { Name = "Profissão" },
                 new Theme { Name = "Inseto" },
                 new Theme { Name = "Instrumento musical" },
-                new Theme { Name = "Profissão" },
-                new Theme { Name = "Programa de televisão" }
+                new Theme { Name = "Programa de televisão" },
+                new Theme { Name = "Flor" },
+                new Theme { Name = "Banda" },
+                new Theme { Name = "Super-herói" },
+                new Theme { Name = "MSÉ" }
             };
             
             return Task.FromResult<ICollection<Theme>>(themes);

@@ -1,76 +1,101 @@
-<!-- <div ng-show="!hasUser">
-    
-    <h3>Crie um usuário</h3>
-    <div class="nes-field">
-        <label>UserName</label>
-        <input type="text" class="nes-input" ng-model="newUser" />
-    </div>
-    <button type="button" class="nes-btn is-primary" ng-click="createUser()">Confirmar</button>
-
-</div> -->
-
-<div class="container-fluid" ng-show="!hasUser">
+<div class="container" ng-show="!hasUser">
     <div class="col-md-6 offset-md-3">
-        <div class="nes-container with-title">
-                <p class="title">Crie um usuário</p>
-            
-            <div class="nes-field">
-                <label>UserName</label>
-                <input type="text" class="nes-input" ng-model="newUser" />
-            </div>
-            <button type="button" class="nes-btn is-primary" ng-click="createUser()">Confirmar</button>
-            
+
+        <div class="nes-container is-rounded with-title">
+            <p class="title">Crie seu usuário e começe a jogar</p>
+            <form novalidate autocapitalize autocomplete="off" ng-submit="createUser()">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input ng-required="true" type="text" class="nes-input" ng-model="newUser" />
+                </div>
+                <button type="submit" class="nes-btn is-primary" class="nes-btn is-normal">Criar</button>
+            </form>
+        </div>        
+        
+    </div>
+</div>
+
+<div class="col-md-8 offset-md-2" ng-if="hasUser">
+    
+    <div class="row">
+        <div class="col-12 col-md-12">
+            <button ng-if="showGameDetails" class="nes-btn is-warning" ng-click="backToGames()"><i class="fa fa-arrow-left"></i> Voltar</button>
+            <button class="nes-btn is-success" ng-click="newGame()"><i class="fa fa-plus"></i> Novo jogo</button>            
         </div>
     </div>
-</div>
 
-<div ng-if="hasUser">
-    <span class="nes-text is-primary">Seu usuário é: {{user.userName}}</span>
-</div>
+    <br />
 
-<div ng-if="hasUser">
+    <div class="nes-container is-rounded container-fluid" ng-if="!showGameDetails">
 
-    <button class="nes-btn is-primary" ng-click="newGame()">Novo jogo</button>
+        <p ng-if="!games || games.length == 0">Não há nenhum jogo disponível no momento</p>
 
-    <h1>Jogos disponíveis</h1>
-    
-    <table ng-if="!showGameDetails">
-        <thead>
-            <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
+        <div class="row" ng-if="games && games.length > 0">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-6 game-container" ng-repeat="game in games" ng-click="details(game)">
+                        <div class="nes-container is-rounded">
+                            <p style="text-align: center;">{{ game.name }}</p>
+                            <div class="row">
 
-        <tbody>
-            <tr ng-repeat="game in games" ng-click="details(game)">
-                <td>{{game.name}}</td>
-                <td>{{game.isPrivate}}</td>
-                <td>{{game.status}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+                                <div class="col-4 col-md-4">
+                                    <div class="row">
+                                        <i style="margin: auto;" class="fa fa-users"></i>
+                                    </div>
+                                    <div class="row" style="text-align: center;">
+                                        <p style="margin: auto;">{{game.playersInGame}}/{{game.numberOfPlayers}}</p>
+                                    </div>
+                                </div>
 
-<div ng-if="showGameDetails">
-    
-    <button ng-click="backToGames()">Voltar</button>
+                                <div class="col-4 col-md-4">
+                                    <div class="row">
+                                        <i style="margin: auto;" class="fa fa-edit"></i>
+                                    </div>
+                                    <div class="row">
+                                        <p style="margin: auto;">{{game.themes.length}}</p>
+                                    </div>
+                                </div>
 
-    <h1>{{gameDetails.name}}</h1>
-    <h4>{{gameDetails.numberOfRounds}}</h4>
-    
-    <h4>Temas</h4>
-    <div ng-repeat="theme in gameDetails.themes">
-        {{ theme }}
+                                <div class="col-4 col-md-4">
+                                    <div class="row" style="margin: auto;">
+                                        <i style="margin: auto;" class="fa fa-undo"></i>
+                                    </div>
+                                    <div class="row">
+                                        <p style="margin: auto;">{{game.currentRound}}/{{game.rounds}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>            
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <h4>Letras</h4>
-    <div ng-repeat="letter in gameDetails.availableLetters">
-        {{ letter }}
-    </div>
+    <div ng-if="showGameDetails">            
+        <h6 style="text-align: center;">Temas</h6>
 
-    <button ng-click="joinGame()">Participar</button>
+        <div class="row">
+            <div ng-repeat="theme in gameDetails.themes track by $index">
+                <a class="nes-btn is-disabled">{{ theme }}</a>
+            </div>
+        </div>
+        
+        <br />
+
+        <h6 style="text-align: center;">Letras</h6>
+        <div class="row">
+            <div ng-repeat="letter in gameDetails.availableLetters">
+                <a class="nes-btn is-disabled">{{ letter }}</a>              
+            </div>
+        </div>
+
+        <br />
+        
+        <div class="row">            
+            <button class="nes-btn is-primary" ng-click="joinGame()"><i class="fa fa-sign-in"></i> Entrar</button>
+        </div>
+    </div>    
 
 </div>
