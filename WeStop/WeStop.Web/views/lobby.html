@@ -2,6 +2,7 @@
     <div class="col-12 col-md-6 offset-md-3">
 
         <div class="nes-container is-dark is-rounded with-title">
+            <p class="title">Crie seu usuário</p>
             <form novalidate autocapitalize autocomplete="off" ng-submit="createUser()">
                 <div class="form-group">
                     <label>Nome</label>
@@ -25,7 +26,9 @@
 
     <br />
 
-    <div class="nes-container is-dark is-rounded container-fluid" ng-if="!showGameDetails">
+    <div class="nes-container is-dark is-rounded container-fluid with-title" ng-if="!showGameDetails">
+        
+        <p class="title">Jogos</p>
 
         <p ng-if="!games || games.length == 0">Não há nenhum jogo disponível no momento</p>
 
@@ -72,7 +75,10 @@
 
     </div>
 
-    <div class="nes-container is-dark" ng-if="showGameDetails">
+    <div class="nes-container with-title is-dark" ng-if="showGameDetails">
+
+        <p class="title">Resumo da sala</p>
+
         <h6 class="nes-text is-warning" style="text-align: center;">Temas</h6>
 
         <div class="row">

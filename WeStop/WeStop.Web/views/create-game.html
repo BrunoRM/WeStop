@@ -10,7 +10,10 @@
 
         <br />
 
-        <div class="nes-container is-dark is-rounded container-fluid">
+        <div class="nes-container with-title is-dark is-rounded container-fluid">
+
+            <p class="title">Informações gerais</p>
+
             <form name="frmCreateGame" novalidate autocomplete="off">
                 <div class="row">
                     <div class="col-md-12">
@@ -77,7 +80,10 @@
 
         <br />
 
-        <div class="nes-container is-dark with-title is-rounded">            
+        <div class="nes-container is-dark with-title is-rounded">
+
+            <p class="title">Letras para sorteio</p>
+
             <div class="row">
                 <button ng-class="{ 'is-primary': availableLetter.enabled, 'is-error': !availableLetter.enabled }" ng-click="changeStatus(availableLetter)" class="nes-btn" ng-repeat="availableLetter in availableLetters">
                     {{ availableLetter.letter }}
@@ -106,7 +112,9 @@
 
         <br />
 
-        <div class="nes-container is-dark is-rounded">
+        <div class="nes-container with-title is-dark is-rounded">
+
+            <p class="title">Temas</p>
 
             <form name="frmAddTheme" novalidate autocomplete="off">
                 <div class="row">

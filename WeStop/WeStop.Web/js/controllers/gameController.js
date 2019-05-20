@@ -16,6 +16,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on("game.player.joined", (data) => {
+        $scope.gameName = data.game.name;
         $scope.pontuation = data.player.earnedPoints;
         $scope.currentRound = data.game.currentRound;
         $scope.numberOfRounds = data.game.rounds;
