@@ -67,10 +67,12 @@ namespace WeStop.Api.Infra.Hubs
                     game.Options.NumberOfPlayers,
                     game.Options.Rounds,
                     game.Options.Themes,
+                    currentRound = game.CurrentRound?.Number + 1 ?? 1,
                     players = game.Players.Select(p => new
                     {
                         p.User.Id,
-                        p.User.UserName
+                        p.User.UserName,
+                        p.IsReady
                     })
                 },
                 player = new 
@@ -78,7 +80,8 @@ namespace WeStop.Api.Infra.Hubs
                     player.User.Id, 
                     player.User.UserName,
                     player.IsAdmin,
-                    player.IsReady
+                    player.IsReady,
+                    player.EarnedPoints
                 }
             });
 

@@ -158,6 +158,7 @@ namespace WeStop.Api.Classes
         {
             return CurrentRound.Players.Select(x => new PlayerScore
             {
+                PlayerId = x.Player.User.Id,
                 UserName = x.Player.User.UserName,
                 RoundPontuation = x.EarnedPoints,
                 GamePontuation = x.Player.EarnedPoints
@@ -178,6 +179,7 @@ namespace WeStop.Api.Classes
                     {
                         playersPontuations.Add(new PlayerFinalPontuation
                         {
+                            PlayerId = playerRound.Player.User.Id,
                             UserName = playerRound.Player.User.UserName,
                             Pontuation = playerRound.EarnedPoints
                         });
@@ -190,7 +192,7 @@ namespace WeStop.Api.Classes
             return new FinalScoreboard
             {
                 Winner = playersPontuations.OrderByDescending(x => x.Pontuation).First().UserName,
-                PlayersPontuations = playersPontuations
+                PlayersPontuations = playersPontuations.OrderByDescending(x => x.Pontuation).ToList()
             };
         }
 

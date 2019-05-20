@@ -1,6 +1,5 @@
 angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$user', function ($routeParams, $scope, $game, $rootScope, $user) {
 
-    console.log($rootScope.user)
     $scope.allPlayersReady = false;
     $scope.gameStarted = false;
     $scope.stopCalled = false;
@@ -9,6 +8,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.scoreboard = [];
     $scope.endGame = false;
     $scope.finalScoreboard = [];
+    $scope.pontuation = 0;
 
     $game.invoke("game.join", { 
         gameId: $routeParams.id, 
@@ -16,6 +16,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on("game.player.joined", (data) => {
+        $scope.pontuation = data.player.earnedPoints;
+        $scope.currentRound = data.game.currentRound;
+        $scope.numberOfRounds = data.game.rounds;
         $scope.players = data.game.players;
         $scope.player = data.player;
         checkAllPlayersReady();
@@ -45,7 +48,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('game.players.joined', data => {
-        console.log(data)
         let player = $scope.players.find((player) => {
             return player.userName == data.player.userName;
         });
@@ -154,7 +156,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 return themeValidation;
         });
     });
-
+    
     $game.on('game.roundFinished', resp => {
         $scope.scoreboard = resp.scoreboard;
         $scope.roundFinished = true;
@@ -163,11 +165,25 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.stopCalled = false;
         $scope.playersAnswers = [];
         $scope.changeStatus();
+        $scope.currentRound++;
+        $scope.gameConfig.currentRound.sortedLetter = '';
+
+        let playerRoundPontuation = resp.scoreboard.find(playerScore => {
+            return playerScore.playerId === $rootScope.user.id;
+        });
+
+        $scope.pontuation = playerRoundPontuation.gamePontuation;
     });
 
     $game.on('game.end', resp => {
         $scope.endGame = true;
         $scope.finalScoreboard = resp.finalScoreboard;
+
+        let playerRoundPontuation = resp.finalScoreboard.playersPontuations.find(playerScore => {
+            return playerScore.playerId === $rootScope.user.id;
+        });
+
+        $scope.pontuation = playerRoundPontuation.pontuation;
     });
     
 }]);
