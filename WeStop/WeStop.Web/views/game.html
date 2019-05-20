@@ -4,7 +4,7 @@
             <!-- Informações gerais da partida e do jogador -->
             <div class="row">
                 
-                <div class="col-1 col-md-2 offset-md-1">
+                <div class="col-4 offset-1 col-md-2 offset-md-1">
                     <div class="row" style="text-align: center;">
                         <p style="text-align: center; margin-bottom: 0px;">Jogador</p>
                     </div>
@@ -15,7 +15,7 @@
                     </div>
                 </div>
 
-                <div class="col-1 col-md-1 offset-md-1">
+                <div class="col-4 offset-3 col-md-1 offset-md-1">
                     <div class="row">
                         <p style="text-align: center; margin-bottom: 0px;">Rodada</p>
                     </div>
@@ -26,12 +26,12 @@
                     </div>
                 </div>
 
-                <div class="col-1 col-md-1 offset-md-2">
+                <div class="col-4 offset-1 col-md-1 offset-md-2">
                     <div class="row">
                         <p style="text-align: center; margin-bottom: 0px;">Letra</p>
                     </div>
                     <div class="row">
-                        <div class="col-md-2 offset-md-2">
+                        <div class="col-1 offset-2 col-md-2 offset-md-2">
                             <p style="text-align: center;"> 
                                 <span ng-if="gameConfig.currentRound.sortedLetter && gameConfig.currentRound.sortedLetter !== ''">{{gameConfig.currentRound.sortedLetter}}</span>
                                 <span ng-if="!gameConfig.currentRound.sortedLetter || gameConfig.currentRound.sortedLetter === ''">-</span>
@@ -40,12 +40,12 @@
                     </div>
                 </div>
                 
-                <div class="col-1 offset-1 col-md-2 offset-md-2">
+                <div class="col-4 offset-3 col-md-2 offset-md-2">
                     <div class="row">
                         <p style="text-align: center; margin-bottom: 0px;">Pontos</p>
                     </div>
                     <div class="row">
-                        <div class="col-md-2 offset-md-1">
+                        <div class="col-1 offset-2 col-md-2 offset-md-1">
                             <p style="text-align: center;">{{pontuation}}</p>
                         </div>
                     </div>
@@ -80,22 +80,32 @@
                     </li>
                 </ul>
 
-                <button ng-class="{ 'is-primary': !player.isReady, 'is-error': player.isReady }" class="nes-btn" ng-click="changeStatus()" ng-if="!player.isAdmin"><span ng-if="player.isReady">Cancelar</span> <span ng-if="!player.isReady">Pronto</span></button>
-                <button ng-class="{ 'is-primary': allPlayersReady, 'is-disabled': !allPlayersReady }" class="nes-btn" ng-disabled="!allPlayersReady" ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
-                <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
+                <div class="row">
+                    <div class="col-12 col-md-12">
+                        <button ng-class="{ 'is-primary': !player.isReady, 'is-error': player.isReady }" class="nes-btn" ng-click="changeStatus()" ng-if="!player.isAdmin"><span ng-if="player.isReady">Cancelar</span> <span ng-if="!player.isReady">Pronto</span></button>
+                    </div>
+                    <div class="col-12 col-md-12">
+                        <button ng-class="{ 'is-primary': allPlayersReady, 'is-disabled': !allPlayersReady }" class="nes-btn" ng-disabled="!allPlayersReady" ng-click="startGame()" ng-if="player.isAdmin">Iniciar jogo</button>
+                    </div>
+                    <div class="col-12 col-md-12">
+                        <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Jogo -->
             <div ng-if="gameStarted && !stopCalled">
                 
                 <div class="form-row">
-                    <div class="form-group col-md-4" ng-repeat="answer in answers">
+                    <div class="form-group col-6 col-md-4" ng-repeat="answer in answers">
                         <label for="{{answer.theme}}">{{answer.theme}}</label>
                         <input class="nes-input form-control" ng-disabled="stopCalled" type="text" name="{{answer.theme}}" ng-model="answer.answer" />
                     </div>
                 </div>
 
-                <button class="nes-btn is-error" ng-disabled="stopCalled" ng-click="stop()"><i class="fa fa-stop"></i> STOP</button>
+                <div class="row">
+                    <button class="col-12 col-md-12 nes-btn is-error" ng-disabled="stopCalled" ng-click="stop()"><i class="fa fa-stop"></i> STOP</button>
+                </div>
 
             </div>
 
@@ -107,7 +117,7 @@
                 <br />
                 
                 <div class="form-row">
-                    <div class="form-group col-md-3" ng-repeat="themeAnswersValidation in themeAnswersValidations">
+                    <div class="form-group col-6 col-md-3" ng-repeat="themeAnswersValidation in themeAnswersValidations">
                         
                         <span class="nes-text is-primary">{{themeAnswersValidation.theme}}</span>
                         <div ng-repeat="answerValidation in themeAnswersValidation.answersValidations">                        
@@ -122,7 +132,7 @@
                     </div>
                 </div>
 
-                <p ng-if="themeAnswersValidations.length == 0">Aguarde a validação dos outros jogadores...</p>
+                <p class="nes-text is-warning" ng-if="themeAnswersValidations.length == 0">Aguardando validação dos outros jogadores...</p>
 
             </div>
 
