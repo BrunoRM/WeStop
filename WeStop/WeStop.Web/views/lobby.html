@@ -1,12 +1,12 @@
 <div class="container" ng-show="!hasUser">
-    <div class="col-12 col-md-6 offset-md-3">
+    <div class="col-12 col-md-8 offset-md-2">
 
         <div class="nes-container is-dark is-rounded with-title">
             <p class="title">Crie seu usuário</p>
             <form novalidate autocapitalize autocomplete="off" ng-submit="createUser()">
                 <div class="form-group">
                     <label>Nome</label>
-                    <input placeholder="Crie seu usuário" ng-required="true" type="text" class="nes-input" ng-model="newUser" />
+                    <input ng-required="true" type="text" class="nes-input" ng-model="newUser" />
                 </div>
                 <button type="submit" class="nes-btn is-primary" class="nes-btn is-normal">Criar</button>
             </form>

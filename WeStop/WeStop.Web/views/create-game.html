@@ -132,9 +132,11 @@
             <br />
 
             <div class="row">
-                <button ng-class="{ 'is-primary': theme.enabled, 'is-error': !theme.enabled }" ng-click="changeStatus(theme)" class="nes-btn" ng-repeat="theme in themes">
-                    {{ theme.name }}
-                </button>
+                <div class="col-md-12">
+                    <button ng-class="{ 'is-primary': theme.enabled, 'is-error': !theme.enabled }" ng-click="changeStatus(theme)" class="nes-btn" ng-repeat="theme in themes">
+                        {{ theme.name }}
+                    </button>
+                </div>
             </div>
     
             <br />

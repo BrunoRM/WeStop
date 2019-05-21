@@ -6,15 +6,16 @@
 html {
     margin: 0;
     height: 100%;
-    background-color: #91B9FF;
+    background-color: #212529;
     font-family: 'Press Start 2P', cursive;
 }
 
 body {
     margin: 0;
     height: 100%;
-    background-color: #91B9FF;
+    background-color: #212529;
     padding: 3%;
+    font-size: 13px;
 }
 
 .game-container {
