@@ -57,12 +57,11 @@ namespace WeStop.Api.Classes
         {
             foreach (var player in Players)
             {
-                var themesWithPlayersAnswers = CurrentRound.Players
-                    .Where(playerRound => playerRound.Player.User.Id != player.User.Id)
-                    .Select(playerRound => playerRound.Answers.Where(answer => answer.Theme == theme))
-                    .SelectMany(answers => answers.Select(answer => answer.Theme)).Distinct();
+                // Verificar se algum outro jogador respondeu esse tema
+                var otherPlayersAnsweredTheme = CurrentRound.Players.Any(x => x.Player.User.Id != player.User.Id && x.Answers.Where(a => a.Theme == theme).Any());
 
-                foreach (var t in themesWithPlayersAnswers)
+                // Se sim, o jogador da iteração atual deverá ter validado a resposta
+                if (otherPlayersAnsweredTheme)
                 {
                     if (!GetPlayerCurrentRound(player.User.Id).ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme))
                         return false;
