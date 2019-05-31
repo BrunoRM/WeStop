@@ -1,5 +1,4 @@
 using System;
-using WeStop.Api.Classes;
 
 namespace WeStop.Api.Dtos
 {
@@ -7,6 +6,14 @@ namespace WeStop.Api.Dtos
     {
         public Guid UserId { get; set; }
         public string Name { get; set; }
-        public GameOptions GameOptions { get; set; }
+        public GameOptionsDto GameOptions { get; set; }
+    }
+
+    public class GameOptionsDto
+    {
+        public string[] Themes { get; set; }
+        public string[] AvailableLetters { get; set; }
+        public int Rounds { get; set; }
+        public int NumberOfPlayers { get; set; }
     }
 }

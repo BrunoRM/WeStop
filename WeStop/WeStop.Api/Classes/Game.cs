@@ -37,7 +37,11 @@ namespace WeStop.Api.Classes
 
         public void StartNextRound()
         {
-            string sortedLetter = Options.AvailableLetters[new Random().Next(0, Options.AvailableLetters.Length - 1)];
+            string sortedLetter = Options.AvailableLetters
+                .Where(x => x.Value == false).ToArray()[new Random().Next(0, Options.AvailableLetters.Count(al => al.Value == false) - 1)]
+                .Key;
+
+            Options.AvailableLetters[sortedLetter] = true;
 
             CurrentRound = new Round
             {

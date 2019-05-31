@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Classes;
@@ -752,6 +751,38 @@ namespace WeStop.UnitTest
             Assert.AreEqual(10, player2Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(0, player2Round.ThemesPontuations["CEP"]);
             Assert.AreEqual(10, player2Round.EarnedPoints);
+        }
+
+        /// <summary>
+        /// Testa se as letras sorteadas nas rodadas não são repetidas
+        /// </summary>
+        [Test]
+        public void NotRepeatSortedLetters()
+        {
+            List<string> sortedLetters = new List<string>();
+
+            _game.StartNextRound();
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
         }
     }
 }
