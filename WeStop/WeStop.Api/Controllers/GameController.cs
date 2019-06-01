@@ -33,7 +33,7 @@ namespace WeStop.Api.Controllers
                     g.Options.AvailableLetters,
                     g.Options.NumberOfPlayers,
                     playersInGame = g.Players.Count,
-                    currentRound = g.CurrentRound?.Number ?? 1,
+                    currentRound = g.GetNextRoundNumber()
                 })
             });
         }

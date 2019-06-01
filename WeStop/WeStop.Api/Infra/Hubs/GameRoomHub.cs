@@ -67,7 +67,7 @@ namespace WeStop.Api.Infra.Hubs
                     game.Options.NumberOfPlayers,
                     game.Options.Rounds,
                     game.Options.Themes,
-                    currentRound = game.CurrentRound?.Number + 1 ?? 1,
+                    currentRound = game.GetNextRoundNumber(),
                     players = game.Players.Select(p => new
                     {
                         p.User.Id,

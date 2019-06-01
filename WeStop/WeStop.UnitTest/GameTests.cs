@@ -1,7 +1,9 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Classes;
+using WeStop.Api.Exceptions;
 
 namespace WeStop.UnitTest
 {
@@ -41,7 +43,7 @@ namespace WeStop.UnitTest
         [SetUp]
         public void SetUp()
         {
-            _game = new Game("teste", "", new GameOptions(_themes, _availableLetters, 3, 5));
+            _game = new Game("teste", "", new GameOptions(_themes, _availableLetters, 6, 5));
             _game.AddPlayer(_player1);
             _game.AddPlayer(_player2);
             _game.AddPlayer(_player3);
@@ -51,7 +53,7 @@ namespace WeStop.UnitTest
         /// Testa se nas respostas válidas duplicadas são gerados 5 pontos para cada jogador
         /// </summary>
         [Test]
-        public void TestIfDuplicatesAnswersGenerates5PointsForEachPlayer()
+        public void DuplicatesAnswersGenerates5PointsForEachPlayer()
         {
             _game.StartNextRound();
 
@@ -93,7 +95,7 @@ namespace WeStop.UnitTest
         /// Testa se nas respostas válidas diferentes são gerados 10 pontos para cada jogador
         /// </summary>
         [Test]
-        public void TestIfDifferentsAnswersGenerates10PointsForEachPlayer()
+        public void DifferentsAnswersGenerates10PointsForEachPlayer()
         {
             _game.StartNextRound();
 
@@ -138,7 +140,7 @@ namespace WeStop.UnitTest
         /// Testa se nas respostas inválidas são gerados 0 pontos para cada jogador
         /// </summary>
         [Test]
-        public void TestIfInvalidAnswersGenerates0PointsForEachPlayer()
+        public void InvalidAnswersGenerates0PointsForEachPlayer()
         {
             _game.StartNextRound();
 
@@ -180,7 +182,7 @@ namespace WeStop.UnitTest
         /// Testa se para um jogador com resposta invalidada pelos outros é gerado 0 pontos
         /// </summary>
         [Test]
-        public void TestPlayerWithAnswerInvalidatedForOthersIsGenerated0Points()
+        public void PlayerWithAnswerInvalidatedForOthersIsGenerated0Points()
         {
             _game.StartNextRound();
 
@@ -224,7 +226,7 @@ namespace WeStop.UnitTest
         /// Testa se retorna verdadeiro quando todos os jogadores enviaram suas validações para todos os temas
         /// </summary>
         [Test]
-        public void TestReturnTrueWhenAllPlayersSendValidationsOfAllThemes()
+        public void ReturnTrueWhenAllPlayersSendValidationsOfAllThemes()
         {
             _game.StartNextRound();
 
@@ -285,7 +287,7 @@ namespace WeStop.UnitTest
         /// Testa se retorna verdadeiro quando todos os jogadores enviaram suas validações para um tema específico
         /// </summary>
         [Test]
-        public void TestReturnTrueWhenAllPlayersSendValidationsOfATheme()
+        public void ReturnTrueWhenAllPlayersSendValidationsOfATheme()
         {
             _game.StartNextRound();
 
@@ -317,7 +319,7 @@ namespace WeStop.UnitTest
         /// Testa se com as respostas de todos os jogadores sendo diferentes, ao fim de uma rodada as pontuações foram geradas corretamente
         /// </summary>
         [Test]
-        public void TestPontuationWithAllAnswersDistinctIsCorrectAfterEndOfRound()
+        public void PontuationWithAllAnswersDistinctIsCorrectAfterEndOfRound()
         {
             string[] themes = new string[]
             {
@@ -442,7 +444,7 @@ namespace WeStop.UnitTest
         /// Testa se com as respostas de todos os jogadores, com algumas iguais, ao fim de uma rodada as pontuações foram geradas corretamente
         /// </summary>
         [Test]
-        public void TestPontuationWithSomeAnswersEqualsIsCorrectAfterEndOfRound()
+        public void PontuationWithSomeAnswersEqualsIsCorrectAfterEndOfRound()
         {
             string[] themes = new string[]
             {
@@ -562,7 +564,7 @@ namespace WeStop.UnitTest
         /// Testa se com algumas respostas sendo inválidadas pelos jogadores, ao fim de uma rodada as pontuações foram geradas corretamente
         /// </summary>
         [Test]
-        public void TestPontuationWithSomeAnswersInvalidatedByPlayersIsCorrectAfterEndOfRound()
+        public void PontuationWithSomeAnswersInvalidatedByPlayersIsCorrectAfterEndOfRound()
         {
             string[] themes = new string[]
             {
@@ -684,7 +686,7 @@ namespace WeStop.UnitTest
         }
 
         [Test]
-        public void TestReturnTrueWhenPlayerDidNotReportATheme()
+        public void ReturnTrueWhenPlayerDidNotReportATheme()
         {
             GameOptions gameOptions = new GameOptions(_themes, _availableLetters, 2, 3);
             var game = new Game("teste", "", gameOptions);
@@ -721,8 +723,11 @@ namespace WeStop.UnitTest
             Assert.IsTrue(game.AllPlayersSendValidationsOfAllThemes());
         }
 
+        /// <summary>
+        /// Verifica se os pontos são gerados corretamente quando um jogador não informou resposa para um tema
+        /// </summary>
         [Test]
-        public void TestPontuationIsCorrectWhenPlayerDidNotReportATheme()
+        public void PontuationIsCorrectWhenPlayerDidNotReportATheme()
         {
             _game.StartNextRound();
 
@@ -783,6 +788,21 @@ namespace WeStop.UnitTest
             _game.StartNextRound();
             Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
+        }
+
+        /// <summary>
+        /// Testa se quando o jogo já estiver finalizado, não será possível iniciar uma nova rodada
+        /// </summary>
+        [Test]
+        public void NewRoundIsNotStartedIfGameIsFinished()
+        {
+            _game.StartNextRound();
+            _game.StartNextRound();
+            _game.StartNextRound();
+            _game.StartNextRound();
+            _game.StartNextRound();
+            _game.StartNextRound();            
+            Assert.Throws<WeStopException>(() => _game.StartNextRound());
         }
     }
 }

@@ -1,42 +1,50 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeStop.Api.Exceptions;
 
 namespace WeStop.Api.Classes
 {
     public class Game
     {
+        private ICollection<Player> _players;
+        private ICollection<Round> _rounds;
+
         public Game(string name, string password, GameOptions options)
         {
             Id = Guid.NewGuid();
             Name = name;
             Password = password;
             Options = options;
-            Players = new List<Player>();
-            Rounds = new List<Round>();
+            _players = new List<Player>();
+            _rounds = new List<Round>();
         }
 
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
-        public GameOptions Options { get; set; }
-        public ICollection<Round> Rounds { get; set; }
-        public ICollection<Player> Players { get; set; }
+        public Guid Id { get; private set; }
+        public string Name { get; private set; }
+        public string Password { get; private set; }
+        public GameOptions Options { get; private set; }
+        public IReadOnlyCollection<Round> Rounds => _rounds.ToList();
+        public IReadOnlyCollection<Player> Players => _players.ToList();
         public Round CurrentRound { get; private set; }
+
+        public int GetNextRoundNumber() =>
+            CurrentRound?.Number + 1 ?? 1;
 
         public void AddPlayer(Player player)
         {
             if (!Players.Any(x => x.User.Id == player.User.Id))
-                Players.Add(player);
+                _players.Add(player);
         }
 
-        public PlayerRound GetPlayerCurrentRound(Guid playerId)
-        {
-            return CurrentRound.Players.First(x => x.Player.User.Id == playerId);
-        }
+        public PlayerRound GetPlayerCurrentRound(Guid playerId) =>
+            CurrentRound.Players.First(x => x.Player.User.Id == playerId);
 
         public void StartNextRound()
         {
+            if (IsFinalRound())
+                throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
+
             string sortedLetter = Options.AvailableLetters
                 .Where(x => x.Value == false).ToArray()[new Random().Next(0, Options.AvailableLetters.Count(al => al.Value == false) - 1)]
                 .Key;
@@ -54,7 +62,7 @@ namespace WeStop.Api.Classes
                 }).ToList()
             };
 
-            Rounds.Add(CurrentRound);
+            _rounds.Add(CurrentRound);
         }
 
         public bool AllPlayersSendValidationsOfTheme(string theme)
@@ -155,7 +163,7 @@ namespace WeStop.Api.Classes
         }
 
         public bool IsFinalRound() =>
-            CurrentRound.Number == Options.Rounds;
+            CurrentRound?.Number == Options.Rounds;
 
         public ICollection<PlayerScore> GetScoreboard()
         {
