@@ -167,45 +167,31 @@ namespace WeStop.Api.Classes
 
         public ICollection<PlayerScore> GetScoreboard()
         {
-            return CurrentRound.Players.Select(x => new PlayerScore
+            return CurrentRound?.Players.Select(x => new PlayerScore
             {
                 PlayerId = x.Player.User.Id,
                 UserName = x.Player.User.UserName,
                 RoundPontuation = x.EarnedPoints,
                 GamePontuation = x.Player.EarnedPoints
-            }).OrderByDescending(x => x.RoundPontuation).ToList();
+            }).OrderByDescending(x => x.GamePontuation).ToList();
         }
 
-        public FinalScoreboard GetFinalPontuation() // Falta tratar empate
+        public IEnumerable<string> GetWinners()
         {
-            var playersPontuations = new List<PlayerFinalPontuation>();
+            if (!IsFinalRound())
+                throw new WeStopException("Só é possível eleger um vencedor se a partida já foi finalizada");
 
-            foreach (var round in Rounds)
-            {
-                foreach (var playerRound in round.Players)
-                {
-                    var playerPontuation = playersPontuations.FirstOrDefault(p => p.UserName == playerRound.Player.User.UserName);
+            var scoreBoard = GetScoreboard();
 
-                    if (playerPontuation is null)
-                    {
-                        playersPontuations.Add(new PlayerFinalPontuation
-                        {
-                            PlayerId = playerRound.Player.User.Id,
-                            UserName = playerRound.Player.User.UserName,
-                            Pontuation = playerRound.EarnedPoints
-                        });
-                    }
-                    else
-                        playerPontuation.Pontuation += playerRound.EarnedPoints;
-                }
-            }
+            // Busca a melhor pontuação entre todos os jogadores
+            int bestPontuation = scoreBoard.Max(p => p.GamePontuation);
 
-            return new FinalScoreboard
-            {
-                Winner = playersPontuations.OrderByDescending(x => x.Pontuation).First().UserName,
-                PlayersPontuations = playersPontuations.OrderByDescending(x => x.Pontuation).ToList()
-            };
-        }
+            // Busca o nome de todos os jogadores que tiveram a pontuação igual a melhor
+            return scoreBoard
+                .Where(sb => sb.GamePontuation == bestPontuation)
+                .OrderBy(p => p.UserName)
+                .Select(sb => sb.UserName);
+        }        
 
         public void StartNew()
         {

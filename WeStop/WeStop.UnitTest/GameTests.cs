@@ -57,29 +57,29 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(5, player1Round.ThemesPontuations["FDS"]);
             Assert.AreEqual(5, player1Round.EarnedPoints);
@@ -99,22 +99,22 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bianca", true),
                 new AnswerValidation("Bruna", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bianca", true),
                 new AnswerValidation("Bruno", true)
@@ -122,9 +122,9 @@ namespace WeStop.UnitTest
 
             _game.ProccessPontuationForTheme("Nome");
 
-            var player1Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(10, player1Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(10, player1Round.EarnedPoints);
@@ -144,29 +144,29 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(0, player1Round.ThemesPontuations["FDS"]);
             Assert.AreEqual(0, player1Round.EarnedPoints);
@@ -186,31 +186,31 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true),
                 new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true),
                 new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben") });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
             _game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(5, player1Round.ThemesPontuations["FDS"]);
             Assert.AreEqual(5, player1Round.EarnedPoints);
@@ -230,51 +230,51 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer>
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
             {
                 new ThemeAnswer("Nome", "Bruno"),
                 new ThemeAnswer("FDS", "Ben 10")
             });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true),
                 new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer>
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer>
             {
                 new ThemeAnswer("Nome", "Bruna"),
                 new ThemeAnswer("FDS", "Ben 10")
             });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true),
                 new AnswerValidation("Ben", false)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer>
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer>
             {
                 new ThemeAnswer("Nome", "Breno"),
                 new ThemeAnswer("FDS", "Ben")
             });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
@@ -291,22 +291,22 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
-            _game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
+            _game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
@@ -337,76 +337,76 @@ namespace WeStop.UnitTest
 
             game.StartNextRound();
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Band of Brothers") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Band of Brothers") });
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bahamas", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Belina", true),
                 new AnswerValidation("Bugatti", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bublebee", true),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bahamas") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Belina") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Bumblebee") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bahamas") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Belina") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Bumblebee") });
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Bugatti", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Bugatti") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Bugatti") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Belina", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Bumblebee", true)
@@ -417,9 +417,9 @@ namespace WeStop.UnitTest
             game.ProccessPontuationForTheme("Carro");
             game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(10, player1Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(10, player1Round.ThemesPontuations["CEP"]);
@@ -462,72 +462,72 @@ namespace WeStop.UnitTest
 
             game.StartNextRound();
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Belina", true),
                 new AnswerValidation("Brasilia", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Belina") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Belina") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasilia", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Belina", true),
                 new AnswerValidation("Belina", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
@@ -537,9 +537,9 @@ namespace WeStop.UnitTest
             game.ProccessPontuationForTheme("Carro");
             game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(10, player1Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(5, player1Round.ThemesPontuations["CEP"]);
@@ -582,76 +582,76 @@ namespace WeStop.UnitTest
 
             game.StartNextRound();
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Br") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Band of Brothers") });
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Br") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Brasilia") });
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Band of Brothers") });
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bahamas", true),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Be", false),
                 new AnswerValidation("Bugatti", true)
             }));
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bu", false),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bahamas") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Be") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Bu") });
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruna") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bahamas") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Be") });
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Bu") });
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Bugatti", true)
             }));
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Bugatti") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Breno") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Bélgica") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Carro", "Bugatti") });
+            game.GetPlayerCurrentRound(_player3.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("Carro", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Be", false)
             }));
-            game.GetPlayerCurrentRound(_player3.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player3.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Bu", false)
@@ -662,9 +662,9 @@ namespace WeStop.UnitTest
             game.ProccessPontuationForTheme("Carro");
             game.ProccessPontuationForTheme("FDS");
 
-            var player1Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
-            var player3Round = game.CurrentRound.Players.First(x => x.Player.User.Id == _player3.User.Id);
+            var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
+            var player3Round = game.CurrentRound.Players.First(x => x.Player.Id == _player3.Id);
 
             Assert.AreEqual(10, player1Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(0, player1Round.ThemesPontuations["CEP"]);
@@ -694,28 +694,28 @@ namespace WeStop.UnitTest
             game.AddPlayer(_player2);
             game.StartNextRound();
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer>
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
             {
                 new ThemeAnswer("FDS", "Ben 10")
             });
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bruna", true)
             }));
 
-            game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer>
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer>
             {
                 new ThemeAnswer("Nome", "Bruna"),
                 new ThemeAnswer("FDS", "Ben 10")
             });
 
-            game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("FDS", new List<AnswerValidation>()
             {
                 new AnswerValidation("Ben 10", true)
             }));
@@ -731,14 +731,14 @@ namespace WeStop.UnitTest
         {
             _game.StartNextRound();
 
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
-            _game.GetPlayerCurrentRound(_player1.User.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
+            _game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>()
             {
                 new AnswerValidation("Bianca", true)
             }));
 
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
-            _game.GetPlayerCurrentRound(_player2.User.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
+            _game.GetPlayerCurrentRound(_player2.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bianca") });
+            _game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>()
             {
                 new AnswerValidation("Brasil", true)
             }));
@@ -746,8 +746,8 @@ namespace WeStop.UnitTest
             _game.ProccessPontuationForTheme("Nome");
             _game.ProccessPontuationForTheme("CEP");
 
-            var player1Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player1.User.Id);
-            var player2Round = _game.CurrentRound.Players.First(x => x.Player.User.Id == _player2.User.Id);
+            var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
+            var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
 
             Assert.AreEqual(0, player1Round.ThemesPontuations["Nome"]);
             Assert.AreEqual(10, player1Round.ThemesPontuations["CEP"]);
@@ -803,6 +803,247 @@ namespace WeStop.UnitTest
             _game.StartNextRound();
             _game.StartNextRound();            
             Assert.Throws<WeStopException>(() => _game.StartNextRound());
+        }
+
+        /// <summary>
+        /// Verifica se o array de vencedores possui mais de um registro quando a partida terminou em empate
+        /// </summary>
+        [Test]
+        public void ReturnMoreThanOneWinnerWhenDrew()
+        {
+            var themes = new string[]
+            {
+                "Nome",
+                "CEP"
+            };
+
+            var game = new Game("teste", "", new GameOptions(themes, _availableLetters, 3, 2));
+            game.AddPlayer(_player1);
+            game.AddPlayer(_player2);
+
+            #region First Round
+            
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Bruno");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Brasil");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Bruna", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Brasilia", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Bruna");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "Brasilia");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Bruno", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Brasil", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+
+            #region Second Round
+
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Amanda");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Amapá");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Alberto", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Alemanha", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Alberto");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "Alemanha");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Amanda", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Amapá", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+
+            #region Third Round
+
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Gabriel");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Goiás");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Gabriela", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Goiânia", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Gabriela");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "Goiânia");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Gabriel", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Goiás", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+        
+            var winners = game.GetWinners();
+            
+            Assert.Greater(1, winners.Count());
+        }
+
+        /// <summary>
+        /// Verifica se o array de vencedores possui apenas um registro quando a partida possui apenas um vencedor
+        /// </summary>
+        [Test]
+        public void ReturnOneWinnerWhenHasVictory()
+        {
+            var themes = new string[]
+            {
+                "Nome",
+                "CEP"
+            };
+
+            var game = new Game("teste", "", new GameOptions(themes, _availableLetters, 3, 2));
+            game.AddPlayer(_player1);
+            game.AddPlayer(_player2);
+
+            #region First Round
+            
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Bruno");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Brasil");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Bruna", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Brasilia", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Bruna");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "Brasilia");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Bruno", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Brasil", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+
+            #region Second Round
+
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Amanda");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Amapá");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Alberto", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Alemanha", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Alberto");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "Alemanha");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Amanda", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Amapá", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+
+            #region Third Round
+
+            game.StartNextRound();
+
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("Nome", "Gabriel");
+            game.GetPlayerCurrentRound(_player1.Id).AddAnswer("CEP", "Goiás");
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Gabriela", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player1.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("G", false)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("Nome", "Gabriela");
+            game.GetPlayerCurrentRound(_player2.Id).AddAnswer("CEP", "G");
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("Nome", new List<AnswerValidation>
+            {
+                new AnswerValidation("Gabriel", true)
+            }));
+
+            game.GetPlayerCurrentRound(_player2.Id).AddThemeAnswersValidations(new ThemeValidation("CEP", new List<AnswerValidation>
+            {
+                new AnswerValidation("Goiás", true)
+            }));
+
+            game.ProccessPontuationForTheme("Nome");
+            game.ProccessPontuationForTheme("CEP");
+
+            #endregion
+        
+            var winners = game.GetWinners();
+
+            Assert.AreEqual(1, winners.Count());
+            Assert.AreEqual("Bruno", winners.ElementAt(0));
         }
     }
 }

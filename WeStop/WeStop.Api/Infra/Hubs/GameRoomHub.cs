@@ -73,7 +73,8 @@ namespace WeStop.Api.Infra.Hubs
                         p.User.Id,
                         p.User.UserName,
                         p.IsReady
-                    })
+                    }),
+                    scoreboard = game.GetScoreboard()
                 },
                 player = new 
                 { 
@@ -186,7 +187,8 @@ namespace WeStop.Api.Infra.Hubs
                     await Clients.Group(dto.GameId.ToString()).SendAsync("game.end", new
                     {
                         ok = true,
-                        finalScoreboard = game.GetFinalPontuation()
+                        winners = game.GetWinners(),
+                        scoreboard = game.GetScoreboard()
                     });
                 }
                 else

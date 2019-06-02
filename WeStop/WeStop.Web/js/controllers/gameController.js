@@ -22,6 +22,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.numberOfRounds = data.game.rounds;
         $scope.players = data.game.players;
         $scope.player = data.player;
+        $scope.scoreboard = data.game.scoreboard;
         checkAllPlayersReady();
     });
 
@@ -116,6 +117,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         let answers = resp.answers;
 
         for (let i = 0; i < answers.length; i++) {
+            
             let answer = answers[i];
             
             let themeValidation = $scope.themeAnswersValidations.find((validation) => validation.theme === answer.theme);
@@ -157,6 +159,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 return themeValidation;
         });
     });
+
+    function getPlayerRoundPontuation(scoreboard) {
+        return scoreboard.find(playerScore => {
+            return playerScore.playerId === $rootScope.user.id;
+        });
+    };
     
     $game.on('game.roundFinished', resp => {
         $scope.scoreboard = resp.scoreboard;
@@ -169,22 +177,19 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentRound++;
         $scope.gameConfig.currentRound.sortedLetter = '';
 
-        let playerRoundPontuation = resp.scoreboard.find(playerScore => {
-            return playerScore.playerId === $rootScope.user.id;
-        });
+        let playerRoundPontuation = getPlayerRoundPontuation(resp.scoreboard);
 
         $scope.pontuation = playerRoundPontuation.gamePontuation;
     });
 
     $game.on('game.end', resp => {
         $scope.endGame = true;
-        $scope.finalScoreboard = resp.finalScoreboard;
+        $scope.winners = resp.winners;
 
-        let playerRoundPontuation = resp.finalScoreboard.playersPontuations.find(playerScore => {
-            return playerScore.playerId === $rootScope.user.id;
-        });
+        let playerRoundPontuation = getPlayerRoundPontuation(resp.scoreboard);
 
-        $scope.pontuation = playerRoundPontuation.pontuation;
+        $scope.pontuation = playerRoundPontuation.gamePontuation;
+        $scope.scoreboard = resp.scoreboard;
     });
     
 }]);

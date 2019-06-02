@@ -5,7 +5,6 @@
             <p class="title">{{ gameName }}</p>
 
             <!-- Informações gerais da partida e do jogador -->
-
             <div class="row">
                 <div class="col-1 col-md-3 offset-md-0">
                     <p style="font-size: 13px; text-align: center; margin-bottom: 0px;">Jogador</p>
@@ -40,17 +39,31 @@
                 </div>
             </div>
 
-            <!-- Placar da rodada -->
-            <div ng-if="scoreboard.length > 0 && !gameStarted">
+            <!-- Placar -->
+            <div ng-if="scoreboard.length > 0 && (!gameStarted || endGame)">
                 <div class="nes-container">
-                    <p class="title">Placar da rodada</p>
+                    <p class="title">
+                        <span ng-if="!endGame">Placar até o momento</span>
+                        <span ng-if="endGame">Placar final</span>
+                    </p>
 
-                    <div class="lists">
-                        <ul class="nes-list is-circle">
-                            <li ng-repeat="score in scoreboard">
-                                <span ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text">{{score.userName}} - {{score.roundPontuation}} Pts</span>
-                            </li>
-                        </ul>
+                    <div class="nes-table-responsive">
+                        <table class="nes-table is-bordered is-centered is-dark">
+                            <thead>
+                                <tr>
+                                    <th>Jogador</th>
+                                    <th>Pts na rodada</th>
+                                    <th>Pts na partida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text" ng-repeat="score in scoreboard">
+                                    <td>{{score.userName}}</td>
+                                    <td>{{score.roundPontuation}}</td>
+                                    <td>{{score.gamePontuation}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -128,16 +141,13 @@
             <!-- Fim do jogo -->
             <div ng-if="endGame">
 
-                <h6><span class="nes-text is-primary">{{ finalScoreboard.winner }}</span> foi o vencedor da partida!! <i class="nes-icon trophy is-medium"></i> </h6>
-                
-                <br />
+                <div ng-if="winners.length > 1">
+                    <h6>A partida terminou empatada!!</h6>
+                </div>
 
-                <p class="nes-text is-warning">Placar final</p>
-                <ol>
-                    <li class="nes-list is-disc" ng-repeat="score in finalScoreboard.playersPontuations">
-                        <span ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text">{{ score.userName }} - {{ score.pontuation }} Pts</span>
-                    </li>
-                </ul>
+                <div ng-if="winners.length === 1">
+                    <h6><span class="nes-text is-primary">{{ winners[0] }}</span> foi o vencedor da partida!! <i class="nes-icon trophy is-medium"></i> </h6>
+                </div>
 
             </div>
         </div>
