@@ -30,7 +30,7 @@ namespace WeStop.Api.Controllers
                     isPrivate = string.IsNullOrEmpty(g.Password) ? false : true,
                     g.Options.Themes,
                     g.Options.Rounds,
-                    g.Options.AvailableLetters,
+                    availableLetters = g.Options.AvailableLetters.Keys,
                     g.Options.NumberOfPlayers,
                     playersInGame = g.Players.Count,
                     currentRound = g.GetNextRoundNumber()
