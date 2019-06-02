@@ -1,3 +1,5 @@
+using System;
+
 namespace WeStop.Api.Classes
 {
     public class Player
@@ -12,6 +14,8 @@ namespace WeStop.Api.Classes
         }
 
         public User User { get; private set; }
+        public Guid Id => User.Id;
+        public string UserName => User.UserName;
         public bool IsAdmin { get; private set; }
         public bool IsReady { get; private set; }
         public int EarnedPoints { get; private set; }
