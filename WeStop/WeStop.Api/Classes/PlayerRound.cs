@@ -35,6 +35,11 @@ namespace WeStop.Api.Classes
             Answers.Add(themeAnswer);
         }
 
+        public void AddAnswer(string theme, string answer)
+        {
+            AddAnswer(new ThemeAnswer(theme, answer));
+        }
+
         public void AddAnswers(ICollection<ThemeAnswer> answers)
         {
             foreach (var answer in answers)
