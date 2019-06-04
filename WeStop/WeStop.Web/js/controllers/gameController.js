@@ -61,6 +61,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     function checkAllPlayersReady() {
+        
+        if ($scope.players.length === 1) return false;
+
         $scope.allPlayersReady = !$scope.players.some(player => {
             return player.userName !== $scope.player.userName && !player.isReady;
         });
@@ -134,6 +137,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
                 $scope.themeAnswersValidations.push(obj);
             } else {
+
+                // Se a resposta já existir, não mostrar novamente
+                if (themeValidation.answersValidations.find(av => av.answer === answer.answer)) return;
+
                 themeValidation.answersValidations.push({
                     answer: answer.answer,
                     valid: true

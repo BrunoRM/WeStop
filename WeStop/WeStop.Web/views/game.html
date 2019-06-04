@@ -96,12 +96,14 @@
             <!-- Jogo -->
             <div ng-if="gameStarted && !stopCalled">
                 
-                <div class="form-row">
-                    <div class="form-group col-6 col-md-4" ng-repeat="answer in answers track by $index">
-                        <label for="{{answer.theme}}">{{answer.theme}}</label>
-                        <input maxlength="15" class="nes-input form-control" ng-disabled="stopCalled" type="text" name="{{answer.theme}}" ng-model="answer.answer" />
+                <form novalidate autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group col-6 col-md-4" ng-repeat="answer in answers track by $index">
+                            <label for="{{answer.theme}}">{{answer.theme}}</label>
+                            <input maxlength="15" class="nes-input form-control" ng-disabled="stopCalled" type="text" name="{{answer.theme}}" ng-model="answer.answer" />
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="row">
                     <div class="col-md-12">
