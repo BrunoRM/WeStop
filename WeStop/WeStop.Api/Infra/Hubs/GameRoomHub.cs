@@ -13,11 +13,22 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
+        private static IDictionary<string, (Guid gameId, Guid playerId)> _connectionsInfo = new Dictionary<string, (Guid gameId, Guid playerId)>();
         
         public GameRoomHub(IUserStorage userStorage, IGameStorage gameStorage)
         {
             _users = userStorage;
             _games = gameStorage;
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            /// Buscar o jogo em que o jogador está, e mudar o status dele para offline
+            var game = await _games.GetByIdAsync(_connectionsInfo[Context.ConnectionId].gameId);
+            game.GetPlayer(_connectionsInfo[Context.ConnectionId].playerId).SetOffline();
+
+            _connectionsInfo.Remove(Context.ConnectionId);
+            await base.OnDisconnectedAsync(exception);
         }
 
         [HubMethodName("games.create")]
@@ -47,15 +58,19 @@ namespace WeStop.Api.Infra.Hubs
 
             var game = await _games.GetByIdAsync(dto.GameId);
 
-            var player = game.Players.FirstOrDefault(x => x.User.Id == user.Id);
+            var player = game.GetPlayer(user.Id);
 
             if (player is null)
             {
                 player = new Player(user, false);
                 game.AddPlayer(player);
             }
+            else
+                player.SetOnline();
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
+
+            _connectionsInfo.Add(Context.ConnectionId, (gameId: game.Id, playerId: player.Id));
 
             await Clients.Caller.SendAsync("game.player.joined", new
             {

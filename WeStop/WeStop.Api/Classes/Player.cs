@@ -11,6 +11,7 @@ namespace WeStop.Api.Classes
             IsAdmin = false;
             EarnedPoints = 0;
             IsAdmin = isAdmin;
+            Status = PlayerStatus.Online;
         }
 
         public User User { get; private set; }
@@ -19,6 +20,7 @@ namespace WeStop.Api.Classes
         public bool IsAdmin { get; private set; }
         public bool IsReady { get; private set; }
         public int EarnedPoints { get; private set; }
+        public PlayerStatus Status { get; private set; }
 
         public void AddPoints(int points)
         {
@@ -30,5 +32,11 @@ namespace WeStop.Api.Classes
         {
             IsReady = isReady;
         }
+
+        public void SetOnline() =>
+            Status = PlayerStatus.Online;
+
+        public void SetOffline() =>
+            Status = PlayerStatus.Offline;
     }
 }

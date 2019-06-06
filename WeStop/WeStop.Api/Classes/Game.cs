@@ -37,6 +37,9 @@ namespace WeStop.Api.Classes
                 _players.Add(player);
         }
 
+        public Player GetPlayer(Guid id) =>
+            _players.FirstOrDefault(p => p.Id == id);
+
         public PlayerRound GetPlayerCurrentRound(Guid playerId) =>
             CurrentRound.Players.First(x => x.Player.User.Id == playerId);
 
@@ -70,7 +73,7 @@ namespace WeStop.Api.Classes
             foreach (var player in Players)
             {
                 // Verificar se algum outro jogador respondeu esse tema
-                var otherPlayersAnsweredTheme = CurrentRound.Players.Any(x => x.Player.User.Id != player.User.Id && x.Answers.Where(a => a.Theme == theme).Any());
+                var otherPlayersAnsweredTheme = CurrentRound.Players.Any(x => x.Player.User.Id != player.User.Id && player.Status == PlayerStatus.Online && x.Answers.Where(a => a.Theme == theme).Any());
 
                 // Se sim, o jogador da iteração atual deverá ter validado a resposta
                 if (otherPlayersAnsweredTheme)
@@ -92,7 +95,7 @@ namespace WeStop.Api.Classes
             foreach (var player in Players)
             {
                 var themesWithPlayersAnswers = CurrentRound.Players
-                    .Where(playerRound => playerRound.Player.User.Id != player.User.Id)
+                    .Where(playerRound => playerRound.Player.User.Id != player.User.Id && player.Status == PlayerStatus.Online)
                     .Select(playerRound => playerRound.Answers)
                     .SelectMany(answers => answers.Select(x => x.Theme)).Distinct();
 
@@ -109,7 +112,7 @@ namespace WeStop.Api.Classes
         public void ProccessPontuationForTheme(string theme)
         {
             // Buscar as validações dos jogadores para as respostas desse tema na rodada atual
-            var playersValidations = CurrentRound.Players
+            var playersValidations = CurrentRound.GetPlayersOnline()
                 .Select(x => x.ThemesAnswersValidations)
                 .Select(x => x.Where(y => y.Theme == theme))
                 .SelectMany(x => x.SelectMany(y => y.AnswersValidations));
@@ -167,7 +170,7 @@ namespace WeStop.Api.Classes
 
         public ICollection<PlayerScore> GetScoreboard()
         {
-            return CurrentRound?.Players.Select(x => new PlayerScore
+            return CurrentRound?.GetPlayersOnline().Select(x => new PlayerScore
             {
                 PlayerId = x.Player.User.Id,
                 UserName = x.Player.User.UserName,

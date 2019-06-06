@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeStop.Api.Classes
 {
@@ -14,5 +15,8 @@ namespace WeStop.Api.Classes
         public string SortedLetter { get; set; }
         public bool Finished { get; set; }
         public ICollection<PlayerRound> Players { get; set; }
+
+        public ICollection<PlayerRound> GetPlayersOnline() =>
+            Players.Where(pr => pr.Player.Status == PlayerStatus.Online).ToList();
     }
 }
