@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Classes;
 using WeStop.Api.Exceptions;
+using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest
 {
@@ -53,8 +54,10 @@ namespace WeStop.UnitTest
         /// Testa se nas respostas válidas duplicadas são gerados 5 pontos para cada jogador
         /// </summary>
         [Test]
-        public void DuplicatesAnswersGenerates5PointsForEachPlayer()
+        public void DuplicatesAnswersGeneratesFivePointsForEachPlayer()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
+
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
@@ -97,6 +100,7 @@ namespace WeStop.UnitTest
         [Test]
         public void DifferentsAnswersGenerates10PointsForEachPlayer()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
@@ -142,6 +146,7 @@ namespace WeStop.UnitTest
         [Test]
         public void InvalidAnswersGenerates0PointsForEachPlayer()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
@@ -184,6 +189,7 @@ namespace WeStop.UnitTest
         [Test]
         public void PlayerWithAnswerInvalidatedForOthersIsGenerated0Points()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("FDS", "Ben 10") });
@@ -228,6 +234,7 @@ namespace WeStop.UnitTest
         [Test]
         public void ReturnTrueWhenAllPlayersSendValidationsOfAllThemes()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -289,6 +296,7 @@ namespace WeStop.UnitTest
         [Test]
         public void ReturnTrueWhenAllPlayersSendValidationsOfATheme()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
@@ -335,6 +343,7 @@ namespace WeStop.UnitTest
             game.AddPlayer(_player2);
             game.AddPlayer(_player3);
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
@@ -460,6 +469,7 @@ namespace WeStop.UnitTest
             game.AddPlayer(_player2);
             game.AddPlayer(_player3);
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
@@ -580,6 +590,7 @@ namespace WeStop.UnitTest
             game.AddPlayer(_player2);
             game.AddPlayer(_player3);
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("Nome", "Bruno") });
@@ -692,6 +703,8 @@ namespace WeStop.UnitTest
             var game = new Game("teste", "", gameOptions);
             game.AddPlayer(_player1);
             game.AddPlayer(_player2);
+
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -729,6 +742,7 @@ namespace WeStop.UnitTest
         [Test]
         public void PontuationIsCorrectWhenPlayerDidNotReportATheme()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
             _game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer> { new ThemeAnswer("CEP", "Brasil") });
@@ -766,25 +780,31 @@ namespace WeStop.UnitTest
         {
             List<string> sortedLetters = new List<string>();
 
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
 
-            _game.StartNextRound();
-            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
-            sortedLetters.Add(_game.CurrentRound.SortedLetter);
-
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
 
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
 
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
 
+            _game.SetAllPlayersReadyForTheNextRound();
+            _game.StartNextRound();
+            Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
+            sortedLetters.Add(_game.CurrentRound.SortedLetter);
+
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             Assert.IsFalse(sortedLetters.Contains(_game.CurrentRound.SortedLetter));
             sortedLetters.Add(_game.CurrentRound.SortedLetter);
@@ -796,12 +816,24 @@ namespace WeStop.UnitTest
         [Test]
         public void NewRoundIsNotStartedIfGameIsFinished()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
+
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
+
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
+
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
+
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
-            _game.StartNextRound();            
+
+            _game.SetAllPlayersReadyForTheNextRound();
+            _game.StartNextRound();
+
             Assert.Throws<WeStopException>(() => _game.StartNextRound());
         }
 
@@ -825,7 +857,8 @@ namespace WeStop.UnitTest
             game.AddPlayer(player2);
 
             #region First Round
-            
+
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
             
             game.GetPlayerCurrentRound(player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -867,6 +900,7 @@ namespace WeStop.UnitTest
 
             #region Second Round
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
             
             game.GetPlayerCurrentRound(player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -908,6 +942,7 @@ namespace WeStop.UnitTest
 
             #region Third Round
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -969,7 +1004,8 @@ namespace WeStop.UnitTest
             game.AddPlayer(_player2);
 
             #region First Round
-            
+
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -1011,6 +1047,7 @@ namespace WeStop.UnitTest
 
             #region Second Round
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -1052,6 +1089,7 @@ namespace WeStop.UnitTest
 
             #region Third Round
 
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -1109,7 +1147,8 @@ namespace WeStop.UnitTest
             var game = new Game("teste", "", new GameOptions(themes, _availableLetters, 3, 2, 30));
             game.AddPlayer(_player1);
             game.AddPlayer(_player2);
-            
+
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -1139,7 +1178,8 @@ namespace WeStop.UnitTest
             var game = new Game("teste", "", new GameOptions(themes, _availableLetters, 3, 2, 30));
             game.AddPlayer(_player1);
             game.AddPlayer(_player2);
-            
+
+            game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
             game.GetPlayerCurrentRound(_player1.Id).AddAnswers(new List<ThemeAnswer>
@@ -1154,6 +1194,7 @@ namespace WeStop.UnitTest
         [Test]
         public void AllPlayersAnswersAreReturnedExceptFromEspecifiedPlayer()
         {
+            _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
             var player1Answers = new List<ThemeAnswer>
             {

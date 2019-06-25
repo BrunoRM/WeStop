@@ -55,5 +55,8 @@ namespace WeStop.Api.Classes
             ThemesPontuations.Add(theme, points);
             Player.AddPoints(points);
         }
+
+        public bool HasValidationForTheme(string theme) =>
+            ThemesAnswersValidations.Any(themeValidation => themeValidation.Theme == theme);
     }
 }

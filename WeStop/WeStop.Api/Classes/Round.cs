@@ -7,12 +7,20 @@ namespace WeStop.Api.Classes
 {
     public class Round
     {
-        public Round()
+        private Round()
         {
             Finished = false;
             Players = new List<PlayerRound>();
             CurrentRoundTime = 0;
             CurrentValidationTime = 0;
+        }
+
+        public Round(int number, string sortedLetter, ICollection<PlayerRound> players)
+            : this()
+        {
+            Number = number;
+            SortedLetter = sortedLetter;
+            Players = players;
         }
 
         public int Number { get; set; }
@@ -28,7 +36,7 @@ namespace WeStop.Api.Classes
         public void RefreshRoundTime() =>
             CurrentRoundTime++;
 
-        public ICollection<PlayerRound> GetPlayersOnline() =>
+        public ICollection<PlayerRound> GetOnlinePlayers() =>
             Players.Where(pr => pr.Player.Status == PlayerStatus.Online).ToList();
 
         public ICollection<ThemeAnswers> GetPlayersAnswers(Guid playerId)
