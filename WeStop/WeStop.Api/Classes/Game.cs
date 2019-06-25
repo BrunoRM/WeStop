@@ -194,11 +194,9 @@ namespace WeStop.Api.Classes
                 .Where(sb => sb.GamePontuation == bestPontuation)
                 .OrderBy(p => p.UserName)
                 .Select(sb => sb.UserName);
-        }        
-
-        public void StartNew()
-        {
-
         }
+
+        public bool AllOnlinePlayersSendAnswers() =>
+            !CurrentRound.Players.Any(p => p.Player.Status == PlayerStatus.Online && !p.AnswersSended);
     }
 }

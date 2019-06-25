@@ -10,10 +10,12 @@ namespace WeStop.Api.Classes
             ThemesAnswersValidations = new List<ThemeValidation>();
             ThemesPontuations = new Dictionary<string, int>();
             Answers = new List<ThemeAnswer>();
+            AnswersSended = false;
         }
 
         public Player Player { get; set; }
         public ICollection<ThemeAnswer> Answers { get; set; }
+        public bool AnswersSended { get; private set; }
         public IDictionary<string, int> ThemesPontuations { get; set; }
         public ICollection<ThemeValidation> ThemesAnswersValidations { get; set; }
         public int EarnedPoints => ThemesPontuations.Values.Sum();
@@ -35,7 +37,7 @@ namespace WeStop.Api.Classes
             Answers.Add(themeAnswer);
         }
 
-        public void AddAnswer(string theme, string answer)
+        private void AddAnswer(string theme, string answer)
         {
             AddAnswer(new ThemeAnswer(theme, answer));
         }
@@ -44,6 +46,8 @@ namespace WeStop.Api.Classes
         {
             foreach (var answer in answers)
                 AddAnswer(answer);
+
+            AnswersSended = true;
         }
 
         public void GeneratePointsForTheme(string theme, int points)

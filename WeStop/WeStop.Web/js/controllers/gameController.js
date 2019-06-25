@@ -9,6 +9,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.endGame = false;
     $scope.finalScoreboard = [];
     $scope.pontuation = 0;
+    $scope.currentRoundTime = 0;
+    $scope.currentValidationTime = 0;
 
     $game.invoke("game.join", { 
         gameId: $routeParams.id, 
@@ -20,6 +22,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.pontuation = data.player.earnedPoints;
         $scope.currentRound = data.game.currentRound;
         $scope.numberOfRounds = data.game.rounds;
+        $scope.roundTime = data.game.roundTime;
         $scope.players = data.game.players;
         $scope.player = data.player;
         $scope.scoreboard = data.game.scoreboard;
@@ -112,41 +115,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             answers: $scope.answers
         });
 
-    });
-    
-    $scope.themeAnswersValidations = [];
-    $game.on('player.answersSended', (resp) => {
+        $scope.roundTime = 0;
 
-        let answers = resp.answers;
-
-        for (let i = 0; i < answers.length; i++) {
-            
-            let answer = answers[i];
-            
-            let themeValidation = $scope.themeAnswersValidations.find((validation) => validation.theme === answer.theme);
-
-            if (!themeValidation) {
-                let obj = {
-                    theme: answer.theme,
-                    answersValidations: [{
-                            answer: answer.answer,
-                            valid: true
-                        }
-                    ]
-                }
-
-                $scope.themeAnswersValidations.push(obj);
-            } else {
-
-                // Se a resposta já existir, não mostrar novamente
-                if (themeValidation.answersValidations.find(av => av.answer === answer.answer)) return;
-
-                themeValidation.answersValidations.push({
-                    answer: answer.answer,
-                    valid: true
-                });
-            }
-        }
     });
 
     $scope.validate = (answersValidations) => {
@@ -174,6 +144,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
     
     $game.on('game.roundFinished', resp => {
+        $scope.currentRoundTime = 0;
+        $scope.currentValidationTime = 0;
         $scope.scoreboard = resp.scoreboard;
         $scope.roundFinished = true;
         $scope.allPlayersReady = false;
@@ -197,6 +169,35 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         $scope.pontuation = playerRoundPontuation.gamePontuation;
         $scope.scoreboard = resp.scoreboard;
+    });
+    
+    $game.on('roundTimeElapsed', resp => {
+        $scope.currentRoundTime = resp;
+    });
+    
+    // $game.on('validationTimeElapsed', resp => {
+    //     $scope.currentValidationTime = resp;
+    // });
+
+    $game.on('validationTimeOver', resp => {
+        
+    });
+
+    $game.on('allAnswersReceived', resp => {
+        console.log(resp);
+        $scope.themeAnswersValidations = [];
+        let playersAnswers = resp;
+        for (let i = 0; i < playersAnswers.length; i++) {
+            $scope.themeAnswersValidations.push({
+                theme: playersAnswers[i].theme,
+                answersValidations: playersAnswers[i].answers.map((answer) => {
+                    return {
+                        answer: answer,
+                        valid: true
+                    }
+                })
+            })
+        }
     });
     
 }]);

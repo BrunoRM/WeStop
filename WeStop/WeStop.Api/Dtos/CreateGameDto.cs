@@ -14,6 +14,7 @@ namespace WeStop.Api.Dtos
         public string[] Themes { get; set; }
         public string[] AvailableLetters { get; set; }
         public int Rounds { get; set; }
+        public int RoundTime { get; set; }
         public int NumberOfPlayers { get; set; }
     }
 }

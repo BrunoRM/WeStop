@@ -48,7 +48,8 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
             themes: [],
             availableLetters: [],
             rounds: "4",
-            numberOfPlayers: "6"
+            numberOfPlayers: "6",
+            roundTime: "30"
         }
     };
 

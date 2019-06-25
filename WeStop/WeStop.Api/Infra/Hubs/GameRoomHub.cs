@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using WeStop.Api.Classes;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Storages.Interfaces;
@@ -13,12 +15,14 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
+        private readonly GameTimerContext _gameTimerContext;
         private static IDictionary<string, (Guid gameId, Guid playerId)> _connectionsInfo = new Dictionary<string, (Guid gameId, Guid playerId)>();
         
-        public GameRoomHub(IUserStorage userStorage, IGameStorage gameStorage)
+        public GameRoomHub(IUserStorage userStorage, IGameStorage gameStorage, GameTimerContext gameTimerContext)
         {
             _users = userStorage;
             _games = gameStorage;
+            _gameTimerContext = gameTimerContext;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -36,7 +40,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             var user = await _users.GetByIdAsync(dto.UserId);
 
-            var game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers));
+            var game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.RoundTime));
             game.AddPlayer(new Player(user, true));
 
             await _games.CreateAsync(game);
@@ -49,6 +53,9 @@ namespace WeStop.Api.Infra.Hubs
                 is_admin = true,
                 game
             });
+
+            _gameTimerContext.AddRoundTimer(game.Id);
+            _gameTimerContext.AddValidationTimer(game.Id);
         }
 
         [HubMethodName("game.join")]
@@ -81,6 +88,7 @@ namespace WeStop.Api.Infra.Hubs
                     game.Name,
                     game.Options.NumberOfPlayers,
                     game.Options.Rounds,
+                    game.Options.RoundTime,
                     game.Options.Themes,
                     currentRound = game.GetNextRoundNumber(),
                     players = game.Players.Select(p => new
@@ -140,6 +148,8 @@ namespace WeStop.Api.Infra.Hubs
                     currentRound = game.Rounds.Last()
                 }
             });
+            
+            _gameTimerContext.StartRoundTimer(game.Id);
         }
 
         [HubMethodName("players.stop")]
@@ -152,8 +162,12 @@ namespace WeStop.Api.Infra.Hubs
             await Clients.Group(dto.GameId.ToString()).SendAsync("players.stopCalled", new
             {
                 ok = true,
+                reason = "PLAYER_CALL_STOP",
                 userName = playerCalledStop.User.UserName
             });
+
+            _gameTimerContext.StopRoundTimer(game.Id);
+            _gameTimerContext.StartValidationTimer(game.Id);
         }
 
         [HubMethodName("player.sendAnswers")]
@@ -161,19 +175,27 @@ namespace WeStop.Api.Infra.Hubs
         {
             var game = await _games.GetByIdAsync(dto.GameId);
 
-            var player = game.Players.FirstOrDefault(x => x.User.Id == dto.UserId);
-
-            game.GetPlayerCurrentRound(player.User.Id).AddAnswers(dto.Answers);
-
-            var playerAnswers = game.GetPlayerCurrentRound(player.User.Id).Answers;
-
-            var answers = new Dictionary<string, string>();
-
-            await Clients.GroupExcept(dto.GameId.ToString(), Context.ConnectionId).SendAsync("player.answersSended", new
+            // É necessário o uso do lock pois pode acontecer de um client obter acesso enquanto o servidor está processando
+            // a requisição de outro, resultando em dessincronização, o que pode afetar a condição escrita abaixo que verifica
+            // se todos os jogadores online já enviaram suas respostas. No caso, pode ocorrer da condição ser verdadeira para dois
+            // jogadores distintos, ocasionando no envio das respostas N vezes para os players, resultando na duplicação das mesmas.
+            lock (game)
             {
-                ok = true,
-                answers = playerAnswers
-            });
+                var player = game.Players.FirstOrDefault(x => x.User.Id == dto.UserId);
+
+                game.GetPlayerCurrentRound(player.User.Id).AddAnswers(dto.Answers);
+
+                if (game.AllOnlinePlayersSendAnswers())
+                {
+                    foreach (var connectionInfo in _connectionsInfo)
+                    {
+                        var playersAnswers = game.CurrentRound.GetPlayersAnswers(connectionInfo.Value.playerId);
+                        Clients.Client(connectionInfo.Key).SendAsync("allAnswersReceived", playersAnswers).Wait();
+                    }
+
+                    _gameTimerContext.StartValidationTimer(game.Id);
+                }
+            }
         }
 
         [HubMethodName("player.sendAnswersValidations")]

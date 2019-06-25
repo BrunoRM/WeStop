@@ -13,7 +13,7 @@
                     <p style="font-size: 13px; text-align: center; margin-bottom: 0px;">Rodada</p>
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
-                    <p style="font-size: 13px; text-align: center; margin-bottom: 0px;">Letra</p>
+                    <p style="font-size: 13px; text-align: center; margin-bottom: 0px;">Tempo</p>
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
                     <p style="font-size: 13px; text-align: center; margin-bottom: 0px;">Pts</p>
@@ -30,8 +30,7 @@
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
                     <p style="font-size: 13px; text-align: center;">
-                        <span ng-if="gameConfig.currentRound.sortedLetter && gameConfig.currentRound.sortedLetter !== ''">{{gameConfig.currentRound.sortedLetter}}</span>
-                        <span ng-if="!gameConfig.currentRound.sortedLetter || gameConfig.currentRound.sortedLetter === ''">-</span>
+                        {{currentRoundTime}}
                     </p>
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
@@ -95,10 +94,14 @@
 
             <!-- Jogo -->
             <div ng-if="gameStarted && !stopCalled">
-                
+
+                <h5 class="nes-text is-warning">Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h5>
+
+                <br />
+
                 <form novalidate autocomplete="off">
                     <div class="form-row">
-                        <div class="form-group col-6 col-md-4" ng-repeat="answer in answers track by $index">
+                        <div class="form-group col-6 col-md-6" ng-repeat="answer in answers track by $index">
                             <label for="{{answer.theme}}">{{answer.theme}}</label>
                             <input maxlength="15" class="nes-input form-control" ng-disabled="stopCalled" type="text" name="{{answer.theme}}" ng-model="answer.answer" />
                         </div>
@@ -118,6 +121,10 @@
                 
                 <span class="nes-text is-warning" ng-if="themeAnswersValidations.length > 0">Valide as respostas dos outros jogadores</span>
                 
+                <br />
+
+                <!-- {{currentValidationTime}} -->
+
                 <br />
                 
                 <div class="form-row">
