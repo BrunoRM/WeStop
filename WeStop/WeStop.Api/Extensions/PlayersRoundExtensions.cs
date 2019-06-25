@@ -6,7 +6,7 @@ namespace WeStop.Api.Extensions
 {
     public static class PlayersRoundExtensions
     {
-        public static bool MoreThanOnePlayerReportedAnswerForTheme(this ICollection<PlayerRound> players) =>
-            players.Count() > 1;
+        public static bool MoreThanOnePlayerRepliedAnswerForTheme(this ICollection<PlayerRound> playersInRound) =>
+            playersInRound.Count() > 1;
     }
 }

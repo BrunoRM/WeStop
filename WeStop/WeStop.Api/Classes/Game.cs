@@ -133,63 +133,62 @@ namespace WeStop.Api.Classes
         // TODO: Revisar nomes dos métodos e quebrar mais eles
         public void ProccessPontuationForTheme(string theme)
         {
-            ICollection<AnswerValidation> playersValidations = GetOnlinePlayersValidationsByTheme(theme);
+            var playersValidations = GetOnlinePlayersValidationsForTheme(theme);
+            var groupedValidations = GroupTotalValidationsByAnswer(playersValidations);
 
-            var validations = GroupValidationsCountByAnswer(playersValidations);
-
-            foreach (var answerValidations in validations)
+            foreach (var answerValidations in groupedValidations)
             {
-                if (ValidAnswersIsGreatherThanInvalidAnswers(answerValidations))
+                if (TotalValidIsGreatherThanOrEqualToTotalInvalidForAnswer(answerValidations))
                 {
-                    var players = GetPlayersThatReportedAnswerForTheme(answerValidations.Key, theme);
+                    var players = GetPlayersThatRepliedAnswerForTheme(answer: answerValidations.Key, theme);
 
-                    if (players.MoreThanOnePlayerReportedAnswerForTheme())
-                        GenerateFivePointsForEachPlayer(theme, players);
+                    if (players.MoreThanOnePlayerRepliedAnswerForTheme())
+                        GenerateFiveThemePointsForEachPlayer(theme, players);
                     else
-                        GenerateTenPointsForEachPlayer(theme, players);
+                        GenerateTenThemePointsForEachPlayer(theme, players);
                 }
                 else
                 {
-                    var players = GetPlayersThatReportedAnswerForTheme(answerValidations.Key, theme);
-                    GenerateZeroPointsForEachPlayer(theme, players);
+                    var players = GetPlayersThatRepliedAnswerForTheme(answerValidations.Key, theme);
+                    GenerateZeroThemePointsForEachPlayer(theme, players);
                 }
             }
 
             var playersWithBlankThemeAnswer = GetPlayersThatNotReportAnswerForTheme(theme);
-            GenerateZeroPointsForEachPlayer(theme, playersWithBlankThemeAnswer);
+            GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
         }
 
         private ICollection<PlayerRound> GetPlayersThatNotReportAnswerForTheme(string theme) =>
             CurrentRound.Players.Where(x => !x.Answers.Where(y => y.Theme == theme).Any()).ToList();
 
-        private void GenerateFivePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
         {
             foreach (var player in players)
                 player.GeneratePointsForTheme(theme, 5);
         }
 
-        private void GenerateTenPointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        private void GenerateTenThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
         {
             foreach (var player in players)
                 player.GeneratePointsForTheme(theme, 10);
         }
 
-        private void GenerateZeroPointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        private void GenerateZeroThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
         {
             foreach (var player in players)
                 player.GeneratePointsForTheme(theme, 0);
         }
 
-        private ICollection<PlayerRound> GetPlayersThatReportedAnswerForTheme(string answer, string theme)
+        private ICollection<PlayerRound> GetPlayersThatRepliedAnswerForTheme(string answer, string theme)
         {
             return CurrentRound.Players
-                .Where(x => x.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
+                .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
         }
 
-        private bool ValidAnswersIsGreatherThanInvalidAnswers(KeyValuePair<string, ICollection<bool>> answerValidations) =>
+        private bool TotalValidIsGreatherThanOrEqualToTotalInvalidForAnswer(KeyValuePair<string, ICollection<bool>> answerValidations) =>
             answerValidations.Value.Count(x => x == true) >= answerValidations.Value.Count(x => x == false);
 
-        private Dictionary<string, ICollection<bool>> GroupValidationsCountByAnswer(ICollection<AnswerValidation> answersValidations)
+        private Dictionary<string, ICollection<bool>> GroupTotalValidationsByAnswer(ICollection<AnswerValidation> answersValidations)
         {
             var groupedValidations = new Dictionary<string, ICollection<bool>>();
             foreach (var validation in answersValidations)
@@ -203,7 +202,7 @@ namespace WeStop.Api.Classes
             return groupedValidations;
         }
 
-        private ICollection<AnswerValidation> GetOnlinePlayersValidationsByTheme(string theme)
+        private ICollection<AnswerValidation> GetOnlinePlayersValidationsForTheme(string theme)
         {
             return CurrentRound.GetOnlinePlayers()
                 .Select(playerRound => playerRound.ThemesAnswersValidations)
