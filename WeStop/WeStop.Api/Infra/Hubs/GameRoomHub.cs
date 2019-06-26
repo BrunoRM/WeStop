@@ -213,7 +213,7 @@ namespace WeStop.Api.Infra.Hubs
 
             // Se todos os jogadores ja enviaram as validações para esse tema, a pontuação já pode ser processada
             if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
-                game.ProccessPontuationForTheme(dto.Validation.Theme);
+                game.GeneratePontuationForTheme(dto.Validation.Theme);
 
             if (game.AllPlayersSendValidationsOfAllThemes())
             {

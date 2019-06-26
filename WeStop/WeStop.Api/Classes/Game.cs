@@ -130,36 +130,47 @@ namespace WeStop.Api.Classes
                     .SelectMany(answers => answers.Select(x => x.Theme)).Distinct();
         }
 
-        // TODO: Revisar nomes dos métodos e quebrar mais eles
-        public void ProccessPontuationForTheme(string theme)
+        public void GeneratePontuationForTheme(string theme)
         {
-            var playersValidations = GetOnlinePlayersValidationsForTheme(theme);
-            var groupedValidations = GroupTotalValidationsByAnswer(playersValidations);
+            string[] answersForTheme = GetOnlinePlayersAnswersForTheme(theme);
 
-            foreach (var answerValidations in groupedValidations)
+            foreach (var answer in answersForTheme)
             {
-                if (TotalValidIsGreatherThanOrEqualToTotalInvalidForAnswer(answerValidations))
-                {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answer: answerValidations.Key, theme);
+                int validVotesCountForThemeAnswer = CurrentRound.GetOnlinePlayers().GetValidVotesCountForThemeAnswer(theme, answer);
+                int invalidVotesCountForThemeAnswer = CurrentRound.GetOnlinePlayers().GetInvalidVotesCountForThemeAnswer(theme, answer);
 
-                    if (players.MoreThanOnePlayerRepliedAnswerForTheme())
+                if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
+                {
+                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
+
+                    if (!players.Any())
+                        continue;
+
+                    if (players.Count() > 1)
                         GenerateFiveThemePointsForEachPlayer(theme, players);
                     else
+                        // Nunca será gerado 10 pontos para mais de um jogador que deu a mesma resposta que outros para um tema especifico
                         GenerateTenThemePointsForEachPlayer(theme, players);
                 }
                 else
                 {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answerValidations.Key, theme);
+                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
                     GenerateZeroThemePointsForEachPlayer(theme, players);
                 }
             }
 
-            var playersWithBlankThemeAnswer = GetPlayersThatNotReportAnswerForTheme(theme);
+            var playersWithBlankThemeAnswer = GetPlayersThatNotRepliedAnswerForTheme(theme);
             GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
         }
 
-        private ICollection<PlayerRound> GetPlayersThatNotReportAnswerForTheme(string theme) =>
-            CurrentRound.Players.Where(x => !x.Answers.Where(y => y.Theme == theme).Any()).ToList();
+        private string[] GetOnlinePlayersAnswersForTheme(string theme)
+        {
+            return CurrentRound.GetOnlinePlayers()
+                .SelectMany(p => p.Answers.Where(a => a.Theme == theme).Select(a => a.Answer)).Distinct().ToArray();
+        }
+
+        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme) =>
+            CurrentRound.GetOnlinePlayers().Where(p => !p.Answers.Where(a => a.Theme == theme).Any()).ToList();
 
         private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
         {
@@ -185,32 +196,6 @@ namespace WeStop.Api.Classes
                 .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
         }
 
-        private bool TotalValidIsGreatherThanOrEqualToTotalInvalidForAnswer(KeyValuePair<string, ICollection<bool>> answerValidations) =>
-            answerValidations.Value.Count(x => x == true) >= answerValidations.Value.Count(x => x == false);
-
-        private Dictionary<string, ICollection<bool>> GroupTotalValidationsByAnswer(ICollection<AnswerValidation> answersValidations)
-        {
-            var groupedValidations = new Dictionary<string, ICollection<bool>>();
-            foreach (var validation in answersValidations)
-            {
-                if (groupedValidations.ContainsKey(validation.Answer))
-                    groupedValidations[validation.Answer].Add(validation.Valid);
-                else
-                    groupedValidations.Add(validation.Answer, new List<bool> { validation.Valid });
-            }
-
-            return groupedValidations;
-        }
-
-        private ICollection<AnswerValidation> GetOnlinePlayersValidationsForTheme(string theme)
-        {
-            return CurrentRound.GetOnlinePlayers()
-                .Select(playerRound => playerRound.ThemesAnswersValidations)
-                .Select(themeValidations => themeValidations.Where(y => y.Theme == theme))
-                .SelectMany(themeValidations => themeValidations.SelectMany(themeValidation => themeValidation.AnswersValidations))
-                .ToList();
-        }
-
         public bool IsFinalRound() =>
             CurrentRound?.Number == Options.Rounds;
 
@@ -232,10 +217,8 @@ namespace WeStop.Api.Classes
 
             var scoreBoard = GetScoreboard();
 
-            // Busca a melhor pontuação entre todos os jogadores
             int bestPontuation = scoreBoard.Max(p => p.GamePontuation);
 
-            // Busca o nome de todos os jogadores que tiveram a pontuação igual a melhor
             return scoreBoard
                 .Where(sb => sb.GamePontuation == bestPontuation)
                 .OrderBy(p => p.UserName)

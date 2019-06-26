@@ -78,7 +78,7 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.ProccessPontuationForTheme("FDS");
+            _game.GeneratePontuationForTheme("FDS");
 
             var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -124,7 +124,7 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Bruno", true)
             }));
 
-            _game.ProccessPontuationForTheme("Nome");
+            _game.GeneratePontuationForTheme("Nome");
 
             var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -167,7 +167,7 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.ProccessPontuationForTheme("FDS");
+            _game.GeneratePontuationForTheme("FDS");
 
             var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -212,7 +212,7 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Ben 10", true)
             }));
 
-            _game.ProccessPontuationForTheme("FDS");
+            _game.GeneratePontuationForTheme("FDS");
 
             var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -421,10 +421,10 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Bumblebee", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
-            game.ProccessPontuationForTheme("Carro");
-            game.ProccessPontuationForTheme("FDS");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Carro");
+            game.GeneratePontuationForTheme("FDS");
 
             var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -542,10 +542,10 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
-            game.ProccessPontuationForTheme("Carro");
-            game.ProccessPontuationForTheme("FDS");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Carro");
+            game.GeneratePontuationForTheme("FDS");
 
             var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -668,10 +668,10 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Bu", false)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
-            game.ProccessPontuationForTheme("Carro");
-            game.ProccessPontuationForTheme("FDS");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Carro");
+            game.GeneratePontuationForTheme("FDS");
 
             var player1Round = game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -757,8 +757,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Brasil", true)
             }));
 
-            _game.ProccessPontuationForTheme("Nome");
-            _game.ProccessPontuationForTheme("CEP");
+            _game.GeneratePontuationForTheme("Nome");
+            _game.GeneratePontuationForTheme("CEP");
 
             var player1Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player1.Id);
             var player2Round = _game.CurrentRound.Players.First(x => x.Player.Id == _player2.Id);
@@ -893,8 +893,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Brasil", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
 
@@ -935,8 +935,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Amapá", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
 
@@ -977,8 +977,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Goiás", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
         
@@ -1040,8 +1040,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Brasil", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
 
@@ -1082,8 +1082,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Amapá", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
 
@@ -1124,8 +1124,8 @@ namespace WeStop.UnitTest
                 new AnswerValidation("Goiás", true)
             }));
 
-            game.ProccessPontuationForTheme("Nome");
-            game.ProccessPontuationForTheme("CEP");
+            game.GeneratePontuationForTheme("Nome");
+            game.GeneratePontuationForTheme("CEP");
 
             #endregion
         
@@ -1220,8 +1220,8 @@ namespace WeStop.UnitTest
 
             _game.GetPlayerCurrentRound(_player3.Id).AddAnswers(player3Answers);
 
-            _game.ProccessPontuationForTheme("Nome");
-            _game.ProccessPontuationForTheme("FDS");
+            _game.GeneratePontuationForTheme("Nome");
+            _game.GeneratePontuationForTheme("FDS");
 
             var answersForPlayer1 = _game.CurrentRound.GetPlayersAnswers(_player1.Id);
             Assert.AreEqual(2, answersForPlayer1.First(x => x.Theme == "Nome").Answers.Count());
