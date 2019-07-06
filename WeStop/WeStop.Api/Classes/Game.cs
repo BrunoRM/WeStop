@@ -6,10 +6,11 @@ using WeStop.Api.Extensions;
 
 namespace WeStop.Api.Classes
 {
-    public class Game
+    public sealed class Game
     {
         private ICollection<Player> _players;
         private ICollection<Round> _rounds;
+        private Round _currentRound;
 
         public Game(string name, string password, GameOptions options)
         {
@@ -19,7 +20,7 @@ namespace WeStop.Api.Classes
             Options = options;
             _players = new List<Player>();
             _rounds = new List<Round>();
-        }
+        }     
 
         public Guid Id { get; private set; }
         public string Name { get; private set; }
@@ -27,10 +28,18 @@ namespace WeStop.Api.Classes
         public GameOptions Options { get; private set; }
         public IReadOnlyCollection<Round> Rounds => _rounds.ToList();
         public IReadOnlyCollection<Player> Players => _players.ToList();
-        public Round CurrentRound { get; private set; }
+
+        public int GetPlayersCount() =>
+            Players.Count();
+
+        public bool IsPlayerAdmin(Guid playerId) =>
+            Players.FirstOrDefault(x => x.Id == playerId).IsAdmin;
+
+        public bool HasSuficientPlayersToStartNewRound() =>
+            GetPlayersCount() >= 2;
 
         public int GetNextRoundNumber() =>
-            CurrentRound?.Number + 1 ?? 1;
+            _currentRound?.Number + 1 ?? 1;
 
         public void AddPlayer(Player player)
         {
@@ -41,15 +50,15 @@ namespace WeStop.Api.Classes
         public Player GetPlayer(Guid id) =>
             _players.FirstOrDefault(p => p.Id == id);
 
-        public PlayerRound GetPlayerCurrentRound(Guid playerId) =>
-            CurrentRound.Players.First(x => x.Player.User.Id == playerId);
+        private PlayerRound GetPlayerCurrentRound(Guid playerId) =>
+            _currentRound.Players.First(x => x.Player.User.Id == playerId);
 
         public void StartNextRound()
         {
             if (IsFinalRound())
                 throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
 
-            CurrentRound = CreateNewRound();
+            _currentRound = CreateNewRound();
         }
 
         private Round CreateNewRound()
@@ -65,13 +74,19 @@ namespace WeStop.Api.Classes
 
         private string SortOutLetter()
         {
-            string sortedLetter = Options.AvailableLetters
-                            .Where(x => x.Value == false).ToArray()[new Random().Next(0, Options.AvailableLetters.Count(al => al.Value == false) - 1)]
-                            .Key;
+            string[] notSortedLetters = GetNotSortedLetters();
+
+            Random random = new Random();
+            int randomSortedIndex = random.Next(0, notSortedLetters.Count() - 1);
+
+            string sortedLetter = notSortedLetters[randomSortedIndex];
 
             Options.AvailableLetters[sortedLetter] = true;
             return sortedLetter;
         }
+
+        private string[] GetNotSortedLetters() =>
+            Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
 
         private ICollection<PlayerRound> GetPlayersOnlineAndReadyForNewRound()
         {
@@ -86,7 +101,7 @@ namespace WeStop.Api.Classes
         {
             foreach (var player in Players)
             {
-                var otherPlayersAnsweredTheme = AnyOtherPlayersRepliedForTheme(player.Id, theme);
+                bool otherPlayersAnsweredTheme = AnyOtherPlayersRepliedForTheme(player.Id, theme);
 
                 if (otherPlayersAnsweredTheme)
                 {
@@ -100,57 +115,38 @@ namespace WeStop.Api.Classes
         }
 
         private bool AnyOtherPlayersRepliedForTheme(Guid playerId, string theme) =>
-            CurrentRound.Players.Any(x => x.Player.User.Id != playerId && x.Player.Status == PlayerStatus.Online && x.Answers.Where(a => a.Theme == theme).Any());
+            _currentRound.Players.Any(x => x.Player.User.Id != playerId && x.Player.Status == PlayerStatus.Online && x.Answers.Where(a => a.Theme == theme).Any());
 
-        public bool AllPlayersSendValidationsOfAllThemes()
-        {
-            // Como um jogador ou mais podem acabar não informando resposta para algum dos N temas, 
-            // para cada jogador da rodada atual serão filtrados os temas para quais todos os outros
-            // jogadores informaram resposta, sendo assim, o jogador corrente na iteração terá de ter
-            // validado essas respostas
-            foreach (var player in Players)
-            {
-                var themesWithPlayersAnswers = GetThemesThatHasOtherPlayersAnswers(player.Id);
-
-                foreach (var theme in themesWithPlayersAnswers)
-                {
-                    if (!AllPlayersSendValidationsOfTheme(theme))
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
-        private IEnumerable<string> GetThemesThatHasOtherPlayersAnswers(Guid playerId)
-        {
-            return CurrentRound.Players
-                    .Where(playerRound => playerRound.Player.User.Id != playerId && playerRound.Player.Status == PlayerStatus.Online)
-                    .Select(playerRound => playerRound.Answers)
-                    .SelectMany(answers => answers.Select(x => x.Theme)).Distinct();
-        }
+        public string[] GetThemes() =>
+            Options.Themes;
 
         public void GeneratePontuationForTheme(string theme)
         {
             string[] answersForTheme = GetOnlinePlayersAnswersForTheme(theme);
 
+            ICollection<PlayerRound> _currentRoundOnlinePlayers = _currentRound.GetOnlinePlayers();
             foreach (var answer in answersForTheme)
             {
-                int validVotesCountForThemeAnswer = CurrentRound.GetOnlinePlayers().GetValidVotesCountForThemeAnswer(theme, answer);
-                int invalidVotesCountForThemeAnswer = CurrentRound.GetOnlinePlayers().GetInvalidVotesCountForThemeAnswer(theme, answer);
+                int validVotesCountForThemeAnswer = _currentRoundOnlinePlayers.GetValidVotesCountForThemeAnswer(theme, answer);
+                int invalidVotesCountForThemeAnswer = _currentRoundOnlinePlayers.GetInvalidVotesCountForThemeAnswer(theme, answer);
 
                 if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
                 {
                     var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
 
                     if (!players.Any())
+                    {
                         continue;
+                    }
 
                     if (players.Count() > 1)
+                    {
                         GenerateFiveThemePointsForEachPlayer(theme, players);
+                    }
                     else
-                        // Nunca será gerado 10 pontos para mais de um jogador que deu a mesma resposta que outros para um tema especifico
+                    {
                         GenerateTenThemePointsForEachPlayer(theme, players);
+                    }
                 }
                 else
                 {
@@ -165,12 +161,15 @@ namespace WeStop.Api.Classes
 
         private string[] GetOnlinePlayersAnswersForTheme(string theme)
         {
-            return CurrentRound.GetOnlinePlayers()
-                .SelectMany(p => p.Answers.Where(a => a.Theme == theme).Select(a => a.Answer)).Distinct().ToArray();
+            return _currentRound.GetOnlinePlayers()
+                .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
         }
 
-        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme) =>
-            CurrentRound.GetOnlinePlayers().Where(p => !p.Answers.Where(a => a.Theme == theme).Any()).ToList();
+        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme)
+        {
+            return _currentRound.GetOnlinePlayers()
+                .Where(p => !p.Answers.Where(a => a.Theme == theme).Any() || p.Answers.Where(a => a.Theme == theme && string.IsNullOrEmpty(a.Answer)).Any()).ToList();
+        }
 
         private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
         {
@@ -192,16 +191,16 @@ namespace WeStop.Api.Classes
 
         private ICollection<PlayerRound> GetPlayersThatRepliedAnswerForTheme(string answer, string theme)
         {
-            return CurrentRound.Players
+            return _currentRound.Players
                 .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
         }
 
         public bool IsFinalRound() =>
-            CurrentRound?.Number == Options.Rounds;
+            _currentRound?.Number == Options.Rounds;
 
         public ICollection<PlayerScore> GetScoreboard()
         {
-            return CurrentRound?.GetOnlinePlayers().Select(x => new PlayerScore
+            return _currentRound?.GetOnlinePlayers().Select(x => new PlayerScore
             {
                 PlayerId = x.Player.User.Id,
                 UserName = x.Player.User.UserName,
@@ -225,7 +224,63 @@ namespace WeStop.Api.Classes
                 .Select(sb => sb.UserName);
         }
 
-        public bool AllOnlinePlayersSendAnswers() =>
-            !CurrentRound.Players.Any(p => p.Player.Status == PlayerStatus.Online && !p.AnswersSended);
+        public void AddPlayerAnswers(Guid playerId, ICollection<ThemeAnswer> answers)
+        {
+            GetPlayerCurrentRound(playerId).AddAnswers(answers);
+        }
+
+        public void AddPlayerAnswersValidations(Guid playerId, ThemeValidation validations)
+        {
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            playerCurrentRound.AddThemeAnswersValidations(validations);
+        }
+
+        public void AddPlayerAnswersValidations(Guid playerId, ICollection<ThemeValidation> validations)
+        {
+            foreach (var validation in validations)
+                AddPlayerAnswersValidations(playerId, validation);
+        }
+
+        public int GetPlayerCurrentRoundPontuationForTheme(Guid playerId, string theme)
+        {
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            int playerPontuationForTheme = playerCurrentRound.ThemesPontuations[theme];
+
+            return playerPontuationForTheme;
+        }
+
+        public int GetPlayerCurrentRoundEarnedPoints(Guid playerId)
+        {
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+
+            return playerCurrentRound.EarnedPoints;
+        }
+
+        public string GetCurrentRoundSortedLetter() =>
+            _currentRound.SortedLetter;
+
+        public ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersExceptFromPlayer(Guid playerId) =>
+            _currentRound.GetPlayersAnswersExceptFromPlayer(playerId);
+
+        public ICollection<ThemeValidation> BuildValidationForPlayer(Guid playerId)
+        {
+            var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersExceptFromPlayer(playerId);
+
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            foreach (var themeAnswers in answersThatPlayerShouldValidate)
+            {
+                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
+                {
+                    ThemeValidation themeValidation = new ThemeValidation(themeAnswers.Theme, themeAnswers.Answers
+                        .Where(a => !string.IsNullOrEmpty(a))
+                        .Select(a => new AnswerValidation(a, true))
+                        .ToList());
+
+                    playerCurrentRound.AddThemeAnswersValidations(themeValidation);
+                }
+            }
+
+            return playerCurrentRound.GetThemeValidations();
+        }
     }
 }

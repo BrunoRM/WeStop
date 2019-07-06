@@ -20,6 +20,8 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
             onConnectionClose();
         });
 
+        connection.serverTimeoutInMilliseconds = 1000*30;
+
         connection.start().then(() => { 
             $rootScope.$apply(() => sCallback());
         }, (e) => { 

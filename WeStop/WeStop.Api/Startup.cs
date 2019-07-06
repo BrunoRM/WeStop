@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
 using WeStop.Api.Classes;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Storages;
@@ -43,8 +41,8 @@ namespace WeStop.Api
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
-            services.AddScoped<GameTimerContext, GameTimerContext>();
-            
+            services.AddScoped<Timers, Timers>();
+                        
             services.AddSignalR();
         }
 

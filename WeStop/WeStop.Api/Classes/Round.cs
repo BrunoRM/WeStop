@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WeStop.Api.Exceptions;
 
 namespace WeStop.Api.Classes
 {
@@ -11,8 +10,8 @@ namespace WeStop.Api.Classes
         {
             Finished = false;
             Players = new List<PlayerRound>();
-            CurrentRoundTime = 0;
-            CurrentValidationTime = 0;
+            //CurrentRoundTime = 0;
+            //CurrentValidationTime = 0;
         }
 
         public Round(int number, string sortedLetter, ICollection<PlayerRound> players)
@@ -23,23 +22,16 @@ namespace WeStop.Api.Classes
             Players = players;
         }
 
-        public int Number { get; set; }
-        public string SortedLetter { get; set; }
-        public bool Finished { get; set; }
+        public int Number { get; private set; }
+        public string SortedLetter { get; private set; }
+        public bool Finished { get; private set; }
         public ICollection<PlayerRound> Players { get; set; }
-        public int CurrentRoundTime { get; private set; }
-        public int CurrentValidationTime { get; private set; }
-
-        public void RefreshValidationTime() =>
-            CurrentValidationTime++;
-
-        public void RefreshRoundTime() =>
-            CurrentRoundTime++;
 
         public ICollection<PlayerRound> GetOnlinePlayers() =>
             Players.Where(pr => pr.Player.Status == PlayerStatus.Online).ToList();
 
-        public ICollection<ThemeAnswers> GetPlayersAnswers(Guid playerId)
+        // TODO: Refatorar esse método (deixar mais legível)
+        public ICollection<ThemeAnswers> GetPlayersAnswersExceptFromPlayer(Guid playerId)
         {
             var themesAnswers = new List<ThemeAnswers>();
 
@@ -66,22 +58,8 @@ namespace WeStop.Api.Classes
 
             return themesAnswers;
         }
-    }
 
-    public class ThemeAnswers
-    {
-        private ICollection<string> _answers;
-
-        public ThemeAnswers(string theme)
-        {
-            Theme = theme;
-            _answers = new List<string>();
-        }
-
-        public string Theme { get; private set; }
-        public IReadOnlyCollection<string> Answers => _answers.ToList();
-
-        public void AddAnswer(string answer) =>
-            _answers.Add(answer);
+        public bool IsFinished() =>
+            Finished;
     }
 }

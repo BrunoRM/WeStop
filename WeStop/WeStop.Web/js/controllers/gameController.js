@@ -159,6 +159,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         let playerRoundPontuation = getPlayerRoundPontuation(resp.scoreboard);
 
         $scope.pontuation = playerRoundPontuation.gamePontuation;
+        $scope.themeAnswersValidations = [];
     });
 
     $game.on('game.end', resp => {
@@ -175,29 +176,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentRoundTime = resp;
     });
     
-    // $game.on('validationTimeElapsed', resp => {
-    //     $scope.currentValidationTime = resp;
-    // });
-
-    $game.on('validationTimeOver', resp => {
-        
+    $game.on('validation_time_elapsed', resp => {
+        $scope.currentValidationTime = resp;
     });
 
-    $game.on('allAnswersReceived', resp => {
-        console.log(resp);
-        $scope.themeAnswersValidations = [];
-        let playersAnswers = resp;
-        for (let i = 0; i < playersAnswers.length; i++) {
-            $scope.themeAnswersValidations.push({
-                theme: playersAnswers[i].theme,
-                answersValidations: playersAnswers[i].answers.map((answer) => {
-                    return {
-                        answer: answer,
-                        valid: true
-                    }
-                })
-            })
-        }
+    $game.on('all_answers_received', resp => {
+        $scope.themeAnswersValidations = resp;        
     });
     
 }]);
