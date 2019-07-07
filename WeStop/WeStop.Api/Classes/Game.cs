@@ -51,7 +51,7 @@ namespace WeStop.Api.Classes
             _players.FirstOrDefault(p => p.Id == id);
 
         private PlayerRound GetPlayerCurrentRound(Guid playerId) =>
-            _currentRound.Players.First(x => x.Player.User.Id == playerId);
+            _currentRound.Players.First(x => x.Player.Id == playerId);
 
         public void StartNextRound()
         {
@@ -96,26 +96,6 @@ namespace WeStop.Api.Classes
                     Player = x
                 }).ToList();
         }
-
-        public bool AllPlayersSendValidationsOfTheme(string theme)
-        {
-            foreach (var player in Players)
-            {
-                bool otherPlayersAnsweredTheme = AnyOtherPlayersRepliedForTheme(player.Id, theme);
-
-                if (otherPlayersAnsweredTheme)
-                {
-                    var playerCurrentRound = GetPlayerCurrentRound(player.Id);
-                    if (!playerCurrentRound.HasValidationForTheme(theme))
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool AnyOtherPlayersRepliedForTheme(Guid playerId, string theme) =>
-            _currentRound.Players.Any(x => x.Player.User.Id != playerId && x.Player.Status == PlayerStatus.Online && x.Answers.Where(a => a.Theme == theme).Any());
 
         public string[] GetThemes() =>
             Options.Themes;
@@ -226,7 +206,8 @@ namespace WeStop.Api.Classes
 
         public void AddPlayerAnswers(Guid playerId, ICollection<ThemeAnswer> answers)
         {
-            GetPlayerCurrentRound(playerId).AddAnswers(answers);
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            playerCurrentRound.AddAnswers(answers);
         }
 
         public void AddPlayerAnswersValidations(Guid playerId, ThemeValidation validations)

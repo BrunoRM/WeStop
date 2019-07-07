@@ -317,65 +317,6 @@ namespace WeStop.UnitTest
         }
 
         [Test]
-        public void ReturnTrueWhenAllPlayersSendValidationsOfATheme()
-        {
-            _game.SetAllPlayersReadyForTheNextRound();
-            _game.StartNextRound();
-
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno")
-            };
-
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna")
-            };
-
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Breno")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
-
-            var player1Validations = new List<ThemeValidation>
-            {
-                new ThemeValidation("Nome", new List<AnswerValidation>
-                {
-                    new AnswerValidation("Bruna", true),
-                    new AnswerValidation("Breno", true)
-                })
-            };
-
-            var player2Validations = new List<ThemeValidation>
-            {
-                new ThemeValidation("Nome", new List<AnswerValidation>
-                {
-                    new AnswerValidation("Bruno", true),
-                    new AnswerValidation("Breno", true)
-                })
-            };
-
-            var player3Validations = new List<ThemeValidation>
-            {
-                new ThemeValidation("Nome", new List<AnswerValidation>
-                {
-                    new AnswerValidation("Bruno", true),
-                    new AnswerValidation("Bruna", true)
-                })
-            };
-
-            _game.AddPlayerAnswersValidations(_player1.Id, player1Validations);
-            _game.AddPlayerAnswersValidations(_player2.Id, player2Validations);
-            _game.AddPlayerAnswersValidations(_player3.Id, player3Validations);
-
-            Assert.IsTrue(_game.AllPlayersSendValidationsOfTheme("Nome"));
-        }
-
-        [Test]
         public void PontuationWithAllAnswersDistinctIsCorrectAfterEndOfRound()
         {
             string[] themes = new string[]

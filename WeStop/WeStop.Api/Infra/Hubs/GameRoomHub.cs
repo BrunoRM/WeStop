@@ -15,7 +15,7 @@ namespace WeStop.Api.Infra.Hubs
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
         private readonly Timers _timers;
-        private static IDictionary<string, (Guid gameId, Guid playerId)> _connectionsInfo = new Dictionary<string, (Guid gameId, Guid playerId)>();
+        private static IDictionary<string, (Guid GameId, Guid PlayerId)> _connectionsInfo = new Dictionary<string, (Guid, Guid)>();
 
         public GameRoomHub(IUserStorage userStorage, IGameStorage gameStorage, Timers timers)
         {
@@ -26,9 +26,8 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            /// Buscar o jogo em que o jogador está, e mudar o status dele para offline
-            var game = await _games.GetByIdAsync(_connectionsInfo[Context.ConnectionId].gameId);
-            game.GetPlayer(_connectionsInfo[Context.ConnectionId].playerId).SetOffline();
+            Game game = await _games.GetByIdAsync(_connectionsInfo[Context.ConnectionId].GameId);
+            game.GetPlayer(_connectionsInfo[Context.ConnectionId].PlayerId).SetOffline();
 
             _connectionsInfo.Remove(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
@@ -37,7 +36,7 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("games.create")]
         public async Task CreateGame(CreateGameDto dto)
         {
-            var user = await _users.GetByIdAsync(dto.UserId);
+            User user = await _users.GetByIdAsync(dto.UserId);
 
             Game game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.RoundTime));
             game.AddPlayer(new Player(user, true));
@@ -57,11 +56,11 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("game.join")]
         public async Task Join(JoinToGameRoomDto dto)
         {
-            var user = await _users.GetByIdAsync(dto.UserId);
+            User user = await _users.GetByIdAsync(dto.UserId);
 
-            var game = await _games.GetByIdAsync(dto.GameId);
+            Game game = await _games.GetByIdAsync(dto.GameId);
 
-            var player = game.GetPlayer(user.Id);
+            Player player = game.GetPlayer(user.Id);
 
             if (player is null)
             {
@@ -69,11 +68,13 @@ namespace WeStop.Api.Infra.Hubs
                 game.AddPlayer(player);
             }
             else
+            {
                 player.SetOnline();
+            }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            _connectionsInfo.Add(Context.ConnectionId, (gameId: game.Id, playerId: player.Id));
+            _connectionsInfo.Add(Context.ConnectionId, (game.Id, player.Id));
 
             await Clients.Caller.SendAsync("game.player.joined", new
             {
@@ -149,11 +150,11 @@ namespace WeStop.Api.Infra.Hubs
             int limitTime = game.Options.RoundTime;
             _timers.StartRoundTimer(game.Id, limitTime, async (gameId, hub, currentTime) =>
             {
-                await hub.GetGameGroup(gameId).SendAsync("roundTimeElapsed", currentTime);
+                await hub.Group(gameId).SendAsync("roundTimeElapsed", currentTime);
             },
             async (gameId, hub) =>
             {
-                await hub.GetGameGroup(gameId).SendAsync("players.stopCalled", new
+                await hub.Group(gameId).SendAsync("players.stopCalled", new
                 {
                     ok = true,
                     reason = "TIME_OVER"
@@ -168,11 +169,9 @@ namespace WeStop.Api.Infra.Hubs
         {
             var game = await _games.GetByIdAsync(dto.GameId);
 
-            var playerCalledStop = game.Players.FirstOrDefault(x => x.User.Id == dto.UserId);
+            var playerCalledStop = game.Players.FirstOrDefault(p => p.Id == dto.UserId);
 
-            var connectionGroup = Clients.Group(dto.GameId.ToString());
-
-            await connectionGroup.SendAsync("players.stopCalled", new
+            await Clients.Group(game.Id).SendAsync("players.stopCalled", new
             {
                 ok = true,
                 reason = "player_call_stop",
@@ -234,19 +233,21 @@ namespace WeStop.Api.Infra.Hubs
             _timers.StopRoundTimer(game.Id);
             _timers.StartSendAnswersTime(game.Id, (gameId, hub, elapsedTime) => { }, async (id, hubContext) =>
             {
-                await hubContext.Clients.Group(id.ToString()).SendAsync("answers_time_over");
-                foreach (var connectionInfo in _connectionsInfo)
+                await hubContext.Group(id).SendAsync("answers_time_over");
+
+                var connectionsForGame = _connectionsInfo.Where(ci => ci.Value.GameId == game.Id);
+                foreach (var connectionInfo in connectionsForGame)
                 {
-                    var validations = game.BuildValidationForPlayer(connectionInfo.Value.playerId);
+                    var validations = game.BuildValidationForPlayer(connectionInfo.Value.PlayerId);
                     await hubContext.Clients.Client(connectionInfo.Key).SendAsync("all_answers_received", validations);
                 }
 
                 _timers.StartValidationTimer(game.Id, async (gameId, hub, elapsedTime) =>
                 {
-                    await hub.GetGameGroup(gameId).SendAsync("validation_time_elapsed", elapsedTime);
+                    await hub.Group(gameId).SendAsync("validation_time_elapsed", elapsedTime);
                 }, async (gameId, hub) =>
                 {
-                    await hub.GetGameGroup(gameId).SendAsync("validation_time_over");
+                    await hub.Group(gameId).SendAsync("validation_time_over");
 
                     string[] themes = game.GetThemes();
                     foreach (var theme in themes)
@@ -256,7 +257,7 @@ namespace WeStop.Api.Infra.Hubs
 
                     if (game.IsFinalRound())
                     {
-                        await hub.GetGameGroup(gameId).SendAsync("game.end", new
+                        await hub.Group(gameId).SendAsync("game.end", new
                         {
                             ok = true,
                             winners = game.GetWinners(),
@@ -265,7 +266,7 @@ namespace WeStop.Api.Infra.Hubs
                     }
                     else
                     {
-                        await hub.GetGameGroup(gameId).SendAsync("game.roundFinished", new
+                        await hub.Group(gameId).SendAsync("game.roundFinished", new
                         {
                             ok = true,
                             scoreboard = game.GetScoreboard()
