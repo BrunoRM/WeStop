@@ -57,24 +57,9 @@ namespace WeStop.UnitTest
 
             _game.StartNextRound();
 
-            List<ThemeAnswer> player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            List<ThemeAnswer> player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            List<ThemeAnswer> player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             List<ThemeValidation> player1Validations = new List<ThemeValidation>
             {
@@ -122,24 +107,9 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno")
-            };
-
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bianca")
-            };
-
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bianca");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Bruna");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -190,24 +160,9 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -255,24 +210,9 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("FDS", "Ben")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -336,33 +276,20 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("CEP", "Brasil"),
-                new ThemeAnswer("Carro", "Brasilia"),
-                new ThemeAnswer("FDS", "Band of Brothers"),
-            };
+            game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            game.AddPlayerAnswerForTheme(_player1.Id, "CEP", "Brasil");
+            game.AddPlayerAnswerForTheme(_player1.Id, "Carro", "Belina");
+            game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Bumblebee");
 
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("CEP", "Bahamas"),
-                new ThemeAnswer("Carro", "Belina"),
-                new ThemeAnswer("FDS", "Bumblebee"),
-            };
+            game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            game.AddPlayerAnswerForTheme(_player2.Id, "CEP", "Bahamas");
+            game.AddPlayerAnswerForTheme(_player2.Id, "Carro", "Brasilia");
+            game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Band of Brothers");
 
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Breno"),
-                new ThemeAnswer("CEP", "Bélgica"),
-                new ThemeAnswer("Carro", "Bugatti"),
-                new ThemeAnswer("FDS", "Ben 10"),
-            };
-
-            game.AddPlayerAnswers(_player1.Id, player1Answers);
-            game.AddPlayerAnswers(_player2.Id, player2Answers);
-            game.AddPlayerAnswers(_player3.Id, player3Answers);
+            game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Breno");
+            game.AddPlayerAnswerForTheme(_player3.Id, "CEP", "Bélgica");
+            game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Bugatti");
+            game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -484,33 +411,20 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("CEP", "Brasil"),
-                new ThemeAnswer("Carro", "Brasilia"),
-                new ThemeAnswer("FDS", "Ben 10"),
-            };
+            game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            game.AddPlayerAnswerForTheme(_player1.Id, "CEP", "Brasil");
+            game.AddPlayerAnswerForTheme(_player1.Id, "Carro", "Brasilia");
+            game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Ben 10");
 
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("CEP", "Brasil"),
-                new ThemeAnswer("Carro", "Belina"),
-                new ThemeAnswer("FDS", "Ben 10"),
-            };
+            game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            game.AddPlayerAnswerForTheme(_player2.Id, "CEP", "Brasil");
+            game.AddPlayerAnswerForTheme(_player2.Id, "Carro", "Belina");
+            game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
 
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Breno"),
-                new ThemeAnswer("CEP", "Bélgica"),
-                new ThemeAnswer("Carro", "Brasilia"),
-                new ThemeAnswer("FDS", "Ben 10"),
-            };
-
-            game.AddPlayerAnswers(_player1.Id, player1Answers);
-            game.AddPlayerAnswers(_player2.Id, player2Answers);
-            game.AddPlayerAnswers(_player3.Id, player3Answers);
+            game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Breno");
+            game.AddPlayerAnswerForTheme(_player3.Id, "CEP", "Bélgica");
+            game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Brasilia");
+            game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -626,33 +540,20 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("CEP", "Br"),
-                new ThemeAnswer("Carro", "Brasilia"),
-                new ThemeAnswer("FDS", "Band of Brothers")
-            };
+            game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            game.AddPlayerAnswerForTheme(_player1.Id, "CEP", "Br");
+            game.AddPlayerAnswerForTheme(_player1.Id, "Carro", "Brasilia");
+            game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Band of Brothers");
 
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("CEP", "Bahamas"),
-                new ThemeAnswer("Carro", "Be"),
-                new ThemeAnswer("FDS", "Bu")
-            };
+            game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            game.AddPlayerAnswerForTheme(_player2.Id, "CEP", "Bahamas");
+            game.AddPlayerAnswerForTheme(_player2.Id, "Carro", "Be");
+            game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Bu");
 
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Breno"),
-                new ThemeAnswer("CEP", "Bélgica"),
-                new ThemeAnswer("Carro", "Bugatti"),
-                new ThemeAnswer("FDS", "Ben 10")
-            };
-
-            game.AddPlayerAnswers(_player1.Id, player1Answers);
-            game.AddPlayerAnswers(_player2.Id, player2Answers);
-            game.AddPlayerAnswers(_player3.Id, player3Answers);
+            game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Breno");
+            game.AddPlayerAnswerForTheme(_player3.Id, "CEP", "Bélgica");
+            game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Bugatti");
+            game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             game.AddPlayerAnswersValidations(_player1.Id, new ThemeValidation("Nome", new List<AnswerValidation>
             {
@@ -757,18 +658,8 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("CEP", "Brasil")
-            };
-            
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bianca")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
+            _game.AddPlayerAnswerForTheme(_player1.Id, "CEP", "Brasil");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bianca");
 
             var player1Validations = new List<ThemeValidation>
             {
@@ -878,20 +769,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("CEP", "Brasil")
-            };
-            
-            var player2Round1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("CEP", "Brasilia")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Bruno");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Brasil");
 
-            game.AddPlayerAnswers(player1.Id, player1Round1Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round1Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Bruna");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Brasilia");
 
             var player1Round1Validations = new List<ThemeValidation>
             {
@@ -930,20 +812,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Amanda"),
-                new ThemeAnswer("CEP", "Amapá")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Amanda");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Amapá");
 
-            var player2Round2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Alberto"),
-                new ThemeAnswer("CEP", "Alemanha")
-            };
-
-            game.AddPlayerAnswers(player1.Id, player1Round2Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round2Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Alberto");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Alemanha");
 
             var player1Round2Validations = new List<ThemeValidation>
             {
@@ -982,20 +855,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Gabriel"),
-                new ThemeAnswer("CEP", "Goiás")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Gabriel");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Goiás");
 
-            var player2Round3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Gabriela"),
-                new ThemeAnswer("CEP", "Goiânia")
-            };
-
-            game.AddPlayerAnswers(player1.Id, player1Round3Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round3Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Gabriela");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Goiânia");
 
             var player1Round3Validations = new List<ThemeValidation>
             {
@@ -1055,20 +919,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("CEP", "Brasil")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Bruno");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Brasil");
 
-            var player2Round1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("CEP", "Brasilia")
-            };
-
-            game.AddPlayerAnswers(player1.Id, player1Round1Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round1Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Bruna");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Brasilia");
 
             var player1Round1Validations = new List<ThemeValidation>
             {
@@ -1107,20 +962,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Amanda"),
-                new ThemeAnswer("CEP", "Amapá")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Amanda");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Amapá");
 
-            var player2Round2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Alberto"),
-                new ThemeAnswer("CEP", "Alemanha")
-            };
-
-            game.AddPlayerAnswers(player1.Id, player1Round2Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round2Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Alberto");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Alemanha");
 
             var player1Round2Validations = new List<ThemeValidation>
             {
@@ -1159,20 +1005,11 @@ namespace WeStop.UnitTest
             game.SetAllPlayersReadyForTheNextRound();
             game.StartNextRound();
 
-            var player1Round3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Gabriel"),
-                new ThemeAnswer("CEP", "Goiás")
-            };
+            game.AddPlayerAnswerForTheme(player1.Id, "Nome", "Gabriel");
+            game.AddPlayerAnswerForTheme(player1.Id, "CEP", "Goiás");
 
-            var player2Round3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Gabriela"),
-                new ThemeAnswer("CEP", "G")
-            };
-
-            game.AddPlayerAnswers(player1.Id, player1Round3Answers);
-            game.AddPlayerAnswers(player2.Id, player2Round3Answers);
+            game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Gabriela");
+            game.AddPlayerAnswerForTheme(player2.Id, "CEP", "G");
 
             var player1Round3Validations = new List<ThemeValidation>
             {
@@ -1217,27 +1054,15 @@ namespace WeStop.UnitTest
         {
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("FDS", "Breaking bad")
-            };
 
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("FDS", "Ben 10")
-            };
+            _game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Breaking bad");
 
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("FDS", "Ben 10")
-            };
+            _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
 
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
             _game.GeneratePontuationForTheme("Nome");
             _game.GeneratePontuationForTheme("FDS");
@@ -1269,27 +1094,14 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            var player1Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("FDS", "Breaking bad")
-            };
+            _game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Breaking bad");
 
-            var player2Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruna"),
-                new ThemeAnswer("FDS", "Band of Brothers")
-            };
+            _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Band of Brothers");
 
-            var player3Answers = new List<ThemeAnswer>
-            {
-                new ThemeAnswer("Nome", "Bruno"),
-                new ThemeAnswer("FDS", "Band of Brothers")
-            };
-
-            _game.AddPlayerAnswers(_player1.Id, player1Answers);
-            _game.AddPlayerAnswers(_player2.Id, player2Answers);
-            _game.AddPlayerAnswers(_player3.Id, player3Answers);
+            _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Band of Brothers");
 
             var player1Validations = _game.BuildValidationForPlayer(_player1.Id);
             var player2Validations = _game.BuildValidationForPlayer(_player2.Id);

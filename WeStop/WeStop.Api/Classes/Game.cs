@@ -204,10 +204,13 @@ namespace WeStop.Api.Classes
                 .Select(sb => sb.UserName);
         }
 
-        public void AddPlayerAnswers(Guid playerId, ICollection<ThemeAnswer> answers)
+        public void AddPlayerAnswerForTheme(Guid playerId, string theme, string answer)
         {
-            var playerCurrentRound = GetPlayerCurrentRound(playerId);
-            playerCurrentRound.AddAnswers(answers);
+            if (Options.Themes.Contains(theme))
+            {
+                PlayerRound playerCurrentRound = GetPlayerCurrentRound(playerId);
+                playerCurrentRound.AddAnswerForTheme(theme, answer);
+            }
         }
 
         public void AddPlayerAnswersValidations(Guid playerId, ThemeValidation validations)

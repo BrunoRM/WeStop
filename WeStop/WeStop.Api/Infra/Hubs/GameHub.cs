@@ -179,7 +179,13 @@ namespace WeStop.Api.Infra.Hubs
         {
             Game game = await _games.GetByIdAsync(dto.GameId);
             Player player = game.GetPlayer(dto.UserId);
-            game.AddPlayerAnswers(player.Id, dto.Answers);
+
+            foreach (var themeAnswer in dto.Answers)
+            {
+                string theme = themeAnswer.Theme;
+                string answer = themeAnswer.Answer;
+                game.AddPlayerAnswerForTheme(player.Id, theme, answer);
+            }
 
             await Clients.Group(game.Id.ToString()).SendAsync("answers_received");
         }
