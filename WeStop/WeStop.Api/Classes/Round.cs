@@ -10,8 +10,6 @@ namespace WeStop.Api.Classes
         {
             Finished = false;
             Players = new List<PlayerRound>();
-            //CurrentRoundTime = 0;
-            //CurrentValidationTime = 0;
         }
 
         public Round(int number, string sortedLetter, ICollection<PlayerRound> players)
@@ -30,28 +28,24 @@ namespace WeStop.Api.Classes
         public ICollection<PlayerRound> GetPlayers() =>
             Players.ToList();
 
-        // TODO: Refatorar esse método (deixar mais legível)
         public ICollection<ThemeAnswers> GetPlayersAnswersExceptFromPlayer(Guid playerId)
         {
-            var themesAnswers = new List<ThemeAnswers>();
+            ICollection<ThemeAnswer> answersOfOthersPlayers = GetAnswersOfOtherPlayers(playerId);
 
-            var answers = Players.Where(p => p.Player.Id != playerId)
-                .SelectMany(x => x.Answers);
-
-            foreach (var answer in answers)
+            ICollection<ThemeAnswers> themesAnswers = new List<ThemeAnswers>();
+            foreach (var themeAnswer in answersOfOthersPlayers)
             {
-                if (themesAnswers.Any(ta => ta.Theme == answer.Theme))
+                string theme = themeAnswer.Theme;
+                string answer = themeAnswer.Answer;
+
+                ThemeAnswers existingThemeAnswers = themesAnswers.FirstOrDefault(ta => ta.Theme == theme);
+                if (existingThemeAnswers != null && !existingThemeAnswers.HasAnswer(answer))
                 {
-                    if (!themesAnswers.Any(ta => ta.Theme == answer.Theme && ta.Answers.Any(a => a == answer.Answer)))
-                    {
-                        var themeAnswers = themesAnswers.First(ta => ta.Theme == answer.Theme);
-                        themeAnswers.AddAnswer(answer.Answer);
-                    }
+                    existingThemeAnswers.AddAnswer(answer);
                 }
                 else
                 {
-                    var themeAnswers = new ThemeAnswers(answer.Theme);
-                    themeAnswers.AddAnswer(answer.Answer);
+                    ThemeAnswers themeAnswers = new ThemeAnswers(themeAnswer.Theme, themeAnswer.Answer);
                     themesAnswers.Add(themeAnswers);
                 }
             }
@@ -59,7 +53,10 @@ namespace WeStop.Api.Classes
             return themesAnswers;
         }
 
-        public bool IsFinished() =>
-            Finished;
+        private ICollection<ThemeAnswer> GetAnswersOfOtherPlayers(Guid playerId)
+        {
+            return Players.Where(p => p.Player.Id != playerId)
+                .SelectMany(x => x.Answers).ToList();
+        }
     }
 }

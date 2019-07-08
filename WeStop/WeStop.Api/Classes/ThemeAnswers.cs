@@ -13,10 +13,24 @@ namespace WeStop.Api.Classes
             _answers = new List<string>();
         }
 
+        public ThemeAnswers(string theme, string answer)
+            : this(theme)
+        {
+            AddAnswer(answer);
+        }
+
         public string Theme { get; private set; }
         public IReadOnlyCollection<string> Answers => _answers.ToList();
 
-        public void AddAnswer(string answer) =>
-            _answers.Add(answer);
+        public void AddAnswer(string answer)
+        {
+            if (!Answers.Contains(answer))
+            {
+                _answers.Add(answer);
+            }
+        }
+
+        public bool HasAnswer(string answer) =>
+            Answers.Any(a => a.Equals(answer));
     }
 }
