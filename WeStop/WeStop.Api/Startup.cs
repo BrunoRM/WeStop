@@ -41,6 +41,7 @@ namespace WeStop.Api
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
+            services.AddSingleton<IPlayerConnectionStorage, PlayerConnectionStorage>();
             services.AddScoped<Timers, Timers>();
                         
             services.AddSignalR();

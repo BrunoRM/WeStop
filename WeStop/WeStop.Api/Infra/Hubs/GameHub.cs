@@ -14,19 +14,20 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
+        private readonly IPlayerConnectionStorage _playerConnectionStorage;
         private readonly Timers _timers;
-        private static IDictionary<string, (Guid GameId, Guid PlayerId)> _connectionsInfo = new Dictionary<string, (Guid, Guid)>();
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, Timers timers)
+        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, Timers timers)
         {
             _users = userStorage;
             _games = gameStorage;
+            _playerConnectionStorage = playerConnectionStorage;
             _timers = timers;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            _connectionsInfo.Remove(Context.ConnectionId);
+            await _playerConnectionStorage.DeleteAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -67,7 +68,8 @@ namespace WeStop.Api.Infra.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            _connectionsInfo.Add(Context.ConnectionId, (game.Id, player.Id));
+            PlayerConnection playerConnection = new PlayerConnection(Context.ConnectionId, player.Id, game.Id);
+            await _playerConnectionStorage.AddAsync(playerConnection);
 
             await Clients.Caller.SendAsync("game_joined", new
             {
@@ -234,11 +236,11 @@ namespace WeStop.Api.Infra.Hubs
             {
                 await hubContext.Group(id).SendAsync("send_answers_time_over");
 
-                var connectionsForGame = _connectionsInfo.Where(ci => ci.Value.GameId == game.Id);
-                foreach (var connectionInfo in connectionsForGame)
+                var connectionsOfGame = await _playerConnectionStorage.GetConnectionsForGameAsync(game.Id);
+                foreach (var playerConnection in connectionsOfGame)
                 {
-                    var validations = game.BuildValidationForPlayer(connectionInfo.Value.PlayerId);
-                    await hubContext.Clients.Client(connectionInfo.Key).SendAsync("players_answers_received", validations);
+                    var validations = game.BuildValidationForPlayer(playerConnection.PlayerId);
+                    await hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("players_answers_received", validations);
                 }
 
                 _timers.StartValidationTimer(game.Id, async (gameId, hub, elapsedTime) =>
