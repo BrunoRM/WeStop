@@ -10,15 +10,15 @@ namespace WeStop.Api.Classes
     {
         private const int SEND_ANSWERS_LIMIT_TIME = 3;
         private const int VALIDATION_LIMIT_TIME = 10;
-        private readonly IHubContext<GameRoomHub> _hubContext;
+        private readonly IHubContext<GameHub> _hubContext;
         private static Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
 
-        public Timers(IHubContext<GameRoomHub> hubContext)
+        public Timers(IHubContext<GameHub> hubContext)
         {
             _hubContext = hubContext;
         }
 
-        public void StartSendAnswersTime(Guid gameId, Action<Guid, IHubContext<GameRoomHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameRoomHub>> onTimeOverAction)
+        public void StartSendAnswersTime(Guid gameId, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
         {
             GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, SEND_ANSWERS_LIMIT_TIME);
             Timer sendAnswersTimer = new Timer((context) =>
@@ -39,7 +39,7 @@ namespace WeStop.Api.Classes
             AddOrUpdateGameTimer(gameId, sendAnswersTimer);
         }
 
-        public void StartRoundTimer(Guid gameId, int limitTime, Action<Guid, IHubContext<GameRoomHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameRoomHub>> onTimeOverAction)
+        public void StartRoundTimer(Guid gameId, int limitTime, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
         {
             GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, limitTime);
             Timer roundTimer = new Timer((context) =>
@@ -65,7 +65,7 @@ namespace WeStop.Api.Classes
             RemoveGameTimer(gameId);
         }
 
-        public void StartValidationTimer(Guid gameId, Action<Guid, IHubContext<GameRoomHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameRoomHub>> onTimeOverAction)
+        public void StartValidationTimer(Guid gameId, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
         {
             GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, VALIDATION_LIMIT_TIME);
             Timer validationTimer = new Timer((context) =>

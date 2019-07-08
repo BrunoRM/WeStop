@@ -20,7 +20,7 @@ namespace WeStop.Api.Classes
             Options = options;
             _players = new List<Player>();
             _rounds = new List<Round>();
-        }     
+        }
 
         public Guid Id { get; private set; }
         public string Name { get; private set; }
@@ -65,7 +65,7 @@ namespace WeStop.Api.Classes
         {
             int nextRoundNumber = GetNextRoundNumber();
             string drawnLetter = SortOutLetter();
-            ICollection<PlayerRound> players = GetPlayersOnlineAndReadyForNewRound();
+            ICollection<PlayerRound> players = GetPlayersReadyForNewRound();
             Round newRound = new Round(nextRoundNumber, drawnLetter, players);
 
             _rounds.Add(newRound);
@@ -88,9 +88,9 @@ namespace WeStop.Api.Classes
         private string[] GetNotSortedLetters() =>
             Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
 
-        private ICollection<PlayerRound> GetPlayersOnlineAndReadyForNewRound()
+        private ICollection<PlayerRound> GetPlayersReadyForNewRound()
         {
-            return Players.Where(p => p.IsReady && p.Status == PlayerStatus.Online)
+            return Players.Where(p => p.IsReady)
                 .Select(x => new PlayerRound
                 {
                     Player = x
@@ -102,13 +102,13 @@ namespace WeStop.Api.Classes
 
         public void GeneratePontuationForTheme(string theme)
         {
-            string[] answersForTheme = GetOnlinePlayersAnswersForTheme(theme);
+            string[] answersForTheme = GetPlayersAnswersForTheme(theme);
 
-            ICollection<PlayerRound> _currentRoundOnlinePlayers = _currentRound.GetOnlinePlayers();
+            ICollection<PlayerRound> _currentRoundPlayers = _currentRound.GetPlayers();
             foreach (var answer in answersForTheme)
             {
-                int validVotesCountForThemeAnswer = _currentRoundOnlinePlayers.GetValidVotesCountForThemeAnswer(theme, answer);
-                int invalidVotesCountForThemeAnswer = _currentRoundOnlinePlayers.GetInvalidVotesCountForThemeAnswer(theme, answer);
+                int validVotesCountForThemeAnswer = _currentRoundPlayers.GetValidVotesCountForThemeAnswer(theme, answer);
+                int invalidVotesCountForThemeAnswer = _currentRoundPlayers.GetInvalidVotesCountForThemeAnswer(theme, answer);
 
                 if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
                 {
@@ -139,15 +139,15 @@ namespace WeStop.Api.Classes
             GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
         }
 
-        private string[] GetOnlinePlayersAnswersForTheme(string theme)
+        private string[] GetPlayersAnswersForTheme(string theme)
         {
-            return _currentRound.GetOnlinePlayers()
+            return _currentRound.GetPlayers()
                 .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
         }
 
         private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme)
         {
-            return _currentRound.GetOnlinePlayers()
+            return _currentRound.GetPlayers()
                 .Where(p => !p.Answers.Where(a => a.Theme == theme).Any() || p.Answers.Where(a => a.Theme == theme && string.IsNullOrEmpty(a.Answer)).Any()).ToList();
         }
 
@@ -180,7 +180,7 @@ namespace WeStop.Api.Classes
 
         public ICollection<PlayerScore> GetScoreboard()
         {
-            return _currentRound?.GetOnlinePlayers().Select(x => new PlayerScore
+            return _currentRound?.GetPlayers().Select(x => new PlayerScore
             {
                 PlayerId = x.Player.User.Id,
                 UserName = x.Player.User.UserName,

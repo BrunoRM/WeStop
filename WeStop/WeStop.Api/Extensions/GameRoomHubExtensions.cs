@@ -6,7 +6,7 @@ namespace WeStop.Api.Extensions
 {
     public static class GameRoomHubExtensions
     {
-        public static IClientProxy Group(this IHubContext<GameRoomHub> hub, Guid id) =>
+        public static IClientProxy Group(this IHubContext<GameHub> hub, Guid id) =>
             hub.Clients.Group(id.ToString());
 
         public static IClientProxy Group(this IHubCallerClients hub, Guid id) =>

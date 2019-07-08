@@ -27,8 +27,8 @@ namespace WeStop.Api.Classes
         public bool Finished { get; private set; }
         public ICollection<PlayerRound> Players { get; set; }
 
-        public ICollection<PlayerRound> GetOnlinePlayers() =>
-            Players.Where(pr => pr.Player.Status == PlayerStatus.Online).ToList();
+        public ICollection<PlayerRound> GetPlayers() =>
+            Players.ToList();
 
         // TODO: Refatorar esse método (deixar mais legível)
         public ICollection<ThemeAnswers> GetPlayersAnswersExceptFromPlayer(Guid playerId)

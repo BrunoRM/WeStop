@@ -13,7 +13,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
         }
 
         connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5000/gameroom")
+            .withUrl("http://localhost:5000/game")
             .build();
 
         connection.onclose(function () {

@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$game', '$rootScope', '$user', '$http', 'API_SETTINGS', function ($scope, $location, $game, $rootScope, $user, $http, API_SETTINGS) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$rootScope', '$user', '$http', 'API_SETTINGS', function ($scope, $location, $rootScope, $user, $http, API_SETTINGS) {
 
     $scope.hasUser = $rootScope.user !== null;
     $scope.newUser = '';
