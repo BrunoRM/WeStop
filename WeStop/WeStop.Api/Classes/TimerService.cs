@@ -1,24 +1,17 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using WeStop.Api.Infra.Hubs;
+using WeStop.Api.Infra.Services;
 
 namespace WeStop.Api.Classes
 {
-    public sealed class Timers
+    public sealed class TimerService : ITimerService
     {
         private const int SEND_ANSWERS_LIMIT_TIME = 3;
-        private const int VALIDATION_LIMIT_TIME = 10;
-        private readonly IHubContext<GameHub> _hubContext;
+        private const int VALIDATION_LIMIT_TIME = 15;
         private static Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
 
-        public Timers(IHubContext<GameHub> hubContext)
-        {
-            _hubContext = hubContext;
-        }
-
-        public void StartSendAnswersTime(Guid gameId, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
+        public void StartSendAnswersTime(Guid gameId, Action<Guid, int> onTimeElapsedAction, Action<Guid> onTimeOverAction)
         {
             GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, SEND_ANSWERS_LIMIT_TIME);
             Timer sendAnswersTimer = new Timer((context) =>
@@ -27,19 +20,19 @@ namespace WeStop.Api.Classes
                 if (timerContext.ElapsedTime >= timerContext.LimitTime)
                 {
                     RemoveGameTimer(gameId);
-                    onTimeOverAction?.Invoke(timerContext.GameId, _hubContext);
+                    onTimeOverAction?.Invoke(timerContext.GameId);
                 }
                 else
                 {
                     timerContext.AddSecondsToElapsedTime(1);
-                    onTimeElapsedAction?.Invoke(timerContext.GameId, _hubContext, timerContext.ElapsedTime);
+                    onTimeElapsedAction?.Invoke(timerContext.GameId, timerContext.ElapsedTime);
                 }
             }, gameTimerContext, 500, 1000);
 
             AddOrUpdateGameTimer(gameId, sendAnswersTimer);
         }
 
-        public void StartRoundTimer(Guid gameId, int limitTime, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
+        public void StartRoundTimer(Guid gameId, int limitTime, Action<Guid, int> onTimeElapsedAction, Action<Guid> onTimeOverAction)
         {
             GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, limitTime);
             Timer roundTimer = new Timer((context) =>
@@ -48,12 +41,12 @@ namespace WeStop.Api.Classes
                 if (timerContext.ElapsedTime >= timerContext.LimitTime)
                 {
                     StopRoundTimer(gameId);
-                    onTimeOverAction?.Invoke(timerContext.GameId, _hubContext);
+                    onTimeOverAction?.Invoke(timerContext.GameId);
                 }
                 else
                 {
                     timerContext.AddSecondsToElapsedTime(1);
-                    onTimeElapsedAction?.Invoke(timerContext.GameId, _hubContext, timerContext.ElapsedTime);
+                    onTimeElapsedAction?.Invoke(timerContext.GameId, timerContext.ElapsedTime);
                 }
             }, gameTimerContext, 1000, 1000);
 
@@ -65,23 +58,23 @@ namespace WeStop.Api.Classes
             RemoveGameTimer(gameId);
         }
 
-        public void StartValidationTimer(Guid gameId, Action<Guid, IHubContext<GameHub>, int> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
+        public void StartValidationTimerForTheme(Guid gameId, string themeBeingValidated, Action<Guid, string, int> onTimeElapsedAction, Action<Guid, string> onTimeOverAction)
         {
-            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, VALIDATION_LIMIT_TIME);
+            ThemeValidationTimerContext themeValidationTimerContext = CreateThemeValidationTimerContext(gameId, themeBeingValidated, VALIDATION_LIMIT_TIME);
             Timer validationTimer = new Timer((context) =>
             {
-                GameTimerContext timerContext = (GameTimerContext)context;
+                ThemeValidationTimerContext timerContext = (ThemeValidationTimerContext)context;
                 if (timerContext.ElapsedTime >= timerContext.LimitTime)
                 {
                     StopValidationTimer(gameId);
-                    onTimeOverAction?.Invoke(timerContext.GameId, _hubContext);
+                    onTimeOverAction?.Invoke(timerContext.GameId, timerContext.ThemeBeingValidated);
                 }
                 else
                 {
                     timerContext.AddSecondsToElapsedTime(1);
-                    onTimeElapsedAction(timerContext.GameId, _hubContext, timerContext.ElapsedTime);
+                    onTimeElapsedAction(timerContext.GameId, timerContext.ThemeBeingValidated, timerContext.ElapsedTime);
                 }
-            }, gameTimerContext, 1000, 1000);
+            }, themeValidationTimerContext, 1000, 1000);
 
             AddOrUpdateGameTimer(gameId, validationTimer);
         }
@@ -90,6 +83,9 @@ namespace WeStop.Api.Classes
         {
             RemoveGameTimer(gameId);
         }
+
+        private ThemeValidationTimerContext CreateThemeValidationTimerContext(Guid gameId, string themeBeingValidated, int limitTime) =>
+            new ThemeValidationTimerContext(gameId, themeBeingValidated, limitTime);
 
         private GameTimerContext CreateGameTimerContext(Guid gameId, int limitTime) =>
             new GameTimerContext(gameId, limitTime);

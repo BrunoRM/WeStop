@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using WeStop.Api.Classes;
 using WeStop.Api.Infra.Hubs;
+using WeStop.Api.Infra.Services;
 using WeStop.Api.Infra.Storages;
 using WeStop.Api.Infra.Storages.Interfaces;
 
@@ -42,7 +43,7 @@ namespace WeStop.Api
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
             services.AddSingleton<IPlayerConnectionStorage, PlayerConnectionStorage>();
-            services.AddScoped<Timers, Timers>();
+            services.AddScoped<ITimerService, TimerService>();
                         
             services.AddSignalR();
         }

@@ -45,6 +45,17 @@ namespace WeStop.Api.Classes
             }
         }
 
+        public void AddValidatiosForTheme(string theme, ICollection<AnswerValidation> validations)
+        {
+            bool hasValidationForThemeAnswer = ThemesAnswersValidations.Any(ta => ta.Theme == theme);
+
+            if (!hasValidationForThemeAnswer)
+            {
+                ThemeValidation themeValidation = new ThemeValidation(theme, validations);
+                _themesValidations.Add(themeValidation);
+            }
+        }
+
         public void AddAnswerForTheme(string theme, string answer)
         {
             bool hasAnswerForTheme = Answers.Any(a => a.Theme.Equals(theme));

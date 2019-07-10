@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Classes;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
+using WeStop.Api.Infra.Services;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Infra.Hubs
@@ -14,15 +14,17 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
+        private readonly IHubContext<GameHub> _hubContext;
         private readonly IPlayerConnectionStorage _playerConnectionStorage;
-        private readonly Timers _timers;
+        private readonly ITimerService _timerService;
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, Timers timers)
+        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, ITimerService timers)
         {
             _users = userStorage;
             _games = gameStorage;
+            _hubContext = hubContext;
             _playerConnectionStorage = playerConnectionStorage;
-            _timers = timers;
+            _timerService = timers;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -101,6 +103,7 @@ namespace WeStop.Api.Infra.Hubs
                 }
             });
 
+            // TODO: tratar quando o jogador está reconectando ou conectando pela primeira vez no jogo
             await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("game_player_joined", new
             {
                 ok = true,
@@ -143,19 +146,18 @@ namespace WeStop.Api.Infra.Hubs
             });
 
             int limitTime = game.Options.RoundTime;
-            _timers.StartRoundTimer(game.Id, limitTime, async (gameId, hub, currentTime) =>
+            _timerService.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
             {
-                await hub.Group(gameId).SendAsync("game_answers_time_elapsed", currentTime);
+                await _hubContext.Group(gameId).SendAsync("game_answers_time_elapsed", currentTime);
             },
-            async (gameId, hub) =>
+            async (gameId) =>
             {
-                await hub.Group(gameId).SendAsync("game_stop", new
+                Stop(game);
+                await _hubContext.Group(gameId).SendAsync("game_stop", new
                 {
                     ok = true,
                     reason = "time_over"
                 });
-
-                Stop(game);
             });
         }
 
@@ -195,9 +197,9 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("player_send_validations")]
         public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
         {
-            var game = await _games.GetByIdAsync(dto.GameId);
+            Game game = await _games.GetByIdAsync(dto.GameId);
 
-            var player = game.Players.FirstOrDefault(x => x.User.Id == dto.UserId);
+            Player player = game.GetPlayer(dto.UserId);
 
             game.AddPlayerAnswersValidations(player.Id, new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
 
@@ -206,6 +208,12 @@ namespace WeStop.Api.Infra.Hubs
                 ok = true,
                 dto.Validation.Theme
             });
+
+            if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
+            {
+                _timerService.StopValidationTimer(game.Id);
+                await GoToNextStep(game);
+            }
         }
 
         [HubMethodName("player_change_status")]
@@ -231,50 +239,102 @@ namespace WeStop.Api.Infra.Hubs
 
         private void Stop(Game game)
         {
-            _timers.StopRoundTimer(game.Id);
-            _timers.StartSendAnswersTime(game.Id, (gameId, hub, elapsedTime) => { }, async (id, hubContext) =>
-            {
-                await hubContext.Group(id).SendAsync("send_answers_time_over");
-
-                var connectionsOfGame = await _playerConnectionStorage.GetConnectionsForGameAsync(game.Id);
-                foreach (var playerConnection in connectionsOfGame)
-                {
-                    var validations = game.BuildValidationForPlayer(playerConnection.PlayerId);
-                    await hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("players_answers_received", validations);
-                }
-
-                _timers.StartValidationTimer(game.Id, async (gameId, hub, elapsedTime) =>
-                {
-                    await hub.Group(gameId).SendAsync("validation_time_elapsed", elapsedTime);
-                }, async (gameId, hub) =>
-                {
-                    await hub.Group(gameId).SendAsync("validation_time_over");
-
-                    string[] themes = game.GetThemes();
-                    foreach (var theme in themes)
-                    {
-                        game.GeneratePontuationForTheme(theme);
-                    }
-
-                    if (game.IsFinalRound())
-                    {
-                        await hub.Group(gameId).SendAsync("game_end", new
-                        {
-                            ok = true,
-                            winners = game.GetWinners(),
-                            scoreboard = game.GetScoreboard()
-                        });
-                    }
-                    else
-                    {
-                        await hub.Group(gameId).SendAsync("game_round_finished", new
-                        {
-                            ok = true,
-                            scoreboard = game.GetScoreboard()
-                        });
-                    }
-                });
+            _timerService.StopRoundTimer(game.Id);
+            _timerService.StartSendAnswersTime(game.Id, (gameId, elapsedTime) => { }, async (id) =>
+            {                
+                await OnSendAnswersTimeOver(game);
             });
+        }
+
+        private async Task OnSendAnswersTimeOver(Game game)
+        {
+            await _hubContext.Group(game.Id).SendAsync("send_answers_time_over");
+            game.BeginCurrentRoundThemesValidations();
+            await BeginValidationForNextTheme(game);
+        }
+
+        private async Task BeginValidationForNextTheme(Game game)
+        {
+            string nextThemeForValidate = game.GetThemeNotValidatedYet();
+
+            var connectionsOfGame = await _playerConnectionStorage.GetConnectionsForGameAsync(game.Id);
+            foreach (var playerConnection in connectionsOfGame)
+            {
+                var validationsOfThemeForPlayer = game.GetDefaultValidationsOfThemeForPlayer(nextThemeForValidate, playerConnection.PlayerId);
+                await _hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("validation_for_theme_start", validationsOfThemeForPlayer);
+            }
+
+            _timerService.StartValidationTimerForTheme(game.Id, nextThemeForValidate, async (gameId, theme, elapsedTime) =>
+            {
+                await OnValidationTimeForThemeElapsed(gameId, elapsedTime);
+            }, async (gameId, theme) =>
+            {
+                await OnValidationTimeForThemeOver(game, theme);
+            });
+        }
+
+        private void CalculateRoundPontuation(Game game)
+        {
+            string[] themes = game.GetThemes();
+            foreach (var theme in themes)
+            {
+                game.GeneratePontuationForTheme(theme);
+            }
+        }
+
+        private async Task OnValidationTimeForThemeElapsed(Guid gameId, int elapsedTime)
+        {
+            await _hubContext.Group(gameId).SendAsync("validation_time_elapsed", elapsedTime);
+        }
+
+        private async Task OnValidationTimeForThemeOver(Game game, string theme)
+        {
+            await _hubContext.Group(game.Id).SendAsync("validation_time_for_theme_over", theme);
+            game.SetDefaultThemeValidationsForPlayersThatHasNotAnyValidations(theme);
+            await GoToNextStep(game);
+        }
+
+        private async Task GoToNextStep(Game game)
+        {
+            if (!game.IsAllThemesValidated())
+            {
+                await BeginValidationForNextTheme(game);
+            }
+            else
+            {
+                CalculateRoundPontuation(game);
+                if (game.IsFinalRound())
+                {
+                    await FinishGame(game);
+                }
+                else
+                {
+                    await FinishRound(game);
+                }
+            }
+        }
+
+        private async Task FinishRound(Game game)
+        {
+            await _hubContext.Group(game.Id).SendAsync("game_round_finished", new
+            {
+                ok = true,
+                scoreboard = game.GetScoreboard()
+            });
+
+            game.FinishRound();
+        }
+
+        private async Task FinishGame(Game game)
+        {
+            await _hubContext.Group(game.Id).SendAsync("game_end", new
+            {
+                ok = true,
+                winners = game.GetWinners(),
+                scoreboard = game.GetScoreboard()
+            });
+
+            game.Finish();
         }
     }
 }

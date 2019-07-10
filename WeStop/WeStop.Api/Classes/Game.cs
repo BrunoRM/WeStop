@@ -11,6 +11,7 @@ namespace WeStop.Api.Classes
         private ICollection<Player> _players;
         private ICollection<Round> _rounds;
         private Round _currentRound;
+        private GameState _currentState;
 
         public Game(string name, string password, GameOptions options)
         {
@@ -20,6 +21,7 @@ namespace WeStop.Api.Classes
             Options = options;
             _players = new List<Player>();
             _rounds = new List<Round>();
+            _currentState = GameState.Waiting;
         }
 
         public Guid Id { get; private set; }
@@ -59,6 +61,7 @@ namespace WeStop.Api.Classes
                 throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
 
             _currentRound = CreateNewRound();
+            _currentState = GameState.InProgress;
         }
 
         private Round CreateNewRound()
@@ -246,7 +249,48 @@ namespace WeStop.Api.Classes
         public ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersExceptFromPlayer(Guid playerId) =>
             _currentRound.GetPlayersAnswersExceptFromPlayer(playerId);
 
-        public ICollection<ThemeValidation> BuildValidationForPlayer(Guid playerId)
+        public IEnumerable<ThemeValidation> GetDefaultValidationsForPlayer(Guid playerId)
+        {
+            var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersExceptFromPlayer(playerId);
+
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            foreach (var themeAnswers in answersThatPlayerShouldValidate)
+            {
+                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
+                {
+                    ThemeValidation themeValidation = new ThemeValidation(themeAnswers.Theme, themeAnswers.Answers
+                        .Where(a => !string.IsNullOrEmpty(a))
+                        .Select(a => new AnswerValidation(a, true))
+                        .ToList());
+
+                    yield return themeValidation;
+                }
+            }
+        }
+
+        public IEnumerable<ThemeValidation> GetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
+        {
+            var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
+
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            foreach (var themeAnswers in answersThatPlayerShouldValidate)
+            {
+                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
+                {
+                    ThemeValidation themeValidation = new ThemeValidation(themeAnswers.Theme, themeAnswers.Answers
+                        .Where(a => !string.IsNullOrEmpty(a))
+                        .Select(a => new AnswerValidation(a, true))
+                        .ToList());
+
+                    yield return themeValidation;
+                }
+            }
+        }
+
+        private ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
+            _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
+
+        public ICollection<ThemeValidation> BuildDefaultValidationForPlayer(Guid playerId)
         {
             var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersExceptFromPlayer(playerId);
 
@@ -265,6 +309,118 @@ namespace WeStop.Api.Classes
             }
 
             return playerCurrentRound.GetThemeValidations();
+        }
+
+        public ICollection<ThemeValidation> SetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
+        {
+            var themeAnswersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
+
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            foreach (var themeAnswers in themeAnswersThatPlayerShouldValidate)
+            {
+                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
+                {
+                    ThemeValidation themeValidation = new ThemeValidation(theme, themeAnswers.Answers
+                        .Where(a => !string.IsNullOrEmpty(a))
+                        .Select(a => new AnswerValidation(a, true))
+                        .ToList());
+
+                    playerCurrentRound.AddThemeAnswersValidations(themeValidation);
+                }
+            }
+
+            return playerCurrentRound.GetThemeValidations();
+        }
+
+        public void AddPlayerValidationsForTheme(Guid playerId, string theme, ICollection<AnswerValidation> validations)
+        {
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            playerCurrentRound.AddValidatiosForTheme(theme, validations);
+        }
+
+        public void SetDefaultThemeValidationsForPlayersThatHasNotAnyValidations(string theme)
+        {
+            var playersThatNotValidatedTheme = _currentRound.Players.Where(p => !p.ThemesAnswersValidations.Any(a => a.Theme == theme)).Select(p => p.Player);
+
+            if (playersThatNotValidatedTheme.Any())
+            {
+                foreach (var player in playersThatNotValidatedTheme)
+                {
+                    SetDefaultValidationsOfThemeForPlayer(theme, player.Id);
+                }
+            }
+        }
+
+        public bool IsAllThemesValidated()
+        {
+            foreach (string theme in Options.Themes)
+            {
+                if (AnyPlayerHasNotValidatedTheme(theme))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public string GetThemeNotValidatedYet()
+        {
+            foreach (string theme in Options.Themes)
+            {
+                if (AnyPlayerHasNotValidatedTheme(theme))
+                {
+                    return theme;
+                }
+            }
+
+            throw new WeStopException("Todos os temas já foram validados");
+        }
+
+        private bool AnyPlayerHasNotValidatedTheme(string theme) =>
+            _currentRound.Players.Any(p => !p.HasValidationForTheme(theme));
+
+        public GameState GetCurrentState()
+        {
+            return _currentState;
+        }
+
+        public void BeginCurrentRoundThemesValidations()
+        {
+            _currentState = GameState.ThemesValidations;
+        }
+
+        public void FinishRound()
+        {
+            _currentState = GameState.Waiting;
+        }
+
+        public void Finish()
+        {
+            if (!IsFinalRound())
+                throw new WeStopException("O jogo só poderá ser finalizado se a rodada atual for a última");
+
+            _currentState = GameState.Finished;
+        }
+
+        private bool AnyOtherPlayersRepliedForTheme(Guid playerId, string theme) =>
+            _currentRound.Players.Any(x => x.Player.User.Id != playerId && x.Answers.Where(a => a.Theme == theme).Any());
+
+        public bool AllPlayersSendValidationsOfTheme(string theme)
+        {
+            foreach (var player in Players)
+            {
+                bool otherPlayersAnsweredTheme = AnyOtherPlayersRepliedForTheme(player.Id, theme);
+
+                if (otherPlayersAnsweredTheme)
+                {
+                    var playerCurrentRound = GetPlayerCurrentRound(player.Id);
+                    if (!playerCurrentRound.HasValidationForTheme(theme))
+                        return false;
+                }
+            }
+
+            return true;
         }
     }
 }

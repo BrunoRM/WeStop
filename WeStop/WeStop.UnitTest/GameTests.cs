@@ -658,7 +658,7 @@ namespace WeStop.UnitTest
             _game.SetAllPlayersReadyForTheNextRound();
             _game.StartNextRound();
 
-            _game.AddPlayerAnswerForTheme(_player1.Id, "CEP", "Brasil");
+            _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Breaking bad");
             _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bianca");
 
             var player1Validations = new List<ThemeValidation>
@@ -671,21 +671,24 @@ namespace WeStop.UnitTest
 
             var player2Validations = new List<ThemeValidation>
             {
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new ThemeValidation("FDS", new List<AnswerValidation>
                 {
-                    new AnswerValidation("Brasil", true)
+                    new AnswerValidation("Breaking bad", true)
                 })
             };
 
+            _game.AddPlayerAnswersValidations(_player1.Id, player1Validations);
+            _game.AddPlayerAnswersValidations(_player2.Id, player2Validations);
+
             _game.GeneratePontuationForTheme("Nome");
-            _game.GeneratePontuationForTheme("CEP");
+            _game.GeneratePontuationForTheme("FDS");
 
             Assert.AreEqual(0, _game.GetPlayerCurrentRoundPontuationForTheme(_player1.Id, "Nome"));
-            Assert.AreEqual(10, _game.GetPlayerCurrentRoundPontuationForTheme(_player1.Id, "CEP"));
+            Assert.AreEqual(10, _game.GetPlayerCurrentRoundPontuationForTheme(_player1.Id, "FDS"));
             Assert.AreEqual(10, _game.GetPlayerCurrentRoundEarnedPoints(_player1.Id));
 
             Assert.AreEqual(10, _game.GetPlayerCurrentRoundPontuationForTheme(_player2.Id, "Nome"));
-            Assert.AreEqual(0, _game.GetPlayerCurrentRoundPontuationForTheme(_player2.Id, "CEP"));
+            Assert.AreEqual(0, _game.GetPlayerCurrentRoundPontuationForTheme(_player2.Id, "FDS"));
             Assert.AreEqual(10, _game.GetPlayerCurrentRoundEarnedPoints(_player2.Id));
         }
 
@@ -1103,9 +1106,9 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Bruno");
             _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Band of Brothers");
 
-            var player1Validations = _game.BuildValidationForPlayer(_player1.Id);
-            var player2Validations = _game.BuildValidationForPlayer(_player2.Id);
-            var player3Validations = _game.BuildValidationForPlayer(_player3.Id);
+            var player1Validations = _game.BuildDefaultValidationForPlayer(_player1.Id);
+            var player2Validations = _game.BuildDefaultValidationForPlayer(_player2.Id);
+            var player3Validations = _game.BuildDefaultValidationForPlayer(_player3.Id);
 
             Assert.True(player1Validations.First(x => x.Theme == "Nome").AnswersValidations.Select(x => x.Answer).Contains("Bruna"));
             Assert.True(player1Validations.First(x => x.Theme == "Nome").AnswersValidations.Select(x => x.Answer).Contains("Bruno"));
@@ -1121,6 +1124,50 @@ namespace WeStop.UnitTest
             Assert.True(player3Validations.First(x => x.Theme == "Nome").AnswersValidations.Select(x => x.Answer).Contains("Bruno"));
             Assert.True(player3Validations.First(x => x.Theme == "FDS").AnswersValidations.Select(x => x.Answer).Contains("Band of Brothers"));
             Assert.True(player3Validations.First(x => x.Theme == "FDS").AnswersValidations.Select(x => x.Answer).Contains("Breaking bad"));
+        }
+
+        [Test]
+        public void ReturnTrueWhenAllPlayersSendValidationsOfATheme()
+        {
+            _game.SetAllPlayersReadyForTheNextRound();
+            _game.StartNextRound();
+
+            _game.AddPlayerAnswerForTheme(_player1.Id, "Nome", "Bruno");
+            _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
+            _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Breno");
+
+            var player1Validations = new List<ThemeValidation>
+            {
+                new ThemeValidation("Nome", new List<AnswerValidation>
+                {
+                    new AnswerValidation("Bruna", true),
+                    new AnswerValidation("Breno", true)
+                })
+            };
+
+            var player2Validations = new List<ThemeValidation>
+            {
+                new ThemeValidation("Nome", new List<AnswerValidation>
+                {
+                    new AnswerValidation("Bruno", true),
+                    new AnswerValidation("Breno", true)
+                })
+            };
+
+            var player3Validations = new List<ThemeValidation>
+            {
+                new ThemeValidation("Nome", new List<AnswerValidation>
+                {
+                    new AnswerValidation("Bruno", true),
+                    new AnswerValidation("Bruna", true)
+                })
+            };
+
+            _game.AddPlayerAnswersValidations(_player1.Id, player1Validations);
+            _game.AddPlayerAnswersValidations(_player2.Id, player2Validations);
+            _game.AddPlayerAnswersValidations(_player3.Id, player3Validations);
+
+            Assert.IsTrue(_game.AllPlayersSendValidationsOfTheme("Nome"));
         }
     }
 }

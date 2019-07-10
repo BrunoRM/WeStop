@@ -180,7 +180,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentValidationTime = resp;
     });
 
-    $game.on('players_answers_received', resp => {
+    $game.on('validation_for_theme_start', resp => {
         $scope.themeAnswersValidations = resp;        
     });
     

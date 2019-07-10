@@ -53,10 +53,40 @@ namespace WeStop.Api.Classes
             return themesAnswers;
         }
 
+        public ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId)
+        {
+            ICollection<ThemeAnswer> answersOfOthersPlayers = GetThemeAnswersOfOtherPlayers(theme, playerId);
+
+            ICollection<ThemeAnswers> themesAnswers = new List<ThemeAnswers>();
+            foreach (var themeAnswer in answersOfOthersPlayers)
+            {
+                string answer = themeAnswer.Answer;
+
+                ThemeAnswers existingThemeAnswers = themesAnswers.FirstOrDefault(ta => ta.Theme == theme);
+                if (existingThemeAnswers != null && !existingThemeAnswers.HasAnswer(answer))
+                {
+                    existingThemeAnswers.AddAnswer(answer);
+                }
+                else
+                {
+                    ThemeAnswers themeAnswers = new ThemeAnswers(themeAnswer.Theme, themeAnswer.Answer);
+                    themesAnswers.Add(themeAnswers);
+                }
+            }
+
+            return themesAnswers;
+        }
+
         private ICollection<ThemeAnswer> GetAnswersOfOtherPlayers(Guid playerId)
         {
             return Players.Where(p => p.Player.Id != playerId)
                 .SelectMany(x => x.Answers).ToList();
+        }
+
+        private ICollection<ThemeAnswer> GetThemeAnswersOfOtherPlayers(string theme, Guid playerId)
+        {
+            return Players.Where(p => p.Player.Id != playerId)
+                .SelectMany(x => x.Answers.Where(a => a.Theme == theme)).ToList();
         }
     }
 }
