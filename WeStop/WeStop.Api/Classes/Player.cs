@@ -8,7 +8,6 @@ namespace WeStop.Api.Classes
         {
             User = user;
             IsReady = false;
-            IsAdmin = false;
             EarnedPoints = 0;
             IsAdmin = isAdmin;
         }

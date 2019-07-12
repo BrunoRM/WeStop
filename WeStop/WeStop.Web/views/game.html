@@ -2,7 +2,7 @@
     <div class="col-12 col-md-10 offset-md-1">
         <div class="nes-container is-dark with-title">
 
-            <p class="title">{{ gameName }}</p>
+            <p class="title">{{ game.name }}</p>
 
             <!-- Informações gerais da partida e do jogador -->
             <div class="row">
@@ -26,7 +26,7 @@
                     <p style="font-size: 13px; text-align: center;">{{user.userName}}</p>
                 </div>
                 <div class="col-1 offset-1 col-md-3 offset-md-0">
-                    <p style="font-size: 13px; text-align: center;">{{currentRound}}/{{numberOfRounds}}</p>
+                    <p style="font-size: 13px; text-align: center;">{{game.currentRound}}/{{game.numberOfRounds}}</p>
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
                     <p style="font-size: 13px; text-align: center;">
@@ -34,12 +34,12 @@
                     </p>
                 </div>
                 <div class="col-1 offset-2 col-md-3 offset-md-0">
-                    <p style="font-size: 13px; text-align: center;">{{pontuation}}</p>
+                    <p style="font-size: 13px; text-align: center;">{{player.earnedPoints}}</p>
                 </div>
             </div>
 
             <!-- Placar -->
-            <div ng-if="scoreboard.length > 0 && (!gameStarted || endGame)">
+            <div ng-if="game.scoreBoard.length > 0 && (!gameStarted || endGame)">
                 <div class="nes-container">
                     <p class="title">
                         <span ng-if="!endGame">Placar até o momento</span>
@@ -56,9 +56,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text" ng-repeat="score in scoreboard">
+                                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text" ng-repeat="score in game.scoreBoard">
                                     <td>{{score.userName}}</td>
-                                    <td>{{score.roundPontuation}}</td>
+                                    <td>{{score.lastRoundPontuation}}</td>
                                     <td>{{score.gamePontuation}}</td>
                                 </tr>
                             </tbody>
@@ -72,7 +72,7 @@
             <!-- Sala de espera -->
             <div ng-if="!gameStarted">
                 <ul class="nes-list is-disc">
-                    <li ng-repeat="player in players">
+                    <li ng-repeat="player in game.players">
                         {{player.userName}} 
                         <span ng-if="player.isReady" style="color: lightgreen;">Pronto</span>
                         <span ng-if="!player.isReady" style="color: red;">Aguardando</span>
@@ -95,7 +95,7 @@
             <!-- Jogo -->
             <div ng-if="gameStarted && !stopCalled">
 
-                <h5 class="nes-text is-warning">Letra sorteada: {{gameConfig.currentRound.sortedLetter}}</h5>
+                <h5 class="nes-text is-warning">Letra sorteada: {{sortedLetter}}</h5>
 
                 <br />
 
@@ -118,32 +118,33 @@
 
             <!-- Validação das respostas -->
             <div ng-if="stopCalled && !endGame">
-                
-                <span class="nes-text is-warning" ng-if="themeAnswersValidations.length > 0">Valide as respostas dos outros jogadores</span>
-                
-                <br />
 
-                {{currentValidationTime}}
+                <div ng-if="themeValidations">
 
-                <br />
-                
-                <div class="form-row">
-                    <div class="form-group col-6 col-md-4" ng-repeat="themeAnswersValidation in themeAnswersValidations">
-                        
-                        <span class="nes-text is-primary">{{themeAnswersValidation.theme}}</span>
-                        <div ng-repeat="answerValidation in themeAnswersValidation.answersValidations">                        
+                    <span class="nes-text is-warning">Valide as respostas dos outros jogadores</span>
+
+                    <br />
+
+                    <span>{{currentValidationTime}}</span>
+    
+                    <br />
+
+                    <h4>Tema: {{themeValidations.theme}}</h2>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-md-4" ng-repeat="answerValidation in themeValidations.answersValidations">
+    
                             <label>
                                 <input ng-model="answerValidation.valid" type="checkbox" class="nes-checkbox is-dark" />
                                 <span>{{answerValidation.answer}}</span>
                             </label>
+                            
+                            <button class="nes-btn is-success" ng-click="validate(themeValidations)">Validar</button>
+                            
                         </div>
-                        
-                        <button class="nes-btn is-success" ng-click="validate(themeAnswersValidation)">Validar</button>
-                        
                     </div>
                 </div>
 
-                <p class="nes-text is-warning" ng-if="themeAnswersValidations.length == 0">Aguardando validação dos outros jogadores...</p>
+                <p class="nes-text is-warning" ng-if="!themeValidations">Aguardando validação dos outros jogadores...</p>
 
             </div>
 

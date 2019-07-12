@@ -555,73 +555,73 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Bugatti");
             game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            game.AddPlayerAnswersValidations(_player1.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player1.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Bahamas", true),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player1.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Be", false),
                 new AnswerValidation("Bugatti", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player1.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Bu", false),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player2.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player2.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player2.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Bugatti", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player2.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player3.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player3.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerAnswersValidations(_player3.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Be", false)
             }));
 
-            game.AddPlayerAnswersValidations(_player3.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Bu", false)

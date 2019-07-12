@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Classes;
@@ -17,14 +19,17 @@ namespace WeStop.Api.Infra.Hubs
         private readonly IHubContext<GameHub> _hubContext;
         private readonly IPlayerConnectionStorage _playerConnectionStorage;
         private readonly ITimerService _timerService;
+        private readonly IMapper _mapper;
+        private static IDictionary<Guid, string> _themeValidationContext = new Dictionary<Guid, string>();
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, ITimerService timers)
+        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, ITimerService timers, IMapper mapper)
         {
             _users = userStorage;
             _games = gameStorage;
             _hubContext = hubContext;
             _playerConnectionStorage = playerConnectionStorage;
             _timerService = timers;
+            _mapper = mapper;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -38,7 +43,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             User user = await _users.GetByIdAsync(dto.UserId);
 
-            Game game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.RoundTime));
+            Game game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.Time));
             game.AddPlayer(new Player(user, true));
 
             await _games.CreateAsync(game);
@@ -72,49 +77,74 @@ namespace WeStop.Api.Infra.Hubs
 
             PlayerConnection playerConnection = new PlayerConnection(Context.ConnectionId, player.Id, game.Id);
             await _playerConnectionStorage.AddAsync(playerConnection);
+                       
+            GameState gameState = game.GetCurrentState();
 
-            await Clients.Caller.SendAsync("game_joined", new
+            switch (gameState)
             {
-                ok = true,
-                game = new
-                {
-                    game.Id,
-                    game.Name,
-                    game.Options.NumberOfPlayers,
-                    game.Options.Rounds,
-                    game.Options.RoundTime,
-                    game.Options.Themes,
-                    currentRound = game.GetNextRoundNumber(),
-                    players = game.Players.Select(p => new
+                case GameState.Waiting:
+
+                    await Clients.Caller.SendAsync("im_joined_game", new
                     {
-                        p.User.Id,
-                        p.User.UserName,
-                        p.IsReady
-                    }),
-                    scoreboard = game.GetScoreboard()
-                },
-                player = new
-                {
-                    player.User.Id,
-                    player.User.UserName,
-                    player.IsAdmin,
-                    player.IsReady,
-                    player.EarnedPoints
-                }
-            });
+                        ok = true,
+                        game = _mapper.Map<Game, GameDto>(game),
+                        player = _mapper.Map<Player, PlayerDto>(player)
+                    });
 
-            // TODO: tratar quando o jogador está reconectando ou conectando pela primeira vez no jogo
-            await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("game_player_joined", new
-            {
-                ok = true,
-                player = new
-                {
-                    player.User.Id,
-                    player.User.UserName,
-                    player.IsAdmin,
-                    player.IsReady
-                }
-            });
+                    await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
+                    {
+                        ok = true,
+                        player = _mapper.Map<Player, PlayerDto>(player)
+                    });
+
+                    break;
+
+                case GameState.InProgress:
+
+                    await Clients.Caller.SendAsync("im_reconected_game", new
+                    {
+                        ok = true,
+                        game = _mapper.Map<Game, GameDto>(game),
+                        player = _mapper.Map<Player, PlayerDto>(player),
+                        sortedLetter = game.GetCurrentRoundSortedLetter()
+                    });
+
+                    break;
+
+                case GameState.ThemesValidations:
+
+                    string themeBeingValidated = _themeValidationContext[game.Id];
+                    bool hasPlayerValidatedTheme = game.HasPlayerValidatedTheme(player.Id, themeBeingValidated);
+
+                    ThemeValidation themeValidation = null;
+                    if (!hasPlayerValidatedTheme)
+                    {
+                        themeValidation = game.GetDefaultValidationsOfThemeForPlayer(themeBeingValidated, player.Id);
+                    }
+
+                    await Clients.Caller.SendAsync("im_reconected_game", new
+                    {
+                        ok = true,
+                        game = _mapper.Map<Game, GameDto>(game),
+                        player = _mapper.Map<Player, PlayerDto>(player),
+                        themeBeingValidated,
+                        validated = hasPlayerValidatedTheme,
+                        themeValidations = themeValidation
+                    });
+
+                    break;
+
+                case GameState.Finished:
+
+                    await Clients.Caller.SendAsync("im_reconected_game", new
+                    {
+                        game = _mapper.Map<Game, GameDto>(game),
+                        player = _mapper.Map<Player, PlayerDto>(player),
+                        winners = game.GetWinners()
+                    });
+
+                    break;
+            }
         }
 
         [HubMethodName("game_start_round")]
@@ -137,15 +167,10 @@ namespace WeStop.Api.Infra.Hubs
             await connectionGroup.SendAsync("game_round_started", new
             {
                 ok = true,
-                gameRoomConfig = new
-                {
-                    game.Id,
-                    themes = game.Options.Themes,
-                    currentRound = game.Rounds.Last()
-                }
+                id = game.Id
             });
 
-            int limitTime = game.Options.RoundTime;
+            int limitTime = game.Options.Time;
             _timerService.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
             {
                 await _hubContext.Group(gameId).SendAsync("game_answers_time_elapsed", currentTime);
@@ -178,7 +203,7 @@ namespace WeStop.Api.Infra.Hubs
             Stop(game);
         }
 
-        [HubMethodName("player_send_answers")]
+        [HubMethodName("send_answers")]
         public async Task SendAnswers(SendAnswersDto dto)
         {
             Game game = await _games.GetByIdAsync(dto.GameId);
@@ -194,16 +219,16 @@ namespace WeStop.Api.Infra.Hubs
             await Clients.Group(game.Id.ToString()).SendAsync("answers_received");
         }
 
-        [HubMethodName("player_send_validations")]
+        [HubMethodName("send_validations")]
         public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
         {
             Game game = await _games.GetByIdAsync(dto.GameId);
 
             Player player = game.GetPlayer(dto.UserId);
 
-            game.AddPlayerAnswersValidations(player.Id, new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
+            game.AddPlayerThemeValidations(player.Id, new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
 
-            await Clients.Caller.SendAsync("player_validations_sended", new
+            await Clients.Caller.SendAsync("im_send_validations", new
             {
                 ok = true,
                 dto.Validation.Theme
@@ -216,6 +241,7 @@ namespace WeStop.Api.Infra.Hubs
             }
         }
 
+        // TODO: gerar um evento de resposta somente para o caller ( im_change_status )
         [HubMethodName("player_change_status")]
         public async Task ChangePlayerStatus(ChangePlayerStatusDto dto)
         {
@@ -250,20 +276,21 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _hubContext.Group(game.Id).SendAsync("send_answers_time_over");
             game.BeginCurrentRoundThemesValidations();
-            await BeginValidationForNextTheme(game);
+            await StartValidationForNextTheme(game);
         }
 
-        private async Task BeginValidationForNextTheme(Game game)
+        private async Task StartValidationForNextTheme(Game game)
         {
             string nextThemeForValidate = game.GetThemeNotValidatedYet();
 
             var connectionsOfGame = await _playerConnectionStorage.GetConnectionsForGameAsync(game.Id);
             foreach (var playerConnection in connectionsOfGame)
             {
-                var validationsOfThemeForPlayer = game.GetDefaultValidationsOfThemeForPlayer(nextThemeForValidate, playerConnection.PlayerId);
-                await _hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("validation_for_theme_start", validationsOfThemeForPlayer);
+                ThemeValidation validationsOfThemeForPlayer = game.GetDefaultValidationsOfThemeForPlayer(nextThemeForValidate, playerConnection.PlayerId);
+                await _hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("validation_for_theme_started", validationsOfThemeForPlayer);
             }
 
+            AddOrUpdateThemeBeingValidatedForGame(game.Id, nextThemeForValidate);
             _timerService.StartValidationTimerForTheme(game.Id, nextThemeForValidate, async (gameId, theme, elapsedTime) =>
             {
                 await OnValidationTimeForThemeElapsed(gameId, elapsedTime);
@@ -298,7 +325,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             if (!game.IsAllThemesValidated())
             {
-                await BeginValidationForNextTheme(game);
+                await StartValidationForNextTheme(game);
             }
             else
             {
@@ -316,10 +343,12 @@ namespace WeStop.Api.Infra.Hubs
 
         private async Task FinishRound(Game game)
         {
+            var scoreBoard = game.GetScoreboard();
+
             await _hubContext.Group(game.Id).SendAsync("game_round_finished", new
             {
                 ok = true,
-                scoreboard = game.GetScoreboard()
+                scoreBoard = _mapper.Map<ICollection<PlayerScore>, ICollection<PlayerScoreDto>>(scoreBoard)
             });
 
             game.FinishRound();
@@ -335,6 +364,18 @@ namespace WeStop.Api.Infra.Hubs
             });
 
             game.Finish();
+        }
+
+        private void AddOrUpdateThemeBeingValidatedForGame(Guid gameId, string theme)
+        {
+            if (_themeValidationContext.ContainsKey(gameId))
+            {
+                _themeValidationContext[gameId] = theme;
+            }
+            else
+            {
+                _themeValidationContext.Add(gameId, theme);
+            }
         }
     }
 }

@@ -43,6 +43,9 @@ namespace WeStop.Api.Classes
         public int GetNextRoundNumber() =>
             _currentRound?.Number + 1 ?? 1;
 
+        public int GetCurrentRoundNumber() =>
+            _currentRound?.Number ?? 1;
+
         public void AddPlayer(Player player)
         {
             if (!Players.Any(x => x.User.Id == player.User.Id))
@@ -183,13 +186,18 @@ namespace WeStop.Api.Classes
 
         public ICollection<PlayerScore> GetScoreboard()
         {
-            return _currentRound?.GetPlayers().Select(x => new PlayerScore
+            if (_currentRound is null)
             {
-                PlayerId = x.Player.User.Id,
-                UserName = x.Player.User.UserName,
-                RoundPontuation = x.EarnedPoints,
-                GamePontuation = x.Player.EarnedPoints
-            }).OrderByDescending(x => x.GamePontuation).ToList();
+                return new List<PlayerScore>();
+            }
+
+            return _currentRound.GetPlayers().Select(p => new PlayerScore
+            {
+                PlayerId = p.Player.User.Id,
+                UserName = p.Player.User.UserName,
+                RoundPontuation = p.EarnedPoints,
+                GamePontuation = p.Player.EarnedPoints
+            }).OrderByDescending(ps => ps.GamePontuation).ToList();
         }
 
         public IEnumerable<string> GetWinners()
@@ -216,16 +224,17 @@ namespace WeStop.Api.Classes
             }
         }
 
-        public void AddPlayerAnswersValidations(Guid playerId, ThemeValidation validations)
+        public void AddPlayerThemeValidations(Guid playerId, ThemeValidation validations)
         {
             var playerCurrentRound = GetPlayerCurrentRound(playerId);
             playerCurrentRound.AddThemeAnswersValidations(validations);
         }
 
+        [Obsolete("AddPlayerAnswersValidations is deprecated, please use AddPlayerThemeValidations instead.")]
         public void AddPlayerAnswersValidations(Guid playerId, ICollection<ThemeValidation> validations)
         {
             foreach (var validation in validations)
-                AddPlayerAnswersValidations(playerId, validation);
+                AddPlayerThemeValidations(playerId, validation);
         }
 
         public int GetPlayerCurrentRoundPontuationForTheme(Guid playerId, string theme)
@@ -268,26 +277,18 @@ namespace WeStop.Api.Classes
             }
         }
 
-        public IEnumerable<ThemeValidation> GetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
+        public ThemeValidation GetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
         {
             var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
 
             var playerCurrentRound = GetPlayerCurrentRound(playerId);
-            foreach (var themeAnswers in answersThatPlayerShouldValidate)
-            {
-                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
-                {
-                    ThemeValidation themeValidation = new ThemeValidation(themeAnswers.Theme, themeAnswers.Answers
-                        .Where(a => !string.IsNullOrEmpty(a))
-                        .Select(a => new AnswerValidation(a, true))
-                        .ToList());
+            ThemeValidation themeValidation = new ThemeValidation(theme, answersThatPlayerShouldValidate.Answers.Where(a => !string.IsNullOrEmpty(a))
+                .Select(a => new AnswerValidation(a, true)).ToList());
 
-                    yield return themeValidation;
-                }
-            }
+            return themeValidation;
         }
 
-        private ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
+        private ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
             _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
 
         public ICollection<ThemeValidation> BuildDefaultValidationForPlayer(Guid playerId)
@@ -311,25 +312,15 @@ namespace WeStop.Api.Classes
             return playerCurrentRound.GetThemeValidations();
         }
 
-        public ICollection<ThemeValidation> SetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
+        public void SetDefaultValidationsOfThemeForPlayer(string theme, Guid playerId)
         {
-            var themeAnswersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
+            var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
 
             var playerCurrentRound = GetPlayerCurrentRound(playerId);
-            foreach (var themeAnswers in themeAnswersThatPlayerShouldValidate)
-            {
-                if (themeAnswers.Answers.Any(a => !string.IsNullOrEmpty(a)))
-                {
-                    ThemeValidation themeValidation = new ThemeValidation(theme, themeAnswers.Answers
-                        .Where(a => !string.IsNullOrEmpty(a))
-                        .Select(a => new AnswerValidation(a, true))
-                        .ToList());
+            ThemeValidation themeValidation = new ThemeValidation(theme, answersThatPlayerShouldValidate.Answers.Where(a => !string.IsNullOrEmpty(a))
+                .Select(a => new AnswerValidation(a, true)).ToList());
 
-                    playerCurrentRound.AddThemeAnswersValidations(themeValidation);
-                }
-            }
-
-            return playerCurrentRound.GetThemeValidations();
+            playerCurrentRound.AddThemeAnswersValidations(themeValidation);
         }
 
         public void AddPlayerValidationsForTheme(Guid playerId, string theme, ICollection<AnswerValidation> validations)
@@ -392,6 +383,7 @@ namespace WeStop.Api.Classes
 
         public void FinishRound()
         {
+            // TODO: verificar se existe algum jogador que não possui validação para algum tema, e gerar as validações padrão para o mesmo
             _currentState = GameState.Waiting;
         }
 
@@ -422,5 +414,14 @@ namespace WeStop.Api.Classes
 
             return true;
         }
+
+        public bool HasPlayerValidatedTheme(Guid playerId, string theme)
+        {
+            var playerCurrentRound = GetPlayerCurrentRound(playerId);
+            return playerCurrentRound.HasValidationForTheme(theme);
+        }
+
+        public ICollection<Player> GetPlayers() =>
+            Players.ToList();
     }
 }
