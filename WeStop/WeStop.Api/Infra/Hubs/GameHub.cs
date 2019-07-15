@@ -167,7 +167,8 @@ namespace WeStop.Api.Infra.Hubs
             await connectionGroup.SendAsync("game_round_started", new
             {
                 ok = true,
-                id = game.Id
+                id = game.Id,
+                sortedLetter = game.GetCurrentRoundSortedLetter()
             });
 
             int limitTime = game.Options.Time;
@@ -216,7 +217,11 @@ namespace WeStop.Api.Infra.Hubs
                 game.AddPlayerAnswerForTheme(player.Id, theme, answer);
             }
 
-            await Clients.Group(game.Id.ToString()).SendAsync("answers_received");
+            await Clients.Caller.SendAsync("im_send_answers", new
+            {
+                ok = true,
+                gameId = game.Id
+            });
         }
 
         [HubMethodName("send_validations")]
@@ -356,11 +361,13 @@ namespace WeStop.Api.Infra.Hubs
 
         private async Task FinishGame(Game game)
         {
+            var scoreBoard = game.GetScoreboard();
+
             await _hubContext.Group(game.Id).SendAsync("game_end", new
             {
                 ok = true,
                 winners = game.GetWinners(),
-                scoreboard = game.GetScoreboard()
+                scoreBoard = _mapper.Map<ICollection<PlayerScore>, ICollection<PlayerScoreDto>>(scoreBoard)
             });
 
             game.Finish();

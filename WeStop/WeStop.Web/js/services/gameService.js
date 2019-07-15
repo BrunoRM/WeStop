@@ -1,80 +1,53 @@
 angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
 
-    var connection = null;
+    let connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5000/game")
+            .build();
 
     function onConnectionClose() {
         console.log('Connection has closed');
     }
 
     function connect (sCallback, eCallback) {
-
-        if (connection) {
-            sCallback();
-        }
-
-        connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5000/game")
-            .build();
-
+        
+        connection.serverTimeoutInMilliseconds = 1000*30;
         connection.onclose(function () {
             onConnectionClose();
         });
 
-        connection.serverTimeoutInMilliseconds = 1000*30;
-
-        connection.start().then(() => { 
+        connection.start().then(function () { 
             $rootScope.$apply(() => sCallback());
         }, (e) => { 
-            $rootScope.$apply(() => {
-                if (eCallback)
+            $rootScope.$apply(function () {
+                if (eCallback) {
                     eCallback(e);
+                }
             })
         });
     }
 
-    function on(eventName, sCallback, eCallback) {
-
-        if (!connection) {
-            connect(function () {
-                connection.on(eventName, data => {
-                    $rootScope.$apply(() => {
-                        sCallback(data);
-                    });
-                });        
-            });
-        } else {
-            connection.on(eventName, data => {
-                $rootScope.$apply(() => {
+    function on(eventName, sCallback) {
+        connection.on(eventName, data => {
+            $rootScope.$apply(() => {
+                if (sCallback) {
                     sCallback(data);
-                });
+                }
             });
-        }        
+        });
     }
 
-    function invoke(eventName, params) {
-
-        if (!connection) {
-            connect(() => {
-                if (params)
-                    connection.invoke(eventName, params);
-                else
-                    connection.invoke(eventName);
-            });
+    function invoke(...args) {
+        if (connection.state === 0) {
+            connect(() => connection.invoke(...args));
         } else {
-            if (params)
-                connection.invoke(eventName, params);
-            else
-                connection.invoke(eventName);
+            connection.invoke(...args);
         }
-
     }
 
     return {
         onConnectionClose: onConnectionClose,
-        connect: connect,
         on: on,
         invoke: invoke
     }
-
 
 }]);

@@ -31,6 +31,8 @@ namespace WeStop.Api.Classes
         public IReadOnlyCollection<Round> Rounds => _rounds.ToList();
         public IReadOnlyCollection<Player> Players => _players.ToList();
 
+        #region Public Methods
+
         public int GetPlayersCount() =>
             Players.Count();
 
@@ -53,10 +55,7 @@ namespace WeStop.Api.Classes
         }
 
         public Player GetPlayer(Guid id) =>
-            _players.FirstOrDefault(p => p.Id == id);
-
-        private PlayerRound GetPlayerCurrentRound(Guid playerId) =>
-            _currentRound.Players.First(x => x.Player.Id == playerId);
+            _players.FirstOrDefault(p => p.Id == id);        
 
         public void StartNextRound()
         {
@@ -65,43 +64,7 @@ namespace WeStop.Api.Classes
 
             _currentRound = CreateNewRound();
             _currentState = GameState.InProgress;
-        }
-
-        private Round CreateNewRound()
-        {
-            int nextRoundNumber = GetNextRoundNumber();
-            string drawnLetter = SortOutLetter();
-            ICollection<PlayerRound> players = GetPlayersReadyForNewRound();
-            Round newRound = new Round(nextRoundNumber, drawnLetter, players);
-
-            _rounds.Add(newRound);
-            return newRound;
-        }
-
-        private string SortOutLetter()
-        {
-            string[] notSortedLetters = GetNotSortedLetters();
-
-            Random random = new Random();
-            int randomSortedIndex = random.Next(0, notSortedLetters.Count() - 1);
-
-            string sortedLetter = notSortedLetters[randomSortedIndex];
-
-            Options.AvailableLetters[sortedLetter] = true;
-            return sortedLetter;
-        }
-
-        private string[] GetNotSortedLetters() =>
-            Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
-
-        private ICollection<PlayerRound> GetPlayersReadyForNewRound()
-        {
-            return Players.Where(p => p.IsReady)
-                .Select(x => new PlayerRound
-                {
-                    Player = x
-                }).ToList();
-        }
+        }        
 
         public string[] GetThemes() =>
             Options.Themes;
@@ -143,42 +106,6 @@ namespace WeStop.Api.Classes
 
             var playersWithBlankThemeAnswer = GetPlayersThatNotRepliedAnswerForTheme(theme);
             GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
-        }
-
-        private string[] GetPlayersAnswersForTheme(string theme)
-        {
-            return _currentRound.GetPlayers()
-                .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
-        }
-
-        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme)
-        {
-            return _currentRound.GetPlayers()
-                .Where(p => !p.Answers.Where(a => a.Theme == theme).Any() || p.Answers.Where(a => a.Theme == theme && string.IsNullOrEmpty(a.Answer)).Any()).ToList();
-        }
-
-        private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 5);
-        }
-
-        private void GenerateTenThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 10);
-        }
-
-        private void GenerateZeroThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 0);
-        }
-
-        private ICollection<PlayerRound> GetPlayersThatRepliedAnswerForTheme(string answer, string theme)
-        {
-            return _currentRound.Players
-                .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
         }
 
         public bool IsFinalRound() =>
@@ -288,9 +215,6 @@ namespace WeStop.Api.Classes
             return themeValidation;
         }
 
-        private ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
-            _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
-
         public ICollection<ThemeValidation> BuildDefaultValidationForPlayer(Guid playerId)
         {
             var answersThatPlayerShouldValidate = GetCurrentRoundPlayersAnswersExceptFromPlayer(playerId);
@@ -368,9 +292,6 @@ namespace WeStop.Api.Classes
             throw new WeStopException("Todos os temas já foram validados");
         }
 
-        private bool AnyPlayerHasNotValidatedTheme(string theme) =>
-            _currentRound.Players.Any(p => !p.HasValidationForTheme(theme));
-
         public GameState GetCurrentState()
         {
             return _currentState;
@@ -393,10 +314,7 @@ namespace WeStop.Api.Classes
                 throw new WeStopException("O jogo só poderá ser finalizado se a rodada atual for a última");
 
             _currentState = GameState.Finished;
-        }
-
-        private bool AnyOtherPlayersRepliedForTheme(Guid playerId, string theme) =>
-            _currentRound.Players.Any(x => x.Player.User.Id != playerId && x.Answers.Where(a => a.Theme == theme).Any());
+        }        
 
         public bool AllPlayersSendValidationsOfTheme(string theme)
         {
@@ -423,5 +341,95 @@ namespace WeStop.Api.Classes
 
         public ICollection<Player> GetPlayers() =>
             Players.ToList();
+
+        #endregion
+
+        #region Private Methods
+
+        private bool AnyOtherPlayersRepliedForTheme(Guid playerId, string theme) =>
+            _currentRound.Players.Any(x => x.Player.User.Id != playerId && x.Answers.Where(a => a.Theme == theme).Any());
+
+        private bool AnyPlayerHasNotValidatedTheme(string theme) =>
+            _currentRound.Players.Any(p => !p.HasValidationForTheme(theme));
+
+        private string[] GetPlayersAnswersForTheme(string theme)
+        {
+            return _currentRound.GetPlayers()
+                .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
+        }
+
+        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme)
+        {
+            return _currentRound.GetPlayers()
+                .Where(p => !p.Answers.Where(a => a.Theme == theme).Any() || p.Answers.Where(a => a.Theme == theme && string.IsNullOrEmpty(a.Answer)).Any()).ToList();
+        }
+
+        private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        {
+            foreach (var player in players)
+                player.GeneratePointsForTheme(theme, 5);
+        }
+
+        private void GenerateTenThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        {
+            foreach (var player in players)
+                player.GeneratePointsForTheme(theme, 10);
+        }
+
+        private void GenerateZeroThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
+        {
+            foreach (var player in players)
+                player.GeneratePointsForTheme(theme, 0);
+        }
+
+        private ICollection<PlayerRound> GetPlayersThatRepliedAnswerForTheme(string answer, string theme)
+        {
+            return _currentRound.Players
+                .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
+        }
+
+        private ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
+            _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
+
+        private Round CreateNewRound()
+        {
+            int nextRoundNumber = GetNextRoundNumber();
+            string drawnLetter = SortOutLetter();
+            ICollection<PlayerRound> players = GetPlayersReadyForNewRound();
+            Round newRound = new Round(nextRoundNumber, drawnLetter, players);
+
+            _rounds.Add(newRound);
+            return newRound;
+        }
+
+        private string SortOutLetter()
+        {
+            string[] notSortedLetters = GetNotSortedLetters();
+
+            Random random = new Random();
+            int randomSortedIndex = random.Next(0, notSortedLetters.Count() - 1);
+
+            string sortedLetter = notSortedLetters[randomSortedIndex];
+
+            Options.AvailableLetters[sortedLetter] = true;
+            return sortedLetter;
+        }
+
+        private string[] GetNotSortedLetters() =>
+            Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
+
+        private ICollection<PlayerRound> GetPlayersReadyForNewRound()
+        {
+            return Players.Where(p => p.IsReady)
+                .Select(x => new PlayerRound
+                {
+                    Player = x
+                }).ToList();
+        }
+
+        private PlayerRound GetPlayerCurrentRound(Guid playerId) =>
+            _currentRound.Players.First(x => x.Player.Id == playerId);
+
+        #endregion
     }
 }

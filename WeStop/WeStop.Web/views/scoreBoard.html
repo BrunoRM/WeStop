@@ -1,0 +1,26 @@
+<div class="nes-container">
+    <p class="title">
+        <span ng-if="!gameFinished">Placar até o momento</span>
+        <span ng-if="gameFinished">Placar final</span>
+    </p>
+
+    <div class="nes-table-responsive">
+        <table class="nes-table is-bordered is-centered is-dark">
+            <thead>
+                <tr>
+                    <th>Jogador</th>
+                    <th>Pts na rodada</th>
+                    <th>Pts na partida</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text"
+                    ng-repeat="score in game.scoreBoard">
+                    <td>{{score.userName}}</td>
+                    <td>{{score.lastRoundPontuation}}</td>
+                    <td>{{score.gamePontuation}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

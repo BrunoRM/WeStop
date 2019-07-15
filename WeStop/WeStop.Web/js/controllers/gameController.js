@@ -2,14 +2,15 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     function init() {
         $scope.allPlayersReady = false;
-        $scope.gameStarted = false;
-        $scope.stopCalled = false;
-        $scope.roundFinished = false;
-        $scope.endGame = false;
-        $scope.pontuation = 0;
-        $scope.currentRoundTime = 0;
+        $scope.roundStarted = false;
+        $scope.roundStopped = false;
+        $scope.gameFinished = false;
+        $scope.validationsStarted = false;
+
+        $scope.sortedLetter = '';
+        $scope.currentAnswersTime = 0;
         $scope.currentValidationTime = 0;
-        $scope.themeValidations = null;
+        $scope.themeValidations = null;        
     };
 
     function joinGame() {
@@ -26,52 +27,58 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     function setPlayer(player) {
         $scope.player = player;
     };
-
-    function setWaitingState() {
-        $scope.currentRoundTime = 0;
-        $scope.currentValidationTime = 0;
-        $scope.roundFinished = true;
-        $scope.gameStarted = false;
-        $scope.stopCalled = false;
-        $scope.currentRound++;
-        $scope.sortedLetter = '';
-    }
-
-    function startValidationTimeForTheme(themeValidations) {
-        $scope.gameStarted = true;
-        $scope.stopCalled = true;
-        $scope.themeValidations = themeValidations;
-        $scope.currentValidationTime = 0;
-    }
-
+    
     function startRound() {
-        $scope.gameStarted = true;
-        $scope.answers = [];
+        
+        $scope.allPlayersReady = true;
+        $scope.roundStarted = true;
+        $scope.roundStopped = false;
+        $scope.gameFinished = false;
+        $scope.validationsStarted = false;
 
+        $scope.answers = [];
         for (let i = 0; i < $scope.game.themes.length; i++) {
             $scope.answers.push({
                 theme: $scope.game.themes[i],
                 answer: ''
             });
         }
-
-        $scope.roundFinished = false;
     }
 
-    function getPlayerRoundPontuation() {
-        return $scope.game.scoreBoard.find(playerScore => {
-            if (playerScore.playerId === $rootScope.user.id) {
-                return playerScore.lastRoundPontuation;
-            }
+    function startValidation() {
+        $scope.allPlayersReady = true;
+        $scope.roundStarted = true;
+        $scope.roundStopped = true;
+        $scope.gameFinished = false;
+        $scope.validationStarted = true;
+
+        $scope.currentValidationTime = 0;
+    }
+
+    function finishGame() {
+        $scope.allPlayersReady = false;
+        $scope.roundStarted = false;
+        $scope.roundStopped = false;
+        $scope.gameFinished = true;
+        $scope.validationStarted = false;
+    }
+
+    function getPlayerGamePontuation() {
+        let playerScore = $scope.game.scoreBoard.find(playerScore => {
+            return playerScore.playerId === $rootScope.user.id;
         });
+
+        return playerScore.gamePontuation;
     };
 
     function checkAllPlayersReady() {
 
-        if ($scope.players.length === 1) return false;
+        if ($scope.game.players.length === 1) {
+            $scope.allPlayersReady = false;
+        }
 
-        $scope.allPlayersReady = !$scope.players.some(player => {
-            return player.userName !== $scope.player.userName && !player.isReady;
+        $scope.allPlayersReady = !$scope.game.players.some(player => {
+            return player.id !== $scope.player.id && !player.isReady;
         });
     }
 
@@ -79,93 +86,101 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentValidationTime = newValue;
     }
 
-    function finishGame() {
-        $scope.endGame = true;
-    }
-
     function cleanThemeValidations() {
         $scope.themeValidations = null;
     }
 
     function stop() {
-        $scope.stopCalled = true;
+        $scope.roundStopped = true;
         $scope.roundTime = 0;
     }
 
-    function refreshGamePontuation() {
-        $scope.pontuation = getPlayerRoundPontuation();
+    function updateGamePontuation() {
+        $scope.player.earnedPoints = getPlayerGamePontuation();
     }
 
     function setWinners(winners) {
         $scope.winners = winners;
     }
 
-    function setPlayers(players) {
-        $scope.players = players;
+    function setThemeValidation(themeValidation) {
+        $scope.themeValidations = themeValidation;
     }
 
-    init();
-    joinGame();
+    function setSortedLetter(letter) {
+        $scope.sortedLetter = letter;
+    }
+
+    function refreshGameScoreBoard(scoreBoard) {
+        $scope.game.scoreBoard = scoreBoard;
+    }
+
+    function getPlayer(id) {
+        return $scope.game.players.find((player) => {
+            return player.id === id;
+        });
+    }
+
+    function refreshCurrentAnswersTime(newValue) {
+        $scope.currentAnswersTime = newValue;
+    }
+
+    function addGameCurrentRoundNumber() {
+        $scope.game.currentRound += 1;
+    }
 
     $game.on("im_joined_game", (data) => {
-        console.log(data)
         setGame(data.game);
         setPlayer(data.player);
-        setPlayers(data.game.players);
-        checkAllPlayersReady();
-        setWaitingState();
-
-        
+        checkAllPlayersReady();   
     });
 
     $game.on('im_reconected_game', (resp) => {
-        
+
         setGame(resp.game);
         setPlayer(resp.player);
-        setPlayers(resp.game.players);
         startRound();
 
         switch (resp.game.state) {
             case "InProgress":
-                startRound();
                 break;
             case "ThemesValidations":
                 if (resp.validated) {
                     cleanThemeValidations();
                 } else {
-                    startValidationTimeForTheme(resp.themeValidations);
+                    startValidation();
+                    setThemeValidation(resp.themeValidations);
                 }
                 break;
             case "Finished":
                 setWinners(resp.winners);
                 finishGame();
-                refreshGamePontuation();
-                break;
-            default:
+                updateGamePontuation();
                 break;
         }
     });
 
-    $scope.startGame = () => {
+    $scope.startRound = () => {
         $scope.changeStatus();
         $game.invoke('game_start_round', {
             gameRoomId: $routeParams.id,
             userId: $rootScope.user.id
         });
-    };
+    };    
 
     $game.on('game_round_started', data => {
+        setSortedLetter(data.sortedLetter);
         startRound();
     });
 
     $game.on('player_joined_game', data => {
         
-        let player = $scope.players.find((player) => {
+        let player = $scope.game.players.find((player) => {
             return player.userName == data.player.userName;
         });
 
         if (!player)
-            $scope.players.push(data.player);
+            $scope.game.players.push(data.player);
 
         checkAllPlayersReady();
     });
@@ -178,18 +193,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             isReady: !$scope.player.isReady
         });
 
-        var player = $scope.players.find((player) => {
-            return player.userName == $scope.player.userName;
-        });
-
+        let player = getPlayer($scope.player.id);
         $scope.player.isReady = player.isReady = !$scope.player.isReady;
-    };
-
+    };    
+    
     $game.on('player_status_changed', resp => {
-        let player = $scope.players.find((player) => {
-            return player.userName === resp.player.userName;
-        });
-
+        let player = getPlayer(resp.player.id);
         player.isReady = resp.player.isReady;
         checkAllPlayersReady();
     });
@@ -231,36 +240,40 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     
     $game.on('im_send_validations', data => {
         cleanThemeValidations();
-    });
-
-    function refreshGameScoreBoard(scoreBoard) {
-        $scope.game.scoreBoard = scoreBoard;
-    }
+    });    
 
     $game.on('game_round_finished', resp => {
-        setWaitingState();
+        init();
         refreshGameScoreBoard(resp.scoreBoard);
-        refreshGamePontuation();
+        updateGamePontuation();
         cleanThemeValidations();
         $scope.changeStatus();
+        addGameCurrentRoundNumber();
+        cleanThemeValidations();
     });
 
     $game.on('game_end', resp => {
         finishGame();
+        refreshGameScoreBoard(resp.scoreBoard);
         setWinners(resp.winners);
-        refreshGamePontuation();
-    });
+        updateGamePontuation();
+        addGameCurrentRoundNumber();
+    });    
 
     $game.on('game_answers_time_elapsed', resp => {
-        $scope.currentRoundTime = resp;
+        refreshCurrentAnswersTime(resp);        
     });
 
     $game.on('validation_for_theme_started', resp => {
-        startValidationTimeForTheme(resp);
+        setThemeValidation(resp);
+        startValidation();
     });    
 
     $game.on('validation_time_elapsed', resp => {
         refreshCurrentValidationTime(resp);
     });
+
+    init();
+    joinGame();
     
 }]);
