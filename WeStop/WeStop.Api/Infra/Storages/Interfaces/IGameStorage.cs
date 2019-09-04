@@ -7,7 +7,7 @@ namespace WeStop.Api.Infra.Storages.Interfaces
 {
     public interface IGameStorage
     {
-        Task CreateAsync(Game game);
+        Task AddAsync(Game game);
         Task<Game> GetByIdAsync(Guid id);
         Task<ICollection<Game>> GetAsync();
     }

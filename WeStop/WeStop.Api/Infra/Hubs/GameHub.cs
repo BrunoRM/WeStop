@@ -46,7 +46,7 @@ namespace WeStop.Api.Infra.Hubs
             Game game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.Time));
             game.AddPlayer(new Player(user, true));
 
-            await _games.CreateAsync(game);
+            await _games.AddAsync(game);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 

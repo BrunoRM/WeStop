@@ -11,7 +11,7 @@ namespace WeStop.Api.Infra.Storages
     {
         private readonly ICollection<Game> _games = new List<Game>();
         
-        public Task CreateAsync(Game game) =>
+        public Task AddAsync(Game game) =>
             Task.Run(() => _games.Add(game));
 
         public Task<ICollection<Game>> GetAsync() =>
