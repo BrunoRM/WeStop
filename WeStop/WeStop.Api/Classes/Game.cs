@@ -11,6 +11,8 @@ namespace WeStop.Api.Classes
         private ICollection<Player> _players;
         private ICollection<Round> _rounds;
         private Round _currentRound;
+
+
         private GameState _currentState;
 
         public Game(string name, string password, GameOptions options)
@@ -28,6 +30,7 @@ namespace WeStop.Api.Classes
         public string Name { get; private set; }
         public string Password { get; private set; }
         public GameOptions Options { get; private set; }
+        public Round CurrentRound { get; private set; }
         public IReadOnlyCollection<Round> Rounds => _rounds.ToList();
         public IReadOnlyCollection<Player> Players => _players.ToList();
 
@@ -63,50 +66,12 @@ namespace WeStop.Api.Classes
                 throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
 
             _currentRound = CreateNewRound();
+            CurrentRound = CreateNewRound();
             _currentState = GameState.InProgress;
         }        
 
         public string[] GetThemes() =>
             Options.Themes;
-
-        public void GeneratePontuationForTheme(string theme)
-        {
-            string[] answersForTheme = GetPlayersAnswersForTheme(theme);
-
-            ICollection<PlayerRound> _currentRoundPlayers = _currentRound.GetPlayers();
-            foreach (var answer in answersForTheme)
-            {
-                int validVotesCountForThemeAnswer = _currentRoundPlayers.GetValidVotesCountForThemeAnswer(theme, answer);
-                int invalidVotesCountForThemeAnswer = _currentRoundPlayers.GetInvalidVotesCountForThemeAnswer(theme, answer);
-
-                if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
-                {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
-
-                    if (!players.Any())
-                    {
-                        continue;
-                    }
-
-                    if (players.Count() > 1)
-                    {
-                        GenerateFiveThemePointsForEachPlayer(theme, players);
-                    }
-                    else
-                    {
-                        GenerateTenThemePointsForEachPlayer(theme, players);
-                    }
-                }
-                else
-                {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
-                    GenerateZeroThemePointsForEachPlayer(theme, players);
-                }
-            }
-
-            var playersWithBlankThemeAnswer = GetPlayersThatNotRepliedAnswerForTheme(theme);
-            GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
-        }
 
         public bool IsFinalRound() =>
             _currentRound?.Number == Options.Rounds;
@@ -351,42 +316,6 @@ namespace WeStop.Api.Classes
 
         private bool AnyPlayerHasNotValidatedTheme(string theme) =>
             _currentRound.Players.Any(p => !p.HasValidationForTheme(theme));
-
-        private string[] GetPlayersAnswersForTheme(string theme)
-        {
-            return _currentRound.GetPlayers()
-                .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
-        }
-
-        private ICollection<PlayerRound> GetPlayersThatNotRepliedAnswerForTheme(string theme)
-        {
-            return _currentRound.GetPlayers()
-                .Where(p => !p.Answers.Where(a => a.Theme == theme).Any() || p.Answers.Where(a => a.Theme == theme && string.IsNullOrEmpty(a.Answer)).Any()).ToList();
-        }
-
-        private void GenerateFiveThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 5);
-        }
-
-        private void GenerateTenThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 10);
-        }
-
-        private void GenerateZeroThemePointsForEachPlayer(string theme, ICollection<PlayerRound> players)
-        {
-            foreach (var player in players)
-                player.GeneratePointsForTheme(theme, 0);
-        }
-
-        private ICollection<PlayerRound> GetPlayersThatRepliedAnswerForTheme(string answer, string theme)
-        {
-            return _currentRound.Players
-                .Where(player => player.Answers.Where(y => y.Theme == theme && y.Answer == answer).Count() > 0).ToList();
-        }
 
         private ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
             _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Classes
@@ -15,49 +16,61 @@ namespace WeStop.Api.Classes
             _gameStorage = gameStorage;
         }
 
-        public void ProcessPontuationForGameCurrentRound(Game game)
+        public async Task ProcessPontuationForGameCurrentRound(Guid gameId)
         {
-            string[] answersForTheme = GetPlayersAnswersForTheme(theme);
+            var game = await _gameStorage.GetByIdAsync(gameId);
 
-            ICollection<PlayerRound> _currentRoundPlayers = _currentRound.GetPlayers();
-            foreach (var answer in answersForTheme)
+            var gameCurrentRoundId = game.CurrentRound.Id;
+            foreach (var theme in game.Options.Themes)
             {
-                int validVotesCountForThemeAnswer = _currentRoundPlayers.GetValidVotesCountForThemeAnswer(theme, answer);
-                int invalidVotesCountForThemeAnswer = _currentRoundPlayers.GetInvalidVotesCountForThemeAnswer(theme, answer);
+                var players = game.Players;
+                var answersForTheme = players.GetRoundDistinctsAnswersByTheme(gameCurrentRoundId, theme);
 
-                if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
+                foreach (var answer in answersForTheme)
                 {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
+                    var validVotesCountForThemeAnswer = players.GetRoundValidVotesCountForThemeAnswer(gameCurrentRoundId, theme, answer);
+                    var invalidVotesCountForThemeAnswer = players.GetRoundInvalidVotesCountForThemeAnswer(gameCurrentRoundId, theme, answer);
 
-                    if (!players.Any())
+                    if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
                     {
-                        continue;
-                    }
+                        var playersThatRepliedAnswerForTheme = players.GetPlayersThatRepliedAnswerForThemeInRound(gameCurrentRoundId, answer, theme);
 
-                    if (players.Count() > 1)
-                    {
-                        GenerateFiveThemePointsForEachPlayer(theme, players);
+                        if (!playersThatRepliedAnswerForTheme.Any())
+                            continue;
+
+                        if (playersThatRepliedAnswerForTheme.Count() > 1)
+                            GiveFiveThemePointsForEachPlayer(theme, players);
+                        else
+                            GiveTenThemePointsForEachPlayer(theme, players);
                     }
                     else
                     {
-                        GenerateTenThemePointsForEachPlayer(theme, players);
+                        var playersThatRepliedAnswerForTheme = players.GetPlayersThatRepliedAnswerForThemeInRound(gameCurrentRoundId, answer, theme);
+                        GiveZeroThemePointsForEachPlayer(theme, players);
                     }
                 }
-                else
-                {
-                    var players = GetPlayersThatRepliedAnswerForTheme(answer, theme);
-                    GenerateZeroThemePointsForEachPlayer(theme, players);
-                }
-            }
 
-            var playersWithBlankThemeAnswer = GetPlayersThatNotRepliedAnswerForTheme(theme);
-            GenerateZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
+                var playersWithBlankThemeAnswer = players.GetPlayersThatNotRepliedAnswerForThemeInRound(gameCurrentRoundId, theme);
+                GiveZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
+            }
         }
 
-        private string[] GetPlayersAnswersForTheme(string theme)
+        private void GiveZeroThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
         {
-            return game.GetPlayers()
-                .SelectMany(p => p.Answers.Where(a => a.Theme == theme && !string.IsNullOrEmpty(a.Answer)).Select(a => a.Answer)).Distinct().ToArray();
+            foreach (var player in players)
+            {
+                // Método de pontos no player precisa receber pontuação por tema
+            }
+        }
+
+        private void GiveFiveThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void GiveTenThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
+        {
+            throw new NotImplementedException();
         }
     }
 }
