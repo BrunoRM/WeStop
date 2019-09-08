@@ -29,9 +29,8 @@ namespace WeStop.Api.Extensions
         private static IEnumerable<AnswerValidation> GetRoundValidationsForThemeAnswer(this IEnumerable<Player> players, Guid roundId, string theme, string answer)
         {
             var answerValidations = players
-                .SelectMany(p => p.RoundsValidations
-                    .Where(rv => rv.RoundId == roundId)
-                    .SelectMany(rv => rv.Validations.Where(v => v.Theme.Equals(theme)))
+                .SelectMany(p => p.RoundsValidations.FirstOrDefault(rv => rv.RoundId == roundId)?.Validations
+                    .Where(v => v.Theme.Equals(theme))
                     .SelectMany(v => v.AnswersValidations.Where(av => av.Answer.Equals(answer))));
 
             return answerValidations;
@@ -40,18 +39,68 @@ namespace WeStop.Api.Extensions
         public static IEnumerable<Player> GetPlayersThatRepliedAnswerForThemeInRound(this IEnumerable<Player> players, Guid roundId, string theme, string answer)
         {
             return players
-                .Where(p => p.RoundsAnswers
-                    .Where(ra => ra.RoundId == roundId)
-                    .Any(a => a.Answers
-                        .Any(ta => ta.Theme.Equals(theme) && ta.Answer.Equals(answer))));
+                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId)
+                    .Answers.Any(a => a.Theme.Equals(theme) && a.Answer.Trim().Equals(answer)));
         }
 
         public static IEnumerable<Player> GetPlayersThatNotRepliedAnswerForThemeInRound(this IEnumerable<Player> players, Guid roundId, string theme)
         {
             return players
-                .Where(p => p.RoundsAnswers
-                    .Where(ra => ra.RoundId == roundId)
-                    .Any(a => !a.Answers.Any(ta => ta.Theme.Equals(theme)) || a.Answers.Any(ta => string.IsNullOrEmpty(ta.Answer))));
+                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId)
+                    .Answers.Any(a => !a.Theme.Equals(theme) || a.Theme.Equals(theme) && string.IsNullOrEmpty(a.Answer)));
+        }
+    
+        public static ICollection<ThemeAnswers> GetPlayersAnswersInRoundExcept(this IEnumerable<Player> players, Guid roundId, Guid playerId)
+        {
+            ICollection<ThemeAnswer> answersOfOthersPlayers = GetAnswersOfOtherPlayersInRound(players, roundId, playerId);
+
+            ICollection<ThemeAnswers> themesAnswers = new List<ThemeAnswers>();
+            foreach (var themeAnswer in answersOfOthersPlayers)
+            {
+                string theme = themeAnswer.Theme;
+                string answer = themeAnswer.Answer;
+
+                ThemeAnswers existingThemeAnswers = themesAnswers.FirstOrDefault(ta => ta.Theme == theme);
+                if (existingThemeAnswers != null && !existingThemeAnswers.HasAnswer(answer))
+                    existingThemeAnswers.AddAnswer(answer);
+                else
+                {
+                    ThemeAnswers themeAnswers = new ThemeAnswers(themeAnswer.Theme, themeAnswer.Answer);
+                    themesAnswers.Add(themeAnswers);
+                }
+            }
+
+            return themesAnswers;
+        }
+
+        private static ICollection<ThemeAnswer> GetAnswersOfOtherPlayersInRound(IEnumerable<Player> players, Guid roundId, Guid playerId)
+        {
+            return players.Where(p => p.Id != playerId)
+                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId).Answers).ToList();
+        }
+
+        public static ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(IEnumerable<Player> players, Guid roundId, Guid playerId, string theme)
+        {
+            ICollection<ThemeAnswer> answersOfOthersPlayers = GetAnswersForThemeOfOtherPlayersInRound(players, roundId, playerId, theme);
+
+            ThemeAnswers themeAnswers = new ThemeAnswers(theme);
+            foreach (var themeAnswer in answersOfOthersPlayers)
+            {
+                string answer = themeAnswer.Answer;
+
+                if (!themeAnswers.HasAnswer(answer))
+                    themeAnswers.AddAnswer(answer);
+            }
+
+            return themeAnswers;
+        }
+
+        private static ICollection<ThemeAnswer> GetAnswersForThemeOfOtherPlayersInRound(IEnumerable<Player> players, Guid roundId, Guid playerId, string theme)
+        {
+            return players.Where(p => p.Id != playerId)
+                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId).Answers
+                    .Where(a => !string.IsNullOrEmpty(a.Answer) && a.Theme.Equals(theme)))
+                    .ToList();
         }
     }
 }

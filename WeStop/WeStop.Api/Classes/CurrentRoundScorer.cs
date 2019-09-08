@@ -39,38 +39,44 @@ namespace WeStop.Api.Classes
                             continue;
 
                         if (playersThatRepliedAnswerForTheme.Count() > 1)
-                            GiveFiveThemePointsForEachPlayer(theme, players);
+                            GiveFiveThemePointsForEachPlayerInRound(gameCurrentRoundId, theme, players);
                         else
-                            GiveTenThemePointsForEachPlayer(theme, players);
+                            GiveTenThemePointsForEachPlayerInRound(gameCurrentRoundId,theme, players);
                     }
                     else
                     {
                         var playersThatRepliedAnswerForTheme = players.GetPlayersThatRepliedAnswerForThemeInRound(gameCurrentRoundId, answer, theme);
-                        GiveZeroThemePointsForEachPlayer(theme, players);
+                        GiveZeroThemePointsForEachPlayerInRound(gameCurrentRoundId,theme, players);
                     }
                 }
 
                 var playersWithBlankThemeAnswer = players.GetPlayersThatNotRepliedAnswerForThemeInRound(gameCurrentRoundId, theme);
-                GiveZeroThemePointsForEachPlayer(theme, playersWithBlankThemeAnswer);
+                GiveZeroThemePointsForEachPlayerInRound(gameCurrentRoundId,theme, playersWithBlankThemeAnswer);
             }
         }
 
-        private void GiveZeroThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
+        private void GiveZeroThemePointsForEachPlayerInRound(Guid roundId, string theme, IEnumerable<Player> players)
         {
             foreach (var player in players)
             {
-                // Método de pontos no player precisa receber pontuação por tema
+                player.AddPontuationForThemeInRound(roundId, theme, 0);
             }
         }
 
-        private void GiveFiveThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
+        private void GiveFiveThemePointsForEachPlayerInRound(Guid roundId,string theme, IEnumerable<Player> players)
         {
-            throw new NotImplementedException();
+            foreach (var player in players)
+            {
+                player.AddPontuationForThemeInRound(roundId, theme, 5);
+            }
         }
 
-        private void GiveTenThemePointsForEachPlayer(string theme, IEnumerable<Player> players)
+        private void GiveTenThemePointsForEachPlayerInRound(Guid roundId,string theme, IEnumerable<Player> players)
         {
-            throw new NotImplementedException();
+            foreach (var player in players)
+            {
+                player.AddPontuationForThemeInRound(roundId, theme, 10);
+            }
         }
     }
 }

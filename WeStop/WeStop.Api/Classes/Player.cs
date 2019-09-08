@@ -1,55 +1,68 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeStop.Api.Extensions;
 
 namespace WeStop.Api.Classes
 {
     public class Player
     {
+        private ICollection<RoundAnswers> _roundsAnswers;
+        private ICollection<RoundValidations> _roundsValidations;
+        private ICollection<RoundPontuations> _roundsPontuations;
+
         public Player(User user, bool isAdmin)
         {
             User = user;
             IsReady = false;
             IsAdmin = isAdmin;
-            RoundsAnswers = new List<RoundAnswers>();
-            RoundsValidations = new List<RoundValidations>();
-            RoundsPontuations = new List<RoundPontuation>();
+            _roundsAnswers = new List<RoundAnswers>();
+            _roundsValidations = new List<RoundValidations>();
+            _roundsPontuations = new List<RoundPontuations>();
         }
 
         public User User { get; private set; }
         public Guid Id => User.Id;
         public string UserName => User.UserName;
         public bool IsAdmin { get; private set; }
-        public ICollection<RoundAnswers> RoundsAnswers { get; set; }
-        public ICollection<RoundValidations> RoundsValidations { get; set; }
-        public ICollection<RoundPontuation> RoundsPontuations { get; set; }
+        public IReadOnlyCollection<RoundAnswers> RoundsAnswers => _roundsAnswers.ToList();
+        public IReadOnlyCollection<RoundValidations> RoundsValidations => _roundsValidations.ToList();
+        public IReadOnlyCollection<RoundPontuations> RoundsPontuations => _roundsPontuations.ToList();
         public bool IsReady { get; private set; }
         public int EarnedPoints => RoundsPontuations.Sum(rp => rp.ThemesPontuations.Sum(tp => tp.Pontuation));
 
-        public void AddRoundAnswers(Guid roundId, ICollection<ThemeAnswer> answers)
+        public void AddAnswersForRound(Guid roundId, ICollection<ThemeAnswer> answers)
         {
-            if (!RoundsAnswers.Any(ra => ra.RoundId == roundId))
+            foreach (var themeAnswer in answers)
             {
-                RoundsAnswers.Add(new RoundAnswers(roundId, answers));
+                _roundsAnswers.AddThemeAnswerForRound(roundId, themeAnswer.Theme, themeAnswer.Answer);
             }
         }
 
         public void AddRoundValidationsForTheme(Guid roundId, ICollection<ThemeValidation> roundValidations)
         {
             if (!RoundsValidations.Any(rv => rv.RoundId == roundId))
-                RoundsValidations.Add(new RoundValidations(roundId, roundValidations));
+                _roundsValidations.Add(new RoundValidations(roundId, roundValidations));
         }
 
-        public void AddRoundPontuationForTheme(Guid roundId, ICollection<ThemePontuation> roundPontuations)
+        public void AddPontuationForThemeInRound(Guid roundId, string theme, int points)
         {
-            if (!RoundsPontuations.Any(rp => rp.RoundId == roundId))
-            {
-                RoundsPontuations.Add(new RoundPontuation(roundId, roundPontuations));
-            }
+            _roundsPontuations.AddPontuationForThemeInRound(roundId, theme, points);
         }
 
-        public int GetTotalPontuationForRound(Guid roundId) =>
-            RoundsPontuations.FirstOrDefault(rp => rp.RoundId == roundId)?.GetTotalPontuation() ?? 0;
+        // Get pontuation in a round
+        public int this[Guid roundId]
+        {
+            get =>
+                RoundsPontuations.FirstOrDefault(rp => rp.RoundId == roundId)?.GetTotalPontuation() ?? 0;
+        }
+
+        // Get pontuation for specific theme in a round
+        public int this[Guid roundId, string theme]
+        {
+            get =>
+                RoundsPontuations.FirstOrDefault(rp => rp.RoundId == roundId)?.GetPontuationForTheme(theme) ?? 0;
+        }
 
         public void ChangeStatus(bool isReady)
         {

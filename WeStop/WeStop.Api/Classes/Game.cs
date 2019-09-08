@@ -11,8 +11,6 @@ namespace WeStop.Api.Classes
         private ICollection<Player> _players;
         private ICollection<Round> _rounds;
         private Round _currentRound;
-
-
         private GameState _currentState;
 
         public Game(string name, string password, GameOptions options)
@@ -76,79 +74,8 @@ namespace WeStop.Api.Classes
         public bool IsFinalRound() =>
             _currentRound?.Number == Options.Rounds;
 
-        public ICollection<PlayerScore> GetScoreboard()
-        {
-            if (_currentRound is null)
-            {
-                return new List<PlayerScore>();
-            }
-
-            return _currentRound.GetPlayers().Select(p => new PlayerScore
-            {
-                PlayerId = p.Player.User.Id,
-                UserName = p.Player.User.UserName,
-                RoundPontuation = p.EarnedPoints,
-                GamePontuation = p.Player.EarnedPoints
-            }).OrderByDescending(ps => ps.GamePontuation).ToList();
-        }
-
-        public IEnumerable<string> GetWinners()
-        {
-            if (!IsFinalRound())
-                throw new WeStopException("Só é possível eleger um vencedor se a partida já foi finalizada");
-
-            var scoreBoard = GetScoreboard();
-
-            int bestPontuation = scoreBoard.Max(p => p.GamePontuation);
-
-            return scoreBoard
-                .Where(sb => sb.GamePontuation == bestPontuation)
-                .OrderBy(p => p.UserName)
-                .Select(sb => sb.UserName);
-        }
-
-        public void AddPlayerAnswerForTheme(Guid playerId, string theme, string answer)
-        {
-            if (Options.Themes.Contains(theme))
-            {
-                PlayerRound playerCurrentRound = GetPlayerCurrentRound(playerId);
-                playerCurrentRound.AddAnswerForTheme(theme, answer);
-            }
-        }
-
-        public void AddPlayerThemeValidations(Guid playerId, ThemeValidation validations)
-        {
-            var playerCurrentRound = GetPlayerCurrentRound(playerId);
-            playerCurrentRound.AddThemeAnswersValidations(validations);
-        }
-
-        [Obsolete("AddPlayerAnswersValidations is deprecated, please use AddPlayerThemeValidations instead.")]
-        public void AddPlayerAnswersValidations(Guid playerId, ICollection<ThemeValidation> validations)
-        {
-            foreach (var validation in validations)
-                AddPlayerThemeValidations(playerId, validation);
-        }
-
-        public int GetPlayerCurrentRoundPontuationForTheme(Guid playerId, string theme)
-        {
-            var playerCurrentRound = GetPlayerCurrentRound(playerId);
-            int playerPontuationForTheme = playerCurrentRound.ThemesPontuations[theme];
-
-            return playerPontuationForTheme;
-        }
-
-        public int GetPlayerCurrentRoundEarnedPoints(Guid playerId)
-        {
-            var playerCurrentRound = GetPlayerCurrentRound(playerId);
-
-            return playerCurrentRound.EarnedPoints;
-        }
-
         public string GetCurrentRoundSortedLetter() =>
             _currentRound.SortedLetter;
-
-        public ICollection<ThemeAnswers> GetCurrentRoundPlayersAnswersExceptFromPlayer(Guid playerId) =>
-            _currentRound.GetPlayersAnswersExceptFromPlayer(playerId);
 
         public IEnumerable<ThemeValidation> GetDefaultValidationsForPlayer(Guid playerId)
         {
@@ -317,15 +244,11 @@ namespace WeStop.Api.Classes
         private bool AnyPlayerHasNotValidatedTheme(string theme) =>
             _currentRound.Players.Any(p => !p.HasValidationForTheme(theme));
 
-        private ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(string theme, Guid playerId) =>
-            _currentRound.GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(theme, playerId);
-
         private Round CreateNewRound()
         {
             int nextRoundNumber = GetNextRoundNumber();
             string drawnLetter = SortOutLetter();
-            ICollection<PlayerRound> players = GetPlayersReadyForNewRound();
-            Round newRound = new Round(nextRoundNumber, drawnLetter, players);
+            Round newRound = new Round(nextRoundNumber, drawnLetter);
 
             _rounds.Add(newRound);
             return newRound;
@@ -346,18 +269,6 @@ namespace WeStop.Api.Classes
 
         private string[] GetNotSortedLetters() =>
             Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
-
-        private ICollection<PlayerRound> GetPlayersReadyForNewRound()
-        {
-            return Players.Where(p => p.IsReady)
-                .Select(x => new PlayerRound
-                {
-                    Player = x
-                }).ToList();
-        }
-
-        private PlayerRound GetPlayerCurrentRound(Guid playerId) =>
-            _currentRound.Players.First(x => x.Player.Id == playerId);
 
         #endregion
     }
