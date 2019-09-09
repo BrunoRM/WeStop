@@ -11,8 +11,9 @@ namespace WeStop.Api.Classes
         private ICollection<RoundValidations> _roundsValidations;
         private ICollection<RoundPontuations> _roundsPontuations;
 
-        public Player(User user, bool isAdmin)
+        public Player(Guid gameId, User user, bool isAdmin)
         {
+            GameId = gameId;
             User = user;
             IsReady = false;
             IsAdmin = isAdmin;
@@ -21,6 +22,7 @@ namespace WeStop.Api.Classes
             _roundsPontuations = new List<RoundPontuations>();
         }
 
+        public Guid GameId { get; set; }
         public User User { get; private set; }
         public Guid Id => User.Id;
         public string UserName => User.UserName;
