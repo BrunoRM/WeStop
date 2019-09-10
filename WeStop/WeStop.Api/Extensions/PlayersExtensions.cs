@@ -11,7 +11,7 @@ namespace WeStop.Api.Extensions
         {
             var answers = players
                 .SelectMany(p => p.RoundsAnswers
-                    .Where(ra => ra.RoundId == roundId)
+                    .Where(ra => ra.RoundNumber == roundId)
                     .SelectMany(ra => ra.Answers
                         .Where(a => a.Theme.Equals(theme)))
                         .Select(ta => ta.Answer.Trim()))
@@ -29,7 +29,7 @@ namespace WeStop.Api.Extensions
         private static IEnumerable<AnswerValidation> GetRoundValidationsForThemeAnswer(this IEnumerable<Player> players, Guid roundId, string theme, string answer)
         {
             var answerValidations = players
-                .SelectMany(p => p.RoundsValidations.FirstOrDefault(rv => rv.RoundId == roundId)?.Validations
+                .SelectMany(p => p.RoundsValidations.FirstOrDefault(rv => rv.RoundNumber == roundId)?.Validations
                     .Where(v => v.Theme.Equals(theme))
                     .SelectMany(v => v.AnswersValidations.Where(av => av.Answer.Equals(answer))));
 
@@ -39,14 +39,14 @@ namespace WeStop.Api.Extensions
         public static IEnumerable<Player> GetPlayersThatRepliedAnswerForThemeInRound(this IEnumerable<Player> players, Guid roundId, string theme, string answer)
         {
             return players
-                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId)
+                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundNumber == roundId)
                     .Answers.Any(a => a.Theme.Equals(theme) && a.Answer.Trim().Equals(answer)));
         }
 
         public static IEnumerable<Player> GetPlayersThatNotRepliedAnswerForThemeInRound(this IEnumerable<Player> players, Guid roundId, string theme)
         {
             return players
-                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId)
+                .Where(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundNumber == roundId)
                     .Answers.Any(a => !a.Theme.Equals(theme) || a.Theme.Equals(theme) && string.IsNullOrEmpty(a.Answer)));
         }
     
@@ -76,7 +76,7 @@ namespace WeStop.Api.Extensions
         private static ICollection<ThemeAnswer> GetAnswersOfOtherPlayersInRound(IEnumerable<Player> players, Guid roundId, Guid playerId)
         {
             return players.Where(p => p.Id != playerId)
-                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId).Answers).ToList();
+                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundNumber == roundId).Answers).ToList();
         }
 
         public static ThemeAnswers GetCurrentRoundPlayersAnswersForThemeExceptFromPlayer(IEnumerable<Player> players, Guid roundId, Guid playerId, string theme)
@@ -98,7 +98,7 @@ namespace WeStop.Api.Extensions
         private static ICollection<ThemeAnswer> GetAnswersForThemeOfOtherPlayersInRound(IEnumerable<Player> players, Guid roundId, Guid playerId, string theme)
         {
             return players.Where(p => p.Id != playerId)
-                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundId == roundId).Answers
+                .SelectMany(p => p.RoundsAnswers.FirstOrDefault(ra => ra.RoundNumber == roundId).Answers
                     .Where(a => !string.IsNullOrEmpty(a.Answer) && a.Theme.Equals(theme)))
                     .ToList();
         }

@@ -5,13 +5,16 @@ namespace WeStop.Api.Classes
 {
     public class RoundAnswers
     {
-        public RoundAnswers(Guid roundId, ICollection<ThemeAnswer> answers)
+        public RoundAnswers(Guid gameId, int roundNumber, ICollection<ThemeAnswer> answers)
         {
-            RoundId = roundId;
+            GameId = gameId;
+            RoundNumber = roundNumber;
             Answers = answers;
         }
 
-        public Guid RoundId { get; set; }
-        public ICollection<ThemeAnswer> Answers { get; set; }
+        public Guid PlayerId { get; private set; }
+        public Guid GameId { get; private set; }
+        public int RoundNumber { get; private set; }
+        public ICollection<ThemeAnswer> Answers { get; private set; }
     }
 }

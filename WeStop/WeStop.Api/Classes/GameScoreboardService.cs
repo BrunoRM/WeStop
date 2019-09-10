@@ -1,30 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WeStop.Api.Exceptions;
+using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Classes
 {
     public sealed class GameScoreboardService
     {
-        public GameScoreboardService(Game game)
-        {
-            if (game is null)
-                throw new ArgumentNullException("game", "Parâmetro deve ser informado");
+        private readonly IGamePontuationStorage _gamePontuation;
 
-            this.Game = game;
+        public GameScoreboardService(IGamePontuationStorage gamePontuationStorage)
+        {
+            this._gamePontuation = gamePontuationStorage;
         }
-        
-        public Game Game { get; private set; }
 
-        public ICollection<RoundScoreboard> GetRoundScoreboard(Guid roundId)
+        public async Task<ICollection<RoundScoreboard>> GetRoundScoreboardAsync(Guid gameId, int roundNumber)
         {
-            var round = Game.Rounds.Where(r => r.Id == roundId);
+            var roundPontuations = await _gamePontuation.GetPlayersPontuationsForRoundAsync(gameId, roundNumber);
 
-            if (round is null)
-                throw new WeStopException("Round não encontrado");
-
-            var players = Game.Players;
+            return roundPontuations.Select(rp => new RoundScoreboard
+            {
+                PlayerId = rp.PlayerId,
+                UserName = "",
+                Pontuation = rp.
+            })
 
             return players.Select(p => new RoundScoreboard(p.Id, p.UserName, p[roundId]))
                 .OrderByDescending(rs => rs.Pontuation).ToList();

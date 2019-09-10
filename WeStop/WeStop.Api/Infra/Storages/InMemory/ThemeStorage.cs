@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Classes;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Infra.Storages
+namespace WeStop.Api.Infra.Storages.InMemory
 {
     public class ThemeStorage : IThemeStorage
     {

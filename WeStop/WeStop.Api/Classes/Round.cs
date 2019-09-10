@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace WeStop.Api.Classes
 {
-    public class Round
+    public sealed class Round
     {
         public Round(int number, string sortedLetter)
         {
