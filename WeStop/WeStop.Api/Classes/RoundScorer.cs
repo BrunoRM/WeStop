@@ -9,12 +9,12 @@ namespace WeStop.Api.Classes
     public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;
-        private readonly IPlayerRoundAnswersStorage _answersStorage;
-        private readonly IPlayerRoundValidationsStorage _validationsStorage;
+        private readonly IAnswersStorage _answersStorage;
+        private readonly IValidationsStorage _validationsStorage;
         private readonly IGamePontuationStorage _gamePontuationStorage;
         private ICollection<RoundPontuations> _playersPontuations;
 
-        public RoundScorer(IGameStorage gameStorage, IPlayerRoundAnswersStorage answersStorage, IPlayerRoundValidationsStorage validationsStorage, IGamePontuationStorage gamePontuationStorage)
+        public RoundScorer(IGameStorage gameStorage, IAnswersStorage answersStorage, IValidationsStorage validationsStorage, IGamePontuationStorage gamePontuationStorage)
         {
             _gameStorage = gameStorage;
             _answersStorage = answersStorage;

@@ -5,7 +5,7 @@ using WeStop.Api.Classes;
 
 namespace WeStop.Api.Infra.Storages.Interfaces
 {
-    public interface IPlayerRoundAnswersStorage
+    public interface IAnswersStorage
     {
         Task AddAsync(RoundAnswers answers);
         Task<RoundAnswers> GetPlayerAnswersInRoundAsync(Guid player, Guid gameId, int roundNumber);
