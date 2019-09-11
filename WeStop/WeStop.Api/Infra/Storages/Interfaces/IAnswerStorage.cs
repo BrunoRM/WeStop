@@ -5,13 +5,13 @@ using WeStop.Api.Classes;
 
 namespace WeStop.Api.Infra.Storages.Interfaces
 {
-    public interface IAnswersStorage
+    public interface IAnswerStorage
     {
         Task AddAsync(RoundAnswers answers);
         Task<RoundAnswers> GetPlayerAnswersInRoundAsync(Guid player, Guid gameId, int roundNumber);
         Task<IEnumerable<RoundAnswers>> GetPlayersAnswersInRound(Guid gameId, int roundNumber);
-        Task<string[]> GetDistinctsAnswersForThemeAsync(Guid gameId, int roundNumber, string theme);
-        Task<IEnumerable<Guid>> GetPlayersIdsThatRepliedAnswerForThemeInRoundAsync(Guid gameId, int roundNumber, string theme, string answer);
-        Task<IEnumerable<Guid>> GetPlayersIdsWithBlankAnswersForThemeInRoundAsync(Guid gameId, int roundNumber, string theme);
+        Task<IEnumerable<Answer>> GetDistinctsAnswersForThemeAsync(Guid gameId, int roundNumber, string theme);
+        Task<IEnumerable<Guid>> GetPlayersIdsThatRepliedAnswerAsync(Guid gameId, int roundNumber, Answer answer);
+        Task<IEnumerable<Guid>> GetPlayersIdsWithBlankAnswersAsync(Guid gameId, int roundNumber, string theme);
     }
 }

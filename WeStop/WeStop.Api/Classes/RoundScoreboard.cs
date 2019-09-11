@@ -1,18 +1,19 @@
 using System;
+using System.Collections.Generic;
 
 namespace WeStop.Api.Classes
 {
-    public struct RoundScoreboard
+    public class RoundScoreboard
     {
-        public RoundScoreboard(Guid playerId, string userName, int pontuation)
+        public RoundScoreboard(Guid gameId, int roundNumber, ICollection<PlayerPontuation> playersPontuations)
         {
-            this.PlayerId = playerId;
-            this.UserName = userName;
-            this.Pontuation = pontuation;
+            GameId = gameId;
+            RoundNumber = roundNumber;
+            PlayersPontuations = playersPontuations;
         }
 
-        public Guid PlayerId { get; private set; }
-        public string UserName { get; private set; }
-        public int Pontuation { get; private set; }
+        public Guid GameId { get; set; }
+        public int RoundNumber { get; set; }
+        public ICollection<PlayerPontuation> PlayersPontuations { get; private set; }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Classes
@@ -9,16 +10,16 @@ namespace WeStop.Api.Classes
     public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;
-        private readonly IAnswersStorage _answersStorage;
-        private readonly IValidationsStorage _validationsStorage;
-        private readonly IGamePontuationStorage _gamePontuationStorage;
+        private readonly IAnswerStorage _answersStorage;
+        private readonly IValidationStorage _validations;
+        private readonly IPontuationStorage _gamePontuationStorage;
         private ICollection<RoundPontuations> _playersPontuations;
 
-        public RoundScorer(IGameStorage gameStorage, IAnswersStorage answersStorage, IValidationsStorage validationsStorage, IGamePontuationStorage gamePontuationStorage)
+        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
         {
             _gameStorage = gameStorage;
             _answersStorage = answersStorage;
-            _validationsStorage = validationsStorage;
+            _validations = validationsStorage;
             _gamePontuationStorage = gamePontuationStorage;
         }
 
@@ -31,39 +32,44 @@ namespace WeStop.Api.Classes
 
                 foreach (var answer in answersForTheme)
                 {
-                    int validVotesCountForThemeAnswer = await _validationsStorage.GetValidVotesCountForThemeAnswerAsync(gameId, roundNumber, theme, answer);
-                    int invalidVotesCountForThemeAnswer = await _validationsStorage.GetInvalidVotesCountForThemeAnswerAsync(gameId, roundNumber, theme, answer);
+                    int validVotesCountForThemeAnswer = await _validations.GetValidVotesCountForAnswerAsync(gameId, roundNumber, answer);
+                    int invalidVotesCountForThemeAnswer = await _validations.GetInvalidVotesCountForAnswerAsync(gameId, roundNumber, answer);
 
                     if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
                     {
-                        var playersThatRepliedAnswerForTheme = await _answersStorage.GetPlayersIdsThatRepliedAnswerForThemeInRoundAsync(gameId, roundNumber, theme, answer);
+                        var playersThatRepliedAnswer = await _answersStorage.GetPlayersIdsThatRepliedAnswerAsync(gameId, roundNumber, answer);
 
-                        if (!playersThatRepliedAnswerForTheme.Any())
+                        if (!playersThatRepliedAnswer.Any())
                             continue;
 
-                        if (playersThatRepliedAnswerForTheme.Count() > 1)
-                            GiveFiveThemePointsForEachPlayerInRound(gameId, roundNumber, theme, playersThatRepliedAnswerForTheme);
+                        if (playersThatRepliedAnswer.Count() > 1)
+                            GiveFivePointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                         else
-                            GiveTenThemePointsForEachPlayerInRound(gameId, roundNumber, theme, playersThatRepliedAnswerForTheme);
+                            GiveTenPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                     }
                     else
                     {
-                        var playersThatRepliedAnswerForTheme = await _answersStorage.GetPlayersIdsThatRepliedAnswerForThemeInRoundAsync(gameId, roundNumber, theme, answer);
-                        GiveZeroThemePointsForEachPlayerInRound(gameId, roundNumber, theme, playersThatRepliedAnswerForTheme);
+                        var playersThatRepliedAnswer = await _answersStorage.GetPlayersIdsThatRepliedAnswerAsync(gameId, roundNumber, answer);
+                        GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                     }
                 }
 
-                var playersWithBlankAnswers = await _answersStorage.GetPlayersIdsWithBlankAnswersForThemeInRoundAsync(gameId, roundNumber, theme);
-                GiveZeroThemePointsForEachPlayerInRound(gameId, roundNumber, theme, playersWithBlankAnswers);
+                var playersWithBlankAnswers = await _answersStorage.GetPlayersIdsWithBlankAnswersAsync(gameId, roundNumber, theme);
+                GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersWithBlankAnswers);
             }
 
+            await SavePlayersPontuations();
+        }
+
+        private async Task SavePlayersPontuations()
+        {
             foreach (var playerPontuations in _playersPontuations)
             {
                 await _gamePontuationStorage.AddAsync(playerPontuations);
             }
         }
 
-        private void GiveZeroThemePointsForEachPlayerInRound(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
+        private void GiveZeroPointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
         {
             foreach (var playerId in playersIds)
             {
@@ -71,7 +77,7 @@ namespace WeStop.Api.Classes
             }
         }
 
-        private void GiveFiveThemePointsForEachPlayerInRound(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
+        private void GiveFivePointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
         {
             foreach (var playerId in playersIds)
             {
@@ -79,7 +85,7 @@ namespace WeStop.Api.Classes
             }
         }
 
-        private void GiveTenThemePointsForEachPlayerInRound(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
+        private void GiveTenPointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
         {
             foreach (var playerId in playersIds)
             {

@@ -7,21 +7,14 @@ namespace WeStop.Api.Extensions
 {
     public static class RoundAnswersExtensions
     {
-        public static void AddThemeAnswerForRound(this ICollection<RoundAnswers> roundsAnswers, Guid roundId, string theme, string answer)
+        public static IEnumerable<ThemeValidation> BuildValidationsForPlayer(this ICollection<RoundAnswers> roundsAnswers, Guid playerId)
         {
-            if (roundsAnswers.Any(ra => ra.RoundNumber == roundId))
-            {
-                var roundAnswers = roundsAnswers.First(ra => ra.RoundNumber == roundId);
+            var themes = roundsAnswers.SelectMany(ra => ra.Answers.Select(a => a.Theme));
 
-                if (!roundAnswers.Answers.Any(a => a.Theme.Equals(theme)))
-                    roundAnswers.Answers.Add(new ThemeAnswer(theme, answer));
-            }
-            else
+            foreach (var theme in themes)
             {
-                roundsAnswers.Add(new RoundAnswers(roundId, new List<ThemeAnswer> 
-                { 
-                    new ThemeAnswer(theme, answer) 
-                }));
+                var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Select(a => a.Value));
+                yield return new ThemeValidation(theme, answers.Select(a => new AnswerValidation(a, true)).ToList());
             }
         }
     }

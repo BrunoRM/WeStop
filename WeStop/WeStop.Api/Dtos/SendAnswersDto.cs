@@ -8,6 +8,6 @@ namespace WeStop.Api.Dtos
     {
         public Guid GameId { get; set; }
         public Guid UserId { get; set; }
-        public ICollection<ThemeAnswer> Answers { get; set; }
+        public ICollection<Answer> Answers { get; set; }
     }
 }

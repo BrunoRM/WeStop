@@ -213,7 +213,7 @@ namespace WeStop.Api.Infra.Hubs
             foreach (var themeAnswer in dto.Answers)
             {
                 string theme = themeAnswer.Theme;
-                string answer = themeAnswer.Answer;
+                string answer = themeAnswer.Value;
                 game.AddPlayerAnswerForTheme(player.Id, theme, answer);
             }
 
