@@ -61,25 +61,25 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
             _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            List<ThemeValidation> player1Validations = new List<ThemeValidation>
+            List<Validation> player1Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            List<ThemeValidation> player2Validations = new List<ThemeValidation>
+            List<Validation> player2Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            List<ThemeValidation> player3Validations = new List<ThemeValidation>
+            List<Validation> player3Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
@@ -111,27 +111,27 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bianca");
             _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Bruna");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bianca", true),
                     new AnswerValidation("Bruna", true)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Bruna", true)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bianca", true),
                     new AnswerValidation("Bruno", true)
@@ -164,25 +164,25 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
             _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", false)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", false)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", true)
                 })
@@ -214,27 +214,27 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player2.Id, "FDS", "Ben 10");
             _game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", true),
                     new AnswerValidation("Ben", false)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", true),
                     new AnswerValidation("Ben", false)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Ben 10", true)
                 })
@@ -291,72 +291,72 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Bugatti");
             game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruna", true),
                     new AnswerValidation("Breno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bahamas", true),
                     new AnswerValidation("Bélgica", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Belina", true),
                     new AnswerValidation("Bugatti", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bublebee", true),
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>()
+                new Validation("Nome", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Breno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasil", true),
                     new AnswerValidation("Bélgica", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasilia", true),
                     new AnswerValidation("Bugatti", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Band of Brothers", true),
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>()
+                new Validation("Nome", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Bruna", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasil", true),
                     new AnswerValidation("Bélgica", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasilia", true),
                     new AnswerValidation("Belina", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Band of Brothers", true),
                     new AnswerValidation("Bumblebee", true)
@@ -426,67 +426,67 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Brasilia");
             game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruna", true),
                     new AnswerValidation("Breno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasil", true),
                     new AnswerValidation("Bélgica", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Belina", true),
                     new AnswerValidation("Brasilia", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>()
+                new Validation("Nome", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Breno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasil", true),
                     new AnswerValidation("Bélgica", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasilia", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>()
+                new Validation("Nome", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Bruna", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>()
+                new Validation("CEP", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Brasil", true)
                 }),
-                new ThemeValidation("Carro", new List<AnswerValidation>()
+                new Validation("Carro", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Belina", true)
                 }),
-                new ThemeValidation("FDS", new List<AnswerValidation>()
+                new Validation("FDS", new List<AnswerValidation>()
                 {
                     new AnswerValidation("Ben 10", true)
                 })
@@ -555,73 +555,73 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(_player3.Id, "Carro", "Bugatti");
             game.AddPlayerAnswerForTheme(_player3.Id, "FDS", "Ben 10");
 
-            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new Validation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruna", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new Validation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Bahamas", true),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new Validation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Be", false),
                 new AnswerValidation("Bugatti", true)
             }));
 
-            game.AddPlayerThemeValidations(_player1.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player1.Id, new Validation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Bu", false),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new Validation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Breno", true)
             }));
 
-            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new Validation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new Validation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Bugatti", true)
             }));
 
-            game.AddPlayerThemeValidations(_player2.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player2.Id, new Validation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Ben 10", true)
             }));
 
-            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("Nome", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new Validation("Nome", new List<AnswerValidation>
             {
                 new AnswerValidation("Bruno", true),
                 new AnswerValidation("Bruna", true)
             }));
 
-            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("CEP", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new Validation("CEP", new List<AnswerValidation>
             {
                 new AnswerValidation("Br", false),
                 new AnswerValidation("Bélgica", true)
             }));
 
-            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("Carro", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new Validation("Carro", new List<AnswerValidation>
             {
                 new AnswerValidation("Brasilia", true),
                 new AnswerValidation("Be", false)
             }));
 
-            game.AddPlayerThemeValidations(_player3.Id, new ThemeValidation("FDS", new List<AnswerValidation>
+            game.AddPlayerThemeValidations(_player3.Id, new Validation("FDS", new List<AnswerValidation>
             {
                 new AnswerValidation("Band of Brothers", true),
                 new AnswerValidation("Bu", false)
@@ -661,17 +661,17 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player1.Id, "FDS", "Breaking bad");
             _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bianca");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bianca", true)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("FDS", new List<AnswerValidation>
+                new Validation("FDS", new List<AnswerValidation>
                 {
                     new AnswerValidation("Breaking bad", true)
                 })
@@ -778,25 +778,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Bruna");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Brasilia");
 
-            var player1Round1Validations = new List<ThemeValidation>
+            var player1Round1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruna", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Brasilia", true)
                 })
             };
 
-            var player2Round1Validations = new List<ThemeValidation>
+            var player2Round1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Brasil", true)
                 })
@@ -821,25 +821,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Alberto");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Alemanha");
 
-            var player1Round2Validations = new List<ThemeValidation>
+            var player1Round2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Alberto", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Alemanha", true)
                 })
             };
 
-            var player2Round2Validations = new List<ThemeValidation>
+            var player2Round2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Amanda", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Amapá", true)
                 })
@@ -864,25 +864,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Gabriela");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Goiânia");
 
-            var player1Round3Validations = new List<ThemeValidation>
+            var player1Round3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Gabriela", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Goiânia", true)
                 })
             };
 
-            var player2Round3Validations = new List<ThemeValidation>
+            var player2Round3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Gabriel", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Goiás", true)
                 })
@@ -928,25 +928,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Bruna");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Brasilia");
 
-            var player1Round1Validations = new List<ThemeValidation>
+            var player1Round1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruna", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Brasilia", true)
                 })
             };
 
-            var player2Round1Validations = new List<ThemeValidation>
+            var player2Round1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruno", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Brasil", true)
                 })
@@ -971,25 +971,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Alberto");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "Alemanha");
 
-            var player1Round2Validations = new List<ThemeValidation>
+            var player1Round2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Alberto", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Alemanha", true)
                 })
             };
 
-            var player2Round2Validations = new List<ThemeValidation>
+            var player2Round2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Amanda", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Amapá", true)
                 })
@@ -1014,25 +1014,25 @@ namespace WeStop.UnitTest
             game.AddPlayerAnswerForTheme(player2.Id, "Nome", "Gabriela");
             game.AddPlayerAnswerForTheme(player2.Id, "CEP", "G");
 
-            var player1Round3Validations = new List<ThemeValidation>
+            var player1Round3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Gabriela", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("G", false)
                 })
             };
 
-            var player2Round3Validations = new List<ThemeValidation>
+            var player2Round3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Gabriel", true)
                 }),
-                new ThemeValidation("CEP", new List<AnswerValidation>
+                new Validation("CEP", new List<AnswerValidation>
                 {
                     new AnswerValidation("Goiás", true)
                 })
@@ -1136,27 +1136,27 @@ namespace WeStop.UnitTest
             _game.AddPlayerAnswerForTheme(_player2.Id, "Nome", "Bruna");
             _game.AddPlayerAnswerForTheme(_player3.Id, "Nome", "Breno");
 
-            var player1Validations = new List<ThemeValidation>
+            var player1Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruna", true),
                     new AnswerValidation("Breno", true)
                 })
             };
 
-            var player2Validations = new List<ThemeValidation>
+            var player2Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Breno", true)
                 })
             };
 
-            var player3Validations = new List<ThemeValidation>
+            var player3Validations = new List<Validation>
             {
-                new ThemeValidation("Nome", new List<AnswerValidation>
+                new Validation("Nome", new List<AnswerValidation>
                 {
                     new AnswerValidation("Bruno", true),
                     new AnswerValidation("Bruna", true)

@@ -13,9 +13,10 @@ namespace WeStop.Api.Classes
         private readonly IAnswerStorage _answersStorage;
         private readonly IValidationStorage _validations;
         private readonly IPontuationStorage _gamePontuationStorage;
-        private ICollection<RoundPontuations> _playersPontuations;
+        private readonly ICollection<RoundPontuations> _playersPontuations;
 
-        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
+        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, 
+            IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
         {
             _gameStorage = gameStorage;
             _answersStorage = answersStorage;
@@ -26,35 +27,44 @@ namespace WeStop.Api.Classes
         public async Task ProcessRoundPontuationAsync(Guid gameId, int roundNumber)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
+            var validations = await _validations.GetValidationsAsync(gameId, roundNumber);
+            var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, roundNumber);
+
             foreach (var theme in game.Options.Themes)
             {
-                var answersForTheme = await _answersStorage.GetDistinctsAnswersForThemeAsync(gameId, roundNumber, theme);
+                var answers = roundAnswers.GetAnswersOfTheme(theme);
 
-                foreach (var answer in answersForTheme)
+                foreach (var answer in answers)
                 {
-                    int validVotesCountForThemeAnswer = await _validations.GetValidVotesCountForAnswerAsync(gameId, roundNumber, answer);
-                    int invalidVotesCountForThemeAnswer = await _validations.GetInvalidVotesCountForAnswerAsync(gameId, roundNumber, answer);
+                    int validVotesCountForThemeAnswer = validations.GetValidVotesCountForAnswer(answer);
+                    int invalidVotesCountForThemeAnswer = validations.GetValidVotesCountForAnswer(answer);
 
                     if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
                     {
-                        var playersThatRepliedAnswer = await _answersStorage.GetPlayersIdsThatRepliedAnswerAsync(gameId, roundNumber, answer);
+                        var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
 
                         if (!playersThatRepliedAnswer.Any())
+                        {
                             continue;
+                        }
 
                         if (playersThatRepliedAnswer.Count() > 1)
+                        {
                             GiveFivePointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                        }
                         else
+                        {
                             GiveTenPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                        }
                     }
                     else
                     {
-                        var playersThatRepliedAnswer = await _answersStorage.GetPlayersIdsThatRepliedAnswerAsync(gameId, roundNumber, answer);
+                        var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
                         GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                     }
                 }
 
-                var playersWithBlankAnswers = await _answersStorage.GetPlayersIdsWithBlankAnswersAsync(gameId, roundNumber, theme);
+                var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
                 GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersWithBlankAnswers);
             }
 

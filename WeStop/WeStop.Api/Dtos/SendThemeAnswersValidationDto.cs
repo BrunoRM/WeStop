@@ -9,6 +9,6 @@ namespace WeStop.Api.Dtos
         public Guid GameId { get; set; }
         public int RoundNumber { get; set; }
         public Guid UserId { get; set; }
-        public ICollection<ThemeValidation> Validations { get; set; }
+        public ICollection<Validation> Validations { get; set; }
     }
 }

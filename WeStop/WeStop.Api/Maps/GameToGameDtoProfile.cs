@@ -52,27 +52,6 @@ namespace WeStop.Api.Maps
                     {
                         return src.GetCurrentRoundNumber();
                     });
-                })
-                .ForMember(dst => dst.ScoreBoard, config =>
-                {
-                    config.MapFrom((src, dst, o, context) =>
-                    {   
-                        var scoreBoard = src.GetScoreboard();
-                        if (scoreBoard.Any())
-                        {
-                            return context.Mapper.Map<ICollection<PlayerScore>, ICollection<PlayerScoreDto>>(scoreBoard);
-                        }
-
-                        return new List<PlayerScoreDto>();
-                    });
-                })
-                .ForMember(dst => dst.Players, config =>
-                {
-                    config.MapFrom((src, dst, o, context) =>
-                    {
-                        var players = src.GetPlayers();
-                        return context.Mapper.Map<ICollection<Player>, ICollection<PlayerDto>>(players);
-                    });
                 });
         }
     }

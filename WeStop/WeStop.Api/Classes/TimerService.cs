@@ -9,7 +9,7 @@ namespace WeStop.Api.Classes
     {
         private const int SEND_ANSWERS_LIMIT_TIME = 3;
         private const int VALIDATION_LIMIT_TIME = 15;
-        private static Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
+        private static readonly Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
 
         public void StartSendAnswersTime(Guid gameId, Action<Guid, int> onTimeElapsedAction, Action<Guid> onTimeOverAction)
         {
@@ -56,27 +56,6 @@ namespace WeStop.Api.Classes
         public void StopRoundTimer(Guid gameId)
         {
             RemoveGameTimer(gameId);
-        }
-
-        public void StartValidationTimerForTheme(Guid gameId, string themeBeingValidated, Action<Guid, string, int> onTimeElapsedAction, Action<Guid, string> onTimeOverAction)
-        {
-            ThemeValidationTimerContext themeValidationTimerContext = CreateThemeValidationTimerContext(gameId, themeBeingValidated, VALIDATION_LIMIT_TIME);
-            Timer validationTimer = new Timer((context) =>
-            {
-                ThemeValidationTimerContext timerContext = (ThemeValidationTimerContext)context;
-                if (timerContext.ElapsedTime >= timerContext.LimitTime)
-                {
-                    StopValidationTimer(gameId);
-                    onTimeOverAction?.Invoke(timerContext.GameId, timerContext.ThemeBeingValidated);
-                }
-                else
-                {
-                    timerContext.AddSecondsToElapsedTime(1);
-                    onTimeElapsedAction(timerContext.GameId, timerContext.ThemeBeingValidated, timerContext.ElapsedTime);
-                }
-            }, themeValidationTimerContext, 1000, 1000);
-
-            AddOrUpdateGameTimer(gameId, validationTimer);
         }
 
         public void StopValidationTimer(Guid gameId)

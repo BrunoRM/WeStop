@@ -11,7 +11,7 @@ namespace WeStop.Api.Infra.Storages.Interfaces
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId, int roundNumber);
         RoundPontuations GetPlayerPontuationsAsync(Guid gameId, int roundNumber, Guid playerId);
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId);
-        Task<RoundScoreboard> GetRoundScoreboard(Guid gameId, int roundNumber);
-        Task<GameScoreboard> GetGameScoreboard(Guid gameId);
+        Task<RoundScoreboard> GetRoundScoreboardAsync(Guid gameId, int roundNumber);
+        Task<GameScoreboard> GetGameScoreboardAsync(Guid gameId);
     }
 }

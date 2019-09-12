@@ -10,8 +10,5 @@ namespace WeStop.Api.Infra.Storages.Interfaces
         Task AddAsync(RoundAnswers answers);
         Task<RoundAnswers> GetPlayerAnswersAsync(Guid player, Guid gameId, int roundNumber);
         Task<IEnumerable<RoundAnswers>> GetPlayersAnswersAsync(Guid gameId, int roundNumber);
-        Task<IEnumerable<Answer>> GetDistinctsAnswersAsync(Guid gameId, int roundNumber, string theme);
-        Task<IEnumerable<Guid>> GetPlayersIdsThatRepliedAnswerAsync(Guid gameId, int roundNumber, Answer answer);
-        Task<IEnumerable<Guid>> GetPlayersIdsWithBlankAnswersAsync(Guid gameId, int roundNumber, string theme);
     }
 }

@@ -6,11 +6,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
-using System.Reflection;
 using WeStop.Api.Classes;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Services;
-using WeStop.Api.Infra.Storages;
+using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api

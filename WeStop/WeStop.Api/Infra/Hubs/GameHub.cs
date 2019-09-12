@@ -22,13 +22,13 @@ namespace WeStop.Api.Infra.Hubs
         private readonly IHubContext<GameHub> _hubContext;
         private readonly IPlayerConnectionStorage _playerConnectionStorage;
         private readonly ITimerService _timerService;
+        private readonly RoundScorer _roundScorer;
         private readonly IMapper _mapper;
-        private static IDictionary<Guid, string> _themeValidationContext = new Dictionary<Guid, string>();
 
         public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IAnswerStorage answersStorage, 
             IValidationStorage validationStorage, IPontuationStorage pontuationStorage, 
             IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, 
-            ITimerService timers, IMapper mapper)
+            ITimerService timers, RoundScorer roundScorer, IMapper mapper)
         {
             _users = userStorage;
             _games = gameStorage;
@@ -38,6 +38,7 @@ namespace WeStop.Api.Infra.Hubs
             _hubContext = hubContext;
             _playerConnectionStorage = playerConnectionStorage;
             _timerService = timers;
+            _roundScorer = roundScorer;
             _mapper = mapper;
         }
 
@@ -114,30 +115,28 @@ namespace WeStop.Api.Infra.Hubs
 
                 case GameState.ThemesValidations:
 
-                    string themeBeingValidated = _themeValidationContext[game.Id];
-                    bool hasPlayerValidatedTheme = game.HasPlayerValidatedTheme(player.Id, themeBeingValidated);
+                    // Verificar se o jogador já validou as respostas
+                    //Validation themeValidation = null;
+                    //if (!hasPlayerValidatedTheme)
+                    //{
+                    //    themeValidation = game.GetDefaultValidationsOfThemeForPlayer(themeBeingValidated, player.Id);
+                    //}
 
-                    ThemeValidation themeValidation = null;
-                    if (!hasPlayerValidatedTheme)
-                    {
-                        themeValidation = game.GetDefaultValidationsOfThemeForPlayer(themeBeingValidated, player.Id);
-                    }
-
-                    await Clients.Caller.SendAsync("im_reconected_game", new
-                    {
-                        ok = true,
-                        game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(player),
-                        themeBeingValidated,
-                        validated = hasPlayerValidatedTheme,
-                        themeValidations = themeValidation
-                    });
+                    //await Clients.Caller.SendAsync("im_reconected_game", new
+                    //{
+                    //    ok = true,
+                    //    game = _mapper.Map<Game, GameDto>(game),
+                    //    player = _mapper.Map<Player, PlayerDto>(player),
+                    //    themeBeingValidated,
+                    //    validated = hasPlayerValidatedTheme,
+                    //    themeValidations = themeValidation
+                    //});
 
                     break;
 
                 case GameState.Finished:
 
-                    var gameScoreboard = await _pontuationStorage.GetGameScoreboard(game.Id);
+                    var gameScoreboard = await _pontuationStorage.GetGameScoreboardAsync(game.Id);
                     var gameWinners = gameScoreboard.GetWinners();
 
                     await Clients.Caller.SendAsync("im_reconected_game", new
@@ -171,7 +170,7 @@ namespace WeStop.Api.Infra.Hubs
             },
             async (gameId) =>
             {
-                Stop(game);
+                StopRound(game);
                 await _hubContext.Group(gameId).SendAsync("game_stop", new
                 {
                     ok = true,
@@ -198,26 +197,20 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("send_answers")]
-        public async Task SendAnswers(SendAnswersDto dto)
+        public async Task SendAnswers(RoundAnswers answers)
         {
-            Game game = await _games.GetByIdAsync(dto.GameId);
-            Player player = game.GetPlayer(dto.UserId);
-
-            var roundAnswers = new RoundAnswers(game.Id, dto.RoundNumber, dto.Answers);
-            await _answersStorage.AddAsync(roundAnswers);
+            await _answersStorage.AddAsync(answers);
 
             await Clients.Caller.SendAsync("im_send_answers", new
             {
-                ok = true,
-                gameId = game.Id
+                ok = true
             });
         }
 
         [HubMethodName("send_validations")]
-        public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
+        public async Task SendThemeAnswersValidation(RoundValidations validations)
         {
-            var roundValidations = new RoundValidations(dto.GameId, dto.RoundNumber, dto.Validations);
-            await _validationStorage.AddAsync(roundValidations);
+            await _validationStorage.AddAsync(validations);
 
             await Clients.Caller.SendAsync("im_send_validations", new
             {
@@ -231,7 +224,6 @@ namespace WeStop.Api.Infra.Hubs
             // }
         }
 
-        // TODO: gerar um evento de resposta somente para o caller ( im_change_status )
         [HubMethodName("player_change_status")]
         public async Task ChangePlayerStatus(ChangePlayerStatusDto dto)
         {
@@ -251,9 +243,14 @@ namespace WeStop.Api.Infra.Hubs
                     player.IsReady
                 }
             });
+
+            await Clients.Caller.SendAsync("im_change_status", new
+            {
+                ok = true
+            });
         }
 
-        private void Stop(Game game)
+        private void StopRound(Game game)
         {
             _timerService.StopRoundTimer(game.Id);
             _timerService.StartSendAnswersTime(game.Id, (gameId, elapsedTime) => { }, async (id) =>
@@ -266,108 +263,38 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _hubContext.Group(game.Id).SendAsync("send_answers_time_over");
             game.BeginCurrentRoundThemesValidations();
-            await StartValidationForNextTheme(game);
         }
 
-        private async Task StartValidationForNextTheme(Game game)
+        private async Task CalculateRoundPontuation(Game game)
         {
-            string nextThemeForValidate = game.GetThemeNotValidatedYet();
-
-            var connectionsOfGame = await _playerConnectionStorage.GetConnectionsForGameAsync(game.Id);
-            foreach (var playerConnection in connectionsOfGame)
-            {
-                ThemeValidation validationsOfThemeForPlayer = game.GetDefaultValidationsOfThemeForPlayer(nextThemeForValidate, playerConnection.PlayerId);
-                await _hubContext.Clients.Client(playerConnection.ConnectionId).SendAsync("validation_for_theme_started", validationsOfThemeForPlayer);
-            }
-
-            AddOrUpdateThemeBeingValidatedForGame(game.Id, nextThemeForValidate);
-            _timerService.StartValidationTimerForTheme(game.Id, nextThemeForValidate, async (gameId, theme, elapsedTime) =>
-            {
-                await OnValidationTimeForThemeElapsed(gameId, elapsedTime);
-            }, async (gameId, theme) =>
-            {
-                await OnValidationTimeForThemeOver(game, theme);
-            });
-        }
-
-        private void CalculateRoundPontuation(Game game)
-        {
-            string[] themes = game.GetThemes();
-            foreach (var theme in themes)
-            {
-                game.GeneratePontuationForTheme(theme);
-            }
-        }
-
-        private async Task OnValidationTimeForThemeElapsed(Guid gameId, int elapsedTime)
-        {
-            await _hubContext.Group(gameId).SendAsync("validation_time_elapsed", elapsedTime);
-        }
-
-        private async Task OnValidationTimeForThemeOver(Game game, string theme)
-        {
-            await _hubContext.Group(game.Id).SendAsync("validation_time_for_theme_over", theme);
-            game.SetDefaultThemeValidationsForPlayersThatHasNotAnyValidations(theme);
-            await GoToNextStep(game);
-        }
-
-        private async Task GoToNextStep(Game game)
-        {
-            if (!game.IsAllThemesValidated())
-            {
-                await StartValidationForNextTheme(game);
-            }
-            else
-            {
-                CalculateRoundPontuation(game);
-                if (game.IsFinalRound())
-                {
-                    await FinishGame(game);
-                }
-                else
-                {
-                    await FinishRound(game);
-                }
-            }
+            await _roundScorer.ProcessRoundPontuationAsync(game.Id, game.CurrentRound.Number);
         }
 
         private async Task FinishRound(Game game)
         {
-            var scoreBoard = game.GetScoreboard();
+            var scoreBoard = await _pontuationStorage.GetRoundScoreboardAsync(game.Id, game.CurrentRound.Number);
 
+            game.FinishRound();
             await _hubContext.Group(game.Id).SendAsync("game_round_finished", new
             {
                 ok = true,
-                scoreBoard = _mapper.Map<ICollection<PlayerScore>, ICollection<PlayerScoreDto>>(scoreBoard)
+                scoreBoard
             });
 
-            game.FinishRound();
         }
 
         private async Task FinishGame(Game game)
         {
-            var scoreBoard = game.GetScoreboard();
+            var scoreboard = await _pontuationStorage.GetGameScoreboardAsync(game.Id);
+            var winners = scoreboard.GetWinners();
 
+            game.Finish();
             await _hubContext.Group(game.Id).SendAsync("game_end", new
             {
                 ok = true,
-                winners = game.GetWinners(),
-                scoreBoard = _mapper.Map<ICollection<PlayerScore>, ICollection<PlayerScoreDto>>(scoreBoard)
+                winners,
+                scoreBoard = scoreboard
             });
-
-            game.Finish();
-        }
-
-        private void AddOrUpdateThemeBeingValidatedForGame(Guid gameId, string theme)
-        {
-            if (_themeValidationContext.ContainsKey(gameId))
-            {
-                _themeValidationContext[gameId] = theme;
-            }
-            else
-            {
-                _themeValidationContext.Add(gameId, theme);
-            }
         }
     }
 }
