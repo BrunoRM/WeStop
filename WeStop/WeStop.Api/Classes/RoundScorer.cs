@@ -36,10 +36,10 @@ namespace WeStop.Api.Classes
 
                 foreach (var answer in answers)
                 {
-                    int validVotesCountForThemeAnswer = validations.GetValidVotesCountForAnswer(answer);
-                    int invalidVotesCountForThemeAnswer = validations.GetValidVotesCountForAnswer(answer);
+                    int validVotesCountForAnswer = validations.GetValidVotesCountForAnswer(answer);
+                    int invalidVotesCountForAnswer = validations.GetInvalidVotesCountForAnswer(answer);
 
-                    if (validVotesCountForThemeAnswer >= invalidVotesCountForThemeAnswer)
+                    if (validVotesCountForAnswer >= invalidVotesCountForAnswer)
                     {
                         var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
 

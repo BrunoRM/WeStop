@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using WeStop.Api.Infra.Services;
+using WeStop.Api.Infra.Timers.Interfaces;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Infra.Timers.Default
 {
-    public sealed class TimerService : ITimerService
+    public sealed class GameTimer : IGameTimer
     {
         private const int SEND_ANSWERS_LIMIT_TIME = 3;
-        private const int VALIDATION_LIMIT_TIME = 15;
+        private const int VALIDATION_LIMIT_TIME = 45;
         private static readonly Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
 
         public void StartSendAnswersTime(Guid gameId, Action<Guid, int> onTimeElapsedAction, Action<Guid> onTimeOverAction)
@@ -62,9 +62,6 @@ namespace WeStop.Api.Classes
         {
             RemoveGameTimer(gameId);
         }
-
-        private ThemeValidationTimerContext CreateThemeValidationTimerContext(Guid gameId, string themeBeingValidated, int limitTime) =>
-            new ThemeValidationTimerContext(gameId, themeBeingValidated, limitTime);
 
         private GameTimerContext CreateGameTimerContext(Guid gameId, int limitTime) =>
             new GameTimerContext(gameId, limitTime);

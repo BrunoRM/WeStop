@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Infra.Timers.Default
 {
     public class GameTimerContext
     {
@@ -16,16 +16,6 @@ namespace WeStop.Api.Classes
 
         public void AddSecondsToElapsedTime(int seconds)
         {
-            if (seconds < 0)
-            {
-                throw new Exception("O valor atribuido para o tempo atual não pode ser menor que zero");
-            }
-
-            if (seconds > LimitTime)
-            {
-                throw new Exception("O valor atribuido para o tempo atual não pode ser maior que o tempo limite");
-            }
-
             ElapsedTime += seconds;
         }
     }

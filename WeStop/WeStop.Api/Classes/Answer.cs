@@ -16,6 +16,11 @@ namespace WeStop.Api.Classes
         public bool Equals(Answer other) =>
             Theme == other.Theme && Value == other.Value;
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public static bool operator ==(Answer a1, Answer a2) =>
             a1.Equals(a2);
 

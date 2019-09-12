@@ -6,11 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
-using WeStop.Api.Classes;
 using WeStop.Api.Infra.Hubs;
-using WeStop.Api.Infra.Services;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Api.Infra.Timers.Default;
+using WeStop.Api.Infra.Timers.Interfaces;
 
 namespace WeStop.Api
 {
@@ -45,7 +45,7 @@ namespace WeStop.Api
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
             services.AddSingleton<IPlayerConnectionStorage, PlayerConnectionStorage>();
-            services.AddScoped<ITimerService, TimerService>();
+            services.AddScoped<IGameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
             services.AddAutoMapper(assembly);
@@ -54,7 +54,7 @@ namespace WeStop.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
             app.UseCors("WeStopCorsPolicy");
 
