@@ -11,6 +11,6 @@ namespace WeStop.Api.Infra.Storages.Interfaces
         Task<IEnumerable<RoundValidations>> GetRoundValidationsAsync(Guid gameId, int roundNumber);
         Task<int> GetValidVotesCountForAnswerAsync(Guid gameId, int roundNumber, Answer answer);
         Task<int> GetInvalidVotesCountForAnswerAsync(Guid gameId, int roundNumber, Answer answer);
-        Task<bool> HasPlayerValidatedTheme(Guid gameId, int roundNumber, string theme);
+        Task<bool> HasPlayerValidatedThemeAsync(Guid gameId, int roundNumber, string theme);
     }
 }

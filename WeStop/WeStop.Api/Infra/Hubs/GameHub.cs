@@ -16,16 +16,25 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly IUserStorage _users;
         private readonly IGameStorage _games;
+        private readonly IAnswerStorage _answersStorage;
+        private readonly IValidationStorage _validationStorage;
+        private readonly IPontuationStorage _pontuationStorage;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly IPlayerConnectionStorage _playerConnectionStorage;
         private readonly ITimerService _timerService;
         private readonly IMapper _mapper;
         private static IDictionary<Guid, string> _themeValidationContext = new Dictionary<Guid, string>();
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, ITimerService timers, IMapper mapper)
+        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IAnswerStorage answersStorage, 
+            IValidationStorage validationStorage, IPontuationStorage pontuationStorage, 
+            IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, 
+            ITimerService timers, IMapper mapper)
         {
             _users = userStorage;
             _games = gameStorage;
+            _answersStorage = answersStorage;
+            _validationStorage = validationStorage;
+            _pontuationStorage = pontuationStorage;
             _hubContext = hubContext;
             _playerConnectionStorage = playerConnectionStorage;
             _timerService = timers;
@@ -43,8 +52,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             User user = await _users.GetByIdAsync(dto.UserId);
 
-            Game game = new Game(dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.Time));
-            game.AddPlayer(new Player(user, true));
+            Game game = new Game(user, dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.Time));
 
             await _games.AddAsync(game);
 
@@ -64,18 +72,11 @@ namespace WeStop.Api.Infra.Hubs
             User user = await _users.GetByIdAsync(dto.UserId);
 
             Game game = await _games.GetByIdAsync(dto.GameId);
-
-            Player player = game.GetPlayer(user.Id);
-
-            if (player is null)
-            {
-                player = new Player(user, false);
-                game.AddPlayer(player);
-            }
+            game.AddPlayer(user, out string operationMessage);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            PlayerConnection playerConnection = new PlayerConnection(Context.ConnectionId, player.Id, game.Id);
+            PlayerConnection playerConnection = new PlayerConnection(Context.ConnectionId, user.Id, game.Id);
             await _playerConnectionStorage.AddAsync(playerConnection);
                        
             GameState gameState = game.GetCurrentState();
@@ -88,13 +89,13 @@ namespace WeStop.Api.Infra.Hubs
                     {
                         ok = true,
                         game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(player)
+                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id))
                     });
 
                     await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
                     {
                         ok = true,
-                        player = _mapper.Map<Player, PlayerDto>(player)
+                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id))
                     });
 
                     break;
@@ -105,7 +106,7 @@ namespace WeStop.Api.Infra.Hubs
                     {
                         ok = true,
                         game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(player),
+                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id)),
                         sortedLetter = game.GetCurrentRoundSortedLetter()
                     });
 
@@ -136,11 +137,13 @@ namespace WeStop.Api.Infra.Hubs
 
                 case GameState.Finished:
 
+                    var gameScoreboard = await _pontuationStorage.GetGameScoreboard(game.Id);
+                    var gameWinners = gameScoreboard.GetWinners();
+
                     await Clients.Caller.SendAsync("im_reconected_game", new
                     {
                         game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(player),
-                        winners = game.GetWinners()
+                        winners = gameWinners
                     });
 
                     break;
@@ -151,16 +154,6 @@ namespace WeStop.Api.Infra.Hubs
         public async Task StartNextRound(StartGameDto dto)
         {
             var game = await _games.GetByIdAsync(dto.GameRoomId);
-
-            if (game is null)
-                await Clients.Caller.SendAsync("error", new { ok = false, error = "GAME_NOT_FOUND" });
-
-            if (!game.IsPlayerAdmin(dto.UserId))
-                await Clients.Caller.SendAsync("error", new { ok = false, error = "NOT_ADMIN" });
-
-            if (!game.HasSuficientPlayersToStartNewRound())
-                await Clients.Caller.SendAsync("error", new { ok = false, error = "insuficient_players" });
-
             game.StartNextRound();
 
             IClientProxy connectionGroup = Clients.Group(game.Id.ToString());
@@ -201,7 +194,7 @@ namespace WeStop.Api.Infra.Hubs
                 userName = playerCalledStop.User.UserName
             });
 
-            Stop(game);
+            StopRound(game);
         }
 
         [HubMethodName("send_answers")]
@@ -210,12 +203,8 @@ namespace WeStop.Api.Infra.Hubs
             Game game = await _games.GetByIdAsync(dto.GameId);
             Player player = game.GetPlayer(dto.UserId);
 
-            foreach (var themeAnswer in dto.Answers)
-            {
-                string theme = themeAnswer.Theme;
-                string answer = themeAnswer.Value;
-                game.AddPlayerAnswerForTheme(player.Id, theme, answer);
-            }
+            var roundAnswers = new RoundAnswers(game.Id, dto.RoundNumber, dto.Answers);
+            await _answersStorage.AddAsync(roundAnswers);
 
             await Clients.Caller.SendAsync("im_send_answers", new
             {
@@ -227,23 +216,19 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("send_validations")]
         public async Task SendThemeAnswersValidation(SendThemeAnswersValidationDto dto)
         {
-            Game game = await _games.GetByIdAsync(dto.GameId);
-
-            Player player = game.GetPlayer(dto.UserId);
-
-            game.AddPlayerThemeValidations(player.Id, new ThemeValidation(dto.Validation.Theme, dto.Validation.AnswersValidations));
+            var roundValidations = new RoundValidations(dto.GameId, dto.RoundNumber, dto.Validations);
+            await _validationStorage.AddAsync(roundValidations);
 
             await Clients.Caller.SendAsync("im_send_validations", new
             {
-                ok = true,
-                dto.Validation.Theme
+                ok = true
             });
 
-            if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
-            {
-                _timerService.StopValidationTimer(game.Id);
-                await GoToNextStep(game);
-            }
+            // if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
+            // {
+            //     _timerService.StopValidationTimer(game.Id);
+            //     await GoToNextStep(game);
+            // }
         }
 
         // TODO: gerar um evento de resposta somente para o caller ( im_change_status )

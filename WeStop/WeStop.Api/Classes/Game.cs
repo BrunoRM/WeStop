@@ -12,13 +12,16 @@ namespace WeStop.Api.Classes
         private ICollection<Round> _rounds;
         private GameState _currentState;
 
-        public Game(string name, string password, GameOptions options)
+        public Game(User user, string name, string password, GameOptions options)
         {
             Id = Guid.NewGuid();
             Name = name;
             Password = password;
             Options = options;
-            _players = new List<Player>();
+            _players = new List<Player>()
+            {
+                new Player(this.Id, user, true)
+            };
             _rounds = new List<Round>();
             _currentState = GameState.Waiting;
         }
@@ -46,10 +49,13 @@ namespace WeStop.Api.Classes
         public int GetCurrentRoundNumber() =>
             CurrentRound?.Number ?? 1;
 
-        public void AddPlayer(Player player)
+        public void AddPlayer(User user, out string operationMessage)
         {
-            if (!Players.Any(x => x.User.Id == player.User.Id))
-                _players.Add(player);
+            operationMessage = string.Empty;
+            if (!Players.Any(x => x.Id == user.Id))
+                _players.Add(new Player(this.Id, user, false));
+            else
+                operationMessage = "Jogador já está no jogo";
         }
 
         public Player GetPlayer(Guid id) =>

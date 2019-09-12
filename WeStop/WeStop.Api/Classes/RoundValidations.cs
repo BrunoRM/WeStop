@@ -5,8 +5,9 @@ namespace WeStop.Api.Classes
 {
     public class RoundValidations
     {
-        public RoundValidations(int roundNumber, ICollection<ThemeValidation> validations)
+        public RoundValidations(Guid gameId, int roundNumber, ICollection<ThemeValidation> validations)
         {
+            GameId = gameId;
             RoundNumber = roundNumber;
             Validations = validations;
         }
