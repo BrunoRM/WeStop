@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +43,6 @@ namespace WeStop.Api
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
-            services.AddSingleton<IPlayerConnectionStorage, PlayerConnectionStorage>();
             services.AddScoped<IGameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");

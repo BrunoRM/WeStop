@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 using WeStop.Api.Dtos;
 
 namespace WeStop.Api.Maps

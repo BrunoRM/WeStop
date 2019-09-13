@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 
 namespace WeStop.Api.Dtos
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Domain
 {
     public class GameOptions
     {

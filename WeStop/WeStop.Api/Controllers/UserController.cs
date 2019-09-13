@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WeStop.Api.Classes;
+using System.Threading.Tasks;
+using WeStop.Api.Domain;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Storages.Interfaces;
 

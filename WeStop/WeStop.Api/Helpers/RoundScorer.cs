@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Helpers
 {
     public sealed class RoundScorer
     {

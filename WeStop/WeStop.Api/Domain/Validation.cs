@@ -1,4 +1,4 @@
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Domain
 {
     public struct Validation
     {

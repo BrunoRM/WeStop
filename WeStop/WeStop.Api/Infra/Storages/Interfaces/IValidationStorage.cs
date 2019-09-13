@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 
 namespace WeStop.Api.Infra.Storages.Interfaces
 {
@@ -9,6 +9,6 @@ namespace WeStop.Api.Infra.Storages.Interfaces
     {
         Task AddAsync(RoundValidations validations);
         Task<IEnumerable<RoundValidations>> GetValidationsAsync(Guid gameId, int roundNumber);
-        Task<bool> HasPlayerValidatedThemeAsync(Guid gameId, int roundNumber, string theme);
+        Task<bool> HasPlayerValidationsInRound(Guid gameId, int roundNumber);
     }
 }

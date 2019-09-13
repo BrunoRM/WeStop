@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 
 namespace WeStop.Api.Infra.Storages.Interfaces
 {
@@ -9,9 +9,7 @@ namespace WeStop.Api.Infra.Storages.Interfaces
     {
         Task AddAsync(RoundPontuations pontuations);
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId, int roundNumber);
-        RoundPontuations GetPlayerPontuationsAsync(Guid gameId, int roundNumber, Guid playerId);
+        RoundPontuations GetPontuationsAsync(Guid gameId, int roundNumber, Guid playerId);
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId);
-        Task<RoundScoreboard> GetRoundScoreboardAsync(Guid gameId, int roundNumber);
-        Task<GameScoreboard> GetGameScoreboardAsync(Guid gameId);
     }
 }

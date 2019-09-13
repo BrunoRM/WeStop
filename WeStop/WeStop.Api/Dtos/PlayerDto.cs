@@ -8,6 +8,7 @@ namespace WeStop.Api.Dtos
         public string UserName { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
+        public bool IsOnline { get; set; }
         public int EarnedPoints { get; set; }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
-using WeStop.Api.Infra.Services;
+using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Api.Infra.Timers.Interfaces;
 
 namespace WeStop.Api.Infra.Hubs
 {
@@ -20,15 +20,13 @@ namespace WeStop.Api.Infra.Hubs
         private readonly IValidationStorage _validationStorage;
         private readonly IPontuationStorage _pontuationStorage;
         private readonly IHubContext<GameHub> _hubContext;
-        private readonly IPlayerConnectionStorage _playerConnectionStorage;
-        private readonly ITimerService _timerService;
+        private readonly IGameTimer _gameTimer;
         private readonly RoundScorer _roundScorer;
         private readonly IMapper _mapper;
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IAnswerStorage answersStorage, 
-            IValidationStorage validationStorage, IPontuationStorage pontuationStorage, 
-            IPlayerConnectionStorage playerConnectionStorage, IHubContext<GameHub> hubContext, 
-            ITimerService timers, RoundScorer roundScorer, IMapper mapper)
+        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IAnswerStorage answersStorage,
+            IValidationStorage validationStorage, IPontuationStorage pontuationStorage, IHubContext<GameHub> hubContext,
+            IGameTimer gameTimer, RoundScorer roundScorer, IMapper mapper)
         {
             _users = userStorage;
             _games = gameStorage;
@@ -36,15 +34,14 @@ namespace WeStop.Api.Infra.Hubs
             _validationStorage = validationStorage;
             _pontuationStorage = pontuationStorage;
             _hubContext = hubContext;
-            _playerConnectionStorage = playerConnectionStorage;
-            _timerService = timers;
+            _gameTimer = gameTimer;
             _roundScorer = roundScorer;
             _mapper = mapper;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            await _playerConnectionStorage.DeleteAsync(Context.ConnectionId);
+            ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -73,13 +70,11 @@ namespace WeStop.Api.Infra.Hubs
             User user = await _users.GetByIdAsync(dto.UserId);
 
             Game game = await _games.GetByIdAsync(dto.GameId);
-            game.AddPlayer(user, out string operationMessage);
+            var player = game.AddPlayer(user);
 
+            ConnectionBinding.BindConnectionId(Context.ConnectionId, user.Id, game.Id);
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-            PlayerConnection playerConnection = new PlayerConnection(Context.ConnectionId, user.Id, game.Id);
-            await _playerConnectionStorage.AddAsync(playerConnection);
-                       
             GameState gameState = game.GetCurrentState();
 
             switch (gameState)
@@ -103,41 +98,44 @@ namespace WeStop.Api.Infra.Hubs
 
                 case GameState.InProgress:
 
-                    await Clients.Caller.SendAsync("im_reconected_game", new
+                    if (player.IsInRound)
                     {
-                        ok = true,
-                        game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id)),
-                        sortedLetter = game.GetCurrentRoundSortedLetter()
-                    });
+                        await Clients.Caller.SendAsync("im_reconected_game", new
+                        {
+                            ok = true,
+                            game = _mapper.Map<Game, GameDto>(game),
+                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id)),
+                            sortedLetter = game.GetCurrentRoundSortedLetter()
+                        });
+                    }
 
                     break;
 
                 case GameState.ThemesValidations:
 
-                    // Verificar se o jogador já validou as respostas
-                    //Validation themeValidation = null;
-                    //if (!hasPlayerValidatedTheme)
-                    //{
-                    //    themeValidation = game.GetDefaultValidationsOfThemeForPlayer(themeBeingValidated, player.Id);
-                    //}
+                    if (player.IsInRound)
+                    {
+                        var playerValidations = await _validationStorage.GetValidationsAsync(game.Id, game.CurrentRound.Number);
 
-                    //await Clients.Caller.SendAsync("im_reconected_game", new
-                    //{
-                    //    ok = true,
-                    //    game = _mapper.Map<Game, GameDto>(game),
-                    //    player = _mapper.Map<Player, PlayerDto>(player),
-                    //    themeBeingValidated,
-                    //    validated = hasPlayerValidatedTheme,
-                    //    themeValidations = themeValidation
-                    //});
+                        if (!playerValidations.Any())
+                        {
+                            var answers = await _answersStorage.GetPlayersAnswersAsync(game.Id, game.CurrentRound.Number);
+                            var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(user.Id);
+
+                            await Clients.Caller.SendAsync("im_reconected_game", new
+                            {
+                                ok = true,
+                                game = _mapper.Map<Game, GameDto>(game),
+                                validations = defaultValidationsForPlayer
+                            });
+                        }
+                    }
 
                     break;
 
                 case GameState.Finished:
 
-                    var gameScoreboard = await _pontuationStorage.GetGameScoreboardAsync(game.Id);
-                    var gameWinners = gameScoreboard.GetWinners();
+                    Guid[] gameWinners = await GetWinners(game);
 
                     await Clients.Caller.SendAsync("im_reconected_game", new
                     {
@@ -147,6 +145,13 @@ namespace WeStop.Api.Infra.Hubs
 
                     break;
             }
+        }
+
+        private async Task<Guid[]> GetWinners(Game game)
+        {
+            var playersPontuations = await _pontuationStorage.GetPontuationsAsync(game.Id);
+            var gameWinners = playersPontuations.GetWinners();
+            return gameWinners;
         }
 
         [HubMethodName("game_start_round")]
@@ -164,7 +169,7 @@ namespace WeStop.Api.Infra.Hubs
             });
 
             int limitTime = game.Options.Time;
-            _timerService.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
+            _gameTimer.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
             {
                 await _hubContext.Group(gameId).SendAsync("game_answers_time_elapsed", currentTime);
             },
@@ -252,9 +257,9 @@ namespace WeStop.Api.Infra.Hubs
 
         private void StopRound(Game game)
         {
-            _timerService.StopRoundTimer(game.Id);
-            _timerService.StartSendAnswersTime(game.Id, (gameId, elapsedTime) => { }, async (id) =>
-            {                
+            _gameTimer.StopRoundTimer(game.Id);
+            _gameTimer.StartSendAnswersTime(game.Id, (gameId, elapsedTime) => { }, async (id) =>
+            {
                 await OnSendAnswersTimeOver(game);
             });
         }
@@ -272,7 +277,7 @@ namespace WeStop.Api.Infra.Hubs
 
         private async Task FinishRound(Game game)
         {
-            var scoreBoard = await _pontuationStorage.GetRoundScoreboardAsync(game.Id, game.CurrentRound.Number);
+            var scoreBoard = await _pontuationStorage.GetPontuationsAsync(game.Id, game.CurrentRound.Number);
 
             game.FinishRound();
             await _hubContext.Group(game.Id).SendAsync("game_round_finished", new
@@ -285,15 +290,13 @@ namespace WeStop.Api.Infra.Hubs
 
         private async Task FinishGame(Game game)
         {
-            var scoreboard = await _pontuationStorage.GetGameScoreboardAsync(game.Id);
-            var winners = scoreboard.GetWinners();
+            var winners = GetWinners(game);
 
             game.Finish();
             await _hubContext.Group(game.Id).SendAsync("game_end", new
             {
                 ok = true,
-                winners,
-                scoreBoard = scoreboard
+                winners
             });
         }
     }

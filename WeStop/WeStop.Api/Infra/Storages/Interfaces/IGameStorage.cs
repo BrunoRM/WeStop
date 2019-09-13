@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WeStop.Api.Classes;
+using WeStop.Api.Domain;
 
 namespace WeStop.Api.Infra.Storages.Interfaces
 {

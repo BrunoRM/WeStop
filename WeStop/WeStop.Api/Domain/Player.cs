@@ -1,6 +1,6 @@
 using System;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Domain
 {
     public sealed class Player
     {
@@ -10,6 +10,8 @@ namespace WeStop.Api.Classes
             User = user;
             IsReady = false;
             IsAdmin = isAdmin;
+            IsOnline = true;
+            IsInRound = false;
         }
 
         public Guid GameId { get; set; }
@@ -18,6 +20,8 @@ namespace WeStop.Api.Classes
         public string UserName => User.UserName;
         public bool IsAdmin { get; private set; }
         public bool IsReady { get; private set; }
+        public bool IsOnline { get; set; }
+        public bool IsInRound { get; set; }
 
         public void ChangeStatus(bool isReady)
         {

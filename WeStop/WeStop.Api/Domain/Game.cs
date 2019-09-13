@@ -4,12 +4,12 @@ using System.Linq;
 using WeStop.Api.Exceptions;
 using WeStop.Api.Extensions;
 
-namespace WeStop.Api.Classes
+namespace WeStop.Api.Domain
 {
     public sealed class Game
     {
-        private ICollection<Player> _players;
-        private ICollection<Round> _rounds;
+        private readonly ICollection<Player> _players;
+        private readonly ICollection<Round> _rounds;
         private GameState _currentState;
 
         public Game(User user, string name, string password, GameOptions options)
@@ -49,13 +49,16 @@ namespace WeStop.Api.Classes
         public int GetCurrentRoundNumber() =>
             CurrentRound?.Number ?? 1;
 
-        public void AddPlayer(User user, out string operationMessage)
+        public Player AddPlayer(User user)
         {
-            operationMessage = string.Empty;
-            if (!Players.Any(x => x.Id == user.Id))
-                _players.Add(new Player(this.Id, user, false));
-            else
-                operationMessage = "Jogador já está no jogo";
+            var player = _players.FirstOrDefault(p => p.Id == user.Id);
+            if (player is null)
+            {
+                player = new Player(Id, user, false);
+                _players.Add(player);
+            }
+
+            return player;
         }
 
         public Player GetPlayer(Guid id) =>
@@ -68,6 +71,15 @@ namespace WeStop.Api.Classes
 
             CurrentRound = CreateNewRound();
             _currentState = GameState.InProgress;
+            SetPlayersInRound();
+        }
+
+        private void SetPlayersInRound()
+        {
+            foreach (var player in Players)
+            {
+                player.IsInRound = true;
+            }
         }
 
         private Round CreateNewRound()
