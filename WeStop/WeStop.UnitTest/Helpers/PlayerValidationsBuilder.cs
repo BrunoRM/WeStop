@@ -52,7 +52,7 @@ namespace WeStop.UnitTest.Helpers
             foreach (var value in values)
             {
                 var answer = new Answer(_theme, value);
-                var validation = new Validation(answer, true);
+                var validation = new Validation(answer, false);
 
                 _invalidAnswers.Add(validation);
             }

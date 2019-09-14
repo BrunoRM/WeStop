@@ -11,33 +11,27 @@ namespace WeStop.UnitTest
     [TestFixture]
     public class RoundScorerTests
     {
-        private readonly IGameStorage _gameStorage;
-        private readonly IAnswerStorage _answerStorage;
-        private readonly IValidationStorage _validationStorage;
-        private readonly IPontuationStorage _gamePontuationStorage;
-        private readonly RoundScorer _roundScorer;
+        private IGameStorage _gameStorage;
+        private IAnswerStorage _answerStorage;
+        private IValidationStorage _validationStorage;
+        private IPontuationStorage _gamePontuationStorage;
+        private RoundScorer _roundScorer;
         private Game _game;
 
-        public RoundScorerTests()
+        [SetUp]
+        public void Setup()
         {
             _gameStorage = new GameStorage();
             _answerStorage = new AnswerStorage();
             _validationStorage = new ValidationStorage();
             _gamePontuationStorage = new PontuationStorage();
             _roundScorer = new RoundScorer(_gameStorage, _answerStorage, _validationStorage, _gamePontuationStorage);
-            Setup();
-        }
-
-        public void Setup()
-        {
-            _game = TestGame.Game;
-            _game.AddPlayer(TestUsers.Mike);
-            _game.AddPlayer(TestUsers.Lucas);
+            _game = TestGame.CreateGame();
             _gameStorage.AddAsync(_game).Wait();
         }
 
         [Test]
-        public void GeneratesTenPointsForEachPlayer()
+        public void GivenDistinctsAnswersShouldGiveTenPointsForEach()
         {
             var roundAnswersBuilder = new PlayerAnswersBuilder(_game.Id, 1);
 
@@ -78,10 +72,161 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(lucasValidations).Wait();
 
             _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
-            var playersAnswers = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
+            var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
-            Assert.AreEqual(playersAnswers.GetPlayerPontuation(TestUsers.Dustin.Id), 30);
-            Assert.AreEqual(playersAnswers.GetPlayerPontuation(TestUsers.Lucas.Id), 30);
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
+            Assert.AreEqual(30, roundPontuations.GetPlayerPontuation(TestUsers.Dustin));
+
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "Nome"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
+            Assert.AreEqual(30, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
+        }
+
+        [Test]
+        public void GivenSameAnswersShouldGiveFivePointsForEach()
+        {
+            var roundAnswersBuilder = new PlayerAnswersBuilder(_game.Id, 1);
+
+            var dustinAnwers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Dustin)
+                .AddAnswer("Nome", "Bruno")
+                .AddAnswer("CEP", "Brasil")
+                .AddAnswer("FDS", "Breaking bad")
+                .Build();
+
+            var lucasAnswers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Lucas)
+                .AddAnswer("Nome", "Bruno")
+                .AddAnswer("CEP", "Brasil")
+                .AddAnswer("FDS", "Breaking bad")
+                .Build();
+
+            _answerStorage.AddAsync(dustinAnwers).Wait();
+            _answerStorage.AddAsync(lucasAnswers).Wait();            
+
+            var roundValidationsBuilder = new PlayerValidationsBuilder(_game.Id, 1);
+
+            var dustinValidations = roundValidationsBuilder
+                .ForPlayer(TestUsers.Dustin)
+                .ForTheme("Nome").ValidateAnswers("Bruno")
+                .ForTheme("CEP").ValidateAnswers("Brasil")
+                .ForTheme("FDS").ValidateAnswers("Breaking bad")
+                .Build();
+
+            var lucasValidations = roundValidationsBuilder
+                .ForPlayer(TestUsers.Lucas)
+                .ForTheme("Nome").ValidateAnswers("Bruno")
+                .ForTheme("CEP").ValidateAnswers("Brasil")
+                .ForTheme("FDS").ValidateAnswers("Breaking bad")
+                .Build();
+
+            _validationStorage.AddAsync(dustinValidations).Wait();
+            _validationStorage.AddAsync(lucasValidations).Wait();
+
+            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
+
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
+            Assert.AreEqual(15, roundPontuations.GetPlayerPontuation(TestUsers.Dustin));
+
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "Nome"));
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
+            Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
+            Assert.AreEqual(15, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
+        }
+
+        [Test]
+        public void GivenBlankOrNullAnswersShouldGiveZeroPointsForEach()
+        {
+            var roundAnswersBuilder = new PlayerAnswersBuilder(_game.Id, 1);
+
+            var dustinAnwers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Dustin)
+                .AddAnswer("Nome", "")
+                .AddAnswer("CEP", "")
+                .Build();
+
+            var lucasAnswers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Lucas)
+                .AddAnswer("CEP", "")
+                .AddAnswer("FDS", "")
+                .Build();
+
+            _answerStorage.AddAsync(dustinAnwers).Wait();
+            _answerStorage.AddAsync(lucasAnswers).Wait();            
+
+            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
+
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuation(TestUsers.Dustin));
+
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "Nome"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
+        }
+
+        [Test]
+        public void GivenInvalidatedAnswersShouldGiveZeroPointsForEach()
+        {
+            var roundAnswersBuilder = new PlayerAnswersBuilder(_game.Id, 1);
+
+            var dustinAnwers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Dustin)
+                .AddAnswer("Nome", "Bruno")
+                .AddAnswer("CEP", "Brasil")
+                .AddAnswer("FDS", "Breaking Bad")
+                .Build();
+
+            var lucasAnswers = roundAnswersBuilder
+                .ForPlayer(TestUsers.Lucas)
+                .AddAnswer("Nome", "Bruna")
+                .AddAnswer("CEP", "Br")
+                .AddAnswer("FDS", "Ben")
+                .Build();
+
+            _answerStorage.AddAsync(dustinAnwers).Wait();
+            _answerStorage.AddAsync(lucasAnswers).Wait();            
+
+            var roundValidationsBuilder = new PlayerValidationsBuilder(_game.Id, 1);
+
+            var dustinValidations = roundValidationsBuilder
+                .ForPlayer(TestUsers.Dustin)
+                .ForTheme("Nome").ValidateAnswers("Bruna")
+                .ForTheme("CEP").InvalidateAnswers("Br")
+                .ForTheme("FDS").InvalidateAnswers("Ben")
+                .Build();
+
+            var lucasValidations = roundValidationsBuilder
+                .ForPlayer(TestUsers.Lucas)
+                .ForTheme("Nome").ValidateAnswers("Bruno")
+                .ForTheme("CEP").ValidateAnswers("Brasil")
+                .ForTheme("FDS").ValidateAnswers("Breaking bad")
+                .Build();
+
+            _validationStorage.AddAsync(dustinValidations).Wait();
+            _validationStorage.AddAsync(lucasValidations).Wait();
+
+            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
+            
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
+            Assert.AreEqual(30, roundPontuations.GetPlayerPontuation(TestUsers.Dustin));
+
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "Nome"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
+            Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
+            Assert.AreEqual(10, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
         }
     }
 

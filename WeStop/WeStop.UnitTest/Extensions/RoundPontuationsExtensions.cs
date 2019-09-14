@@ -7,7 +7,10 @@ namespace WeStop.UnitTest.Extensions
 {
     public static class RoundPontuationsExtensions
     {
-        public static int GetPlayerPontuation(this IEnumerable<RoundPontuations> roundAnswers, Guid playerId) =>
-            roundAnswers.FirstOrDefault(x => x.PlayerId == playerId).TotalPontuation;
+        public static int GetPlayerPontuation(this IEnumerable<RoundPontuations> roundAnswers, User user) =>
+            roundAnswers.FirstOrDefault(x => x.PlayerId == user.Id).TotalPontuation;
+
+        public static int GetPlayerPontuationForTheme(this IEnumerable<RoundPontuations> roundAnswers, User user, string theme) =>
+            roundAnswers.FirstOrDefault(x => x.PlayerId == user.Id)[theme];
     }
 }
