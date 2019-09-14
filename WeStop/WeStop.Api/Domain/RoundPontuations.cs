@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeStop.Api.Domain
 {
@@ -20,6 +21,7 @@ namespace WeStop.Api.Domain
         public Guid GameId { get; set; }
         public int RoundNumber { get; set; }
         public ICollection<ThemePontuation> ThemesPontuations { get; set; }
+        public int TotalPontuation => ThemesPontuations.Sum(x => x.Pontuation);
 
         public void AddPontuationForTheme(string theme, int points)
         {

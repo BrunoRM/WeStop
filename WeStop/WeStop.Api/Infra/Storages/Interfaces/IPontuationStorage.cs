@@ -9,7 +9,7 @@ namespace WeStop.Api.Infra.Storages.Interfaces
     {
         Task AddAsync(RoundPontuations pontuations);
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId, int roundNumber);
-        RoundPontuations GetPontuationsAsync(Guid gameId, int roundNumber, Guid playerId);
+        Task<RoundPontuations> GetPontuationsAsync(Guid gameId, int roundNumber, Guid playerId);
         Task<IEnumerable<RoundPontuations>> GetPontuationsAsync(Guid gameId);
     }
 }

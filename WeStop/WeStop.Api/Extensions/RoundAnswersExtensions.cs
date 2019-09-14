@@ -8,10 +8,10 @@ namespace WeStop.Api.Extensions
     public static class RoundAnswersExtensions
     {
         public static IEnumerable<Guid> GetPlayersIdsThatRepliedAnswer(this IEnumerable<RoundAnswers> roundAnswers, Answer answer) =>
-            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a == answer).Select(a => ra.PlayerId));
+            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a == answer).Select(a => ra.PlayerId)).ToList();
 
         public static IEnumerable<Guid> GetPlayersIdsWithBlankAnswers(this IEnumerable<RoundAnswers> roundAnswers) =>
-            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Value.Equals(string.Empty)).Select(a => ra.PlayerId));
+            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Value.Equals(string.Empty)).Select(a => ra.PlayerId)).ToList();
 
         public static Answer[] GetAnswersOfTheme(this IEnumerable<RoundAnswers> roundAnswers, string theme) =>
             roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme))).Distinct().ToArray();

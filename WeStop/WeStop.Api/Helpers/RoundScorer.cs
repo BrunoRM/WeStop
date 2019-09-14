@@ -23,6 +23,7 @@ namespace WeStop.Api.Helpers
             _answersStorage = answersStorage;
             _validations = validationsStorage;
             _gamePontuationStorage = gamePontuationStorage;
+            _playersPontuations = new List<RoundPontuations>();
         }
 
         public async Task ProcessRoundPontuationAsync(Guid gameId, int roundNumber)

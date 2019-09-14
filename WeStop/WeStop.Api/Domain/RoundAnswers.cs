@@ -5,10 +5,11 @@ namespace WeStop.Api.Domain
 {
     public class RoundAnswers
     {
-        public RoundAnswers(Guid gameId, int roundNumber, ICollection<Answer> answers)
+        public RoundAnswers(Guid gameId, int roundNumber, Guid playerId, ICollection<Answer> answers)
         {
             GameId = gameId;
             RoundNumber = roundNumber;
+            PlayerId = playerId;
             Answers = answers;
         }
 
