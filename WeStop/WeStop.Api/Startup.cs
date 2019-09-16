@@ -5,11 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
+using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Infra.Timers.Default;
 using WeStop.Api.Infra.Timers.Interfaces;
+using WeStop.Api.Managers;
 
 namespace WeStop.Api
 {
@@ -40,6 +42,11 @@ namespace WeStop.Api
                         .AllowCredentials();
                 }));
 
+            services.AddSingleton<IAnswerStorage, AnswerStorage>();
+            services.AddSingleton<IPontuationStorage, PontuationStorage>();
+            services.AddSingleton<IValidationStorage, ValidationStorage>();
+            services.AddSingleton<GameManager, GameManager>();
+            services.AddSingleton<RoundScorer, RoundScorer>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();

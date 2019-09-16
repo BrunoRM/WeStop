@@ -14,7 +14,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     function joinGame() {
-        $game.invoke("game_join", {
+        $game.invoke("join", {
             gameId: $routeParams.id,
             userId: $rootScope.user.id
         });

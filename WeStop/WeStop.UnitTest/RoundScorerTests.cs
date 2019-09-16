@@ -71,7 +71,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -126,7 +126,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -160,7 +160,7 @@ namespace WeStop.UnitTest
             _answerStorage.AddAsync(dustinAnwers).Wait();
             _answerStorage.AddAsync(lucasAnswers).Wait();            
 
-            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -215,7 +215,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessRoundPontuationAsync(_game.Id, 1).Wait();
+            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
             
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));

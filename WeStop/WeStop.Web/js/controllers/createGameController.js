@@ -100,12 +100,10 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.confirm = function() {
 
-        $game.invoke('game_create', $scope.game);
-
-        $game.on('game_created', resp => {
-            if (resp && resp.ok) {
-                $location.path('/game/' + resp.game.id);
-            }
+        $http.post(API_SETTINGS.uri + '/games.create', $scope.game).then((resp) =>
+        {
+            console.log(resp);
+            $location.path('/game/' + resp.data.id);
         });
     };
 

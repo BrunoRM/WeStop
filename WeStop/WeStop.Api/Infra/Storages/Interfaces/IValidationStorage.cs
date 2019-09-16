@@ -9,6 +9,7 @@ namespace WeStop.Api.Infra.Storages.Interfaces
     {
         Task AddAsync(RoundValidations validations);
         Task<IEnumerable<RoundValidations>> GetValidationsAsync(Guid gameId, int roundNumber);
+        Task<IEnumerable<RoundValidations>> GetValidationsAsync(Guid gameId, int roundNumber, Guid playerId);
         Task<bool> HasPlayerValidationsInRound(Guid gameId, int roundNumber, Guid playerId);
     }
 }

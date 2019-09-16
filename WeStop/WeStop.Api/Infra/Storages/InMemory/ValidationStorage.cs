@@ -23,6 +23,12 @@ namespace WeStop.Api.Infra.Storages.InMemory
                 _roundValidations.Where(rv => rv.GameId == gameId && rv.RoundNumber == roundNumber).ToList());
         }
 
+        public Task<IEnumerable<RoundValidations>> GetValidationsAsync(Guid gameId, int roundNumber, Guid playerId)
+        {
+            return Task.FromResult<IEnumerable<RoundValidations>>(
+                _roundValidations.Where(rv => rv.GameId == gameId && rv.RoundNumber == roundNumber && rv.PlayerId == playerId).ToList());
+        }
+
         public Task<bool> HasPlayerValidationsInRound(Guid gameId, int roundNumber, Guid playerId)
         {
             return Task.FromResult(

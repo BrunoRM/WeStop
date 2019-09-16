@@ -9,30 +9,29 @@ using WeStop.Api.Extensions;
 using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Infra.Timers.Interfaces;
+using WeStop.Api.Managers;
 
 namespace WeStop.Api.Infra.Hubs
 {
     public class GameHub : Hub
     {
-        private readonly IUserStorage _users;
+        private readonly GameManager _gameManager;
         private readonly IGameStorage _games;
         private readonly IAnswerStorage _answersStorage;
         private readonly IValidationStorage _validationStorage;
-        private readonly IPontuationStorage _pontuationStorage;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly IGameTimer _gameTimer;
         private readonly RoundScorer _roundScorer;
         private readonly IMapper _mapper;
 
-        public GameHub(IUserStorage userStorage, IGameStorage gameStorage, IAnswerStorage answersStorage,
-            IValidationStorage validationStorage, IPontuationStorage pontuationStorage, IHubContext<GameHub> hubContext,
-            IGameTimer gameTimer, RoundScorer roundScorer, IMapper mapper)
+        public GameHub(IGameStorage gameStorage, IAnswerStorage answersStorage,
+            IValidationStorage validationStorage, IHubContext<GameHub> hubContext,
+            IGameTimer gameTimer, RoundScorer roundScorer, IMapper mapper, GameManager gameManager)
         {
-            _users = userStorage;
+            _gameManager = gameManager;
             _games = gameStorage;
             _answersStorage = answersStorage;
             _validationStorage = validationStorage;
-            _pontuationStorage = pontuationStorage;
             _hubContext = hubContext;
             _gameTimer = gameTimer;
             _roundScorer = roundScorer;
@@ -45,164 +44,134 @@ namespace WeStop.Api.Infra.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        [HubMethodName("game_create")]
-        public async Task CreateGame(CreateGameDto dto)
+        [HubMethodName("join")]
+        public async Task JoinAsync(JoinToGameRoomDto dto)
         {
-            User user = await _users.GetByIdAsync(dto.UserId);
-
-            Game game = new Game(user, dto.Name, string.Empty, new GameOptions(dto.GameOptions.Themes, dto.GameOptions.AvailableLetters, dto.GameOptions.Rounds, dto.GameOptions.NumberOfPlayers, dto.GameOptions.Time));
-
-            await _games.AddAsync(game);
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
-
-            await Clients.Caller.SendAsync("game_created", new
+            await _gameManager.JoinToGameAsync(dto.GameId, dto.UserId, async (game, player) =>
             {
-                ok = true,
-                is_admin = true,
-                game
-            });
-        }
+                ConnectionBinding.BindConnectionId(Context.ConnectionId, dto.UserId, game.Id);
+                await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-        [HubMethodName("game_join")]
-        public async Task Join(JoinToGameRoomDto dto)
-        {
-            User user = await _users.GetByIdAsync(dto.UserId);
+                GameState gameState = game.GetCurrentState();
 
-            Game game = await _games.GetByIdAsync(dto.GameId);
-            var player = game.AddPlayer(user);
+                switch (gameState)
+                {
+                    case GameState.Waiting:
 
-            ConnectionBinding.BindConnectionId(Context.ConnectionId, user.Id, game.Id);
-            await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
-
-            GameState gameState = game.GetCurrentState();
-
-            switch (gameState)
-            {
-                case GameState.Waiting:
-
-                    await Clients.Caller.SendAsync("im_joined_game", new
-                    {
-                        ok = true,
-                        game = _mapper.Map<Game, GameDto>(game),
-                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id))
-                    });
-
-                    await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
-                    {
-                        ok = true,
-                        player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id))
-                    });
-
-                    break;
-
-                case GameState.InProgress:
-
-                    if (player.IsInRound)
-                    {
-                        await Clients.Caller.SendAsync("im_reconected_game", new
+                        await Clients.Caller.SendAsync("im_joined_game", new
                         {
                             ok = true,
                             game = _mapper.Map<Game, GameDto>(game),
-                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(user.Id)),
-                            sortedLetter = game.GetCurrentRoundSortedLetter()
+                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId))
                         });
-                    }
 
-                    break;
-
-                case GameState.ThemesValidations:
-
-                    if (player.IsInRound)
-                    {
-                        var playerValidations = await _validationStorage.GetValidationsAsync(game.Id, game.CurrentRound.Number);
-
-                        if (!playerValidations.Any())
+                        await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
                         {
-                            var answers = await _answersStorage.GetPlayersAnswersAsync(game.Id, game.CurrentRound.Number);
-                            var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(user.Id);
+                            ok = true,
+                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId))
+                        });
 
+                        break;
+
+                    case GameState.InProgress:
+
+                        if (player.IsInRound)
+                        {
                             await Clients.Caller.SendAsync("im_reconected_game", new
                             {
                                 ok = true,
                                 game = _mapper.Map<Game, GameDto>(game),
-                                validations = defaultValidationsForPlayer
+                                player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId)),
+                                round = game.CurrentRound
                             });
                         }
-                    }
 
-                    break;
+                        break;
 
-                case GameState.Finished:
+                    case GameState.ThemesValidations:
 
-                    Guid[] gameWinners = await GetWinners(game);
+                        if (player.IsInRound)
+                        {
+                            var defaultPlayerValidations = await _gameManager.GetDefaultPlayerValidationsAsync(game.Id, game.CurrentRound.Number, player.Id);
 
-                    await Clients.Caller.SendAsync("im_reconected_game", new
-                    {
-                        game = _mapper.Map<Game, GameDto>(game),
-                        winners = gameWinners
-                    });
+                            if (defaultPlayerValidations.Any())
+                            {
+                                await Clients.Caller.SendAsync("im_reconected_game", new
+                                {
+                                    ok = true,
+                                    game = _mapper.Map<Game, GameDto>(game),
+                                    validations = defaultPlayerValidations
+                                });
+                            }
+                        }
 
-                    break;
-            }
+                        break;
+
+                    case GameState.Finished:
+
+                        Guid[] gameWinners = await _gameManager.GetWinnersAsync(game.Id);
+
+                        await Clients.Caller.SendAsync("im_reconected_game", new
+                        {
+                            game = _mapper.Map<Game, GameDto>(game),
+                            winners = gameWinners
+                        });
+
+                        break;
+                }
+            });            
         }
 
-        private async Task<Guid[]> GetWinners(Game game)
+        [HubMethodName("start_round")]
+        public async Task StartNextRoundAsync(StartGameDto dto)
         {
-            var playersPontuations = await _pontuationStorage.GetPontuationsAsync(game.Id);
-            var gameWinners = playersPontuations.GetWinners();
-            return gameWinners;
-        }
-
-        [HubMethodName("game_start_round")]
-        public async Task StartNextRound(StartGameDto dto)
-        {
-            var game = await _games.GetByIdAsync(dto.GameRoomId);
-            game.StartNextRound();
-
-            IClientProxy connectionGroup = Clients.Group(game.Id.ToString());
-            await connectionGroup.SendAsync("game_round_started", new
+            await _gameManager.StartNextRoundAsync(dto.GameRoomId, async (game) =>
             {
-                ok = true,
-                id = game.Id,
-                sortedLetter = game.GetCurrentRoundSortedLetter()
-            });
+                var round = game.CurrentRound;
 
-            int limitTime = game.Options.Time;
-            _gameTimer.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
-            {
-                await _hubContext.Group(gameId).SendAsync("game_answers_time_elapsed", currentTime);
-            },
-            async (gameId) =>
-            {
-                StopRound(game);
-                await _hubContext.Group(gameId).SendAsync("game_stop", new
+                IClientProxy connectionGroup = Clients.Group(dto.GameRoomId.ToString());
+                await connectionGroup.SendAsync("round_started", new
                 {
                     ok = true,
-                    reason = "time_over"
+                    roundNumber = round.Number,
+                    sortedLetter = round.SortedLetter
+                });
+
+                int limitTime = game.Options.Time;
+                _gameTimer.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
+                {
+                    await _hubContext.Group(gameId).SendAsync("round_time_elapsed", currentTime);
+                },
+                async (gameId) =>
+                {
+                    StopRoundTimer(game.Id);
+                    await _hubContext.Group(gameId).SendAsync("round_stop", new
+                    {
+                        ok = true,
+                        reason = "time_over"
+                    });
                 });
             });
         }
 
-        [HubMethodName("game_stop")]
-        public async Task CallStop(CallStopDto dto)
+        [HubMethodName("round_stop")]
+        public async Task StopRoundAsync(CallStopDto dto)
         {
-            var game = await _games.GetByIdAsync(dto.GameId);
-
-            var playerCalledStop = game.Players.FirstOrDefault(p => p.Id == dto.UserId);
-
-            await Clients.Group(game.Id).SendAsync("game_stop", new
+            await _gameManager.StopRoundAsync(dto.GameId, dto.RoundNumber, dto.UserId, async (game) =>
             {
-                ok = true,
-                reason = "player_call_stop",
-                userName = playerCalledStop.User.UserName
-            });
+                await Clients.Group(dto.GameId).SendAsync("game_stop", new
+                {
+                    ok = true,
+                    reason = "player_call_stop",
+                    userId = dto.UserId
+                });
 
-            StopRound(game);
+                StopRoundTimer(game.Id);
+            });
         }
 
         [HubMethodName("send_answers")]
-        public async Task SendAnswers(RoundAnswers answers)
+        public async Task SendAnswersAsync(RoundAnswers answers)
         {
             await _answersStorage.AddAsync(answers);
 
@@ -213,7 +182,7 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("send_validations")]
-        public async Task SendThemeAnswersValidation(RoundValidations validations)
+        public async Task SendValidationsAsync(RoundValidations validations)
         {
             await _validationStorage.AddAsync(validations);
 
@@ -221,16 +190,10 @@ namespace WeStop.Api.Infra.Hubs
             {
                 ok = true
             });
-
-            // if (game.AllPlayersSendValidationsOfTheme(dto.Validation.Theme))
-            // {
-            //     _timerService.StopValidationTimer(game.Id);
-            //     await GoToNextStep(game);
-            // }
         }
 
         [HubMethodName("player_change_status")]
-        public async Task ChangePlayerStatus(ChangePlayerStatusDto dto)
+        public async Task ChangePlayerStatusAsync(ChangePlayerStatusDto dto)
         {
             var game = await _games.GetByIdAsync(dto.GameId);
 
@@ -255,45 +218,49 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        private void StopRound(Game game)
+        private void StopRoundTimer(Guid gameId)
         {
-            _gameTimer.StopRoundTimer(game.Id);
-            _gameTimer.StartSendAnswersTime(game.Id, (gameId, elapsedTime) => { }, async (id) =>
+            _gameTimer.StopRoundTimer(gameId);
+            _gameTimer.StartSendAnswersTime(gameId, (id, elapsedTime) => { }, async (id) =>
             {
-                await OnSendAnswersTimeOver(game);
+                await OnSendAnswersTimeOver(id);
             });
         }
 
-        private async Task OnSendAnswersTimeOver(Game game)
+        private async Task OnSendAnswersTimeOver(Guid gameId)
         {
-            await _hubContext.Group(game.Id).SendAsync("send_answers_time_over");
-            game.BeginCurrentRoundThemesValidations();
-        }
-
-        private async Task CalculateRoundPontuation(Game game)
-        {
-            await _roundScorer.ProcessRoundPontuationAsync(game.Id, game.CurrentRound.Number);
-        }
-
-        private async Task FinishRound(Game game)
-        {
-            var scoreBoard = await _pontuationStorage.GetPontuationsAsync(game.Id, game.CurrentRound.Number);
-
-            game.FinishRound();
-            await _hubContext.Group(game.Id).SendAsync("game_round_finished", new
+            await _hubContext.Group(gameId).SendAsync("send_answers_time_over");
+            _gameTimer.StartValidationTimer(gameId, async (id, currentTime) =>
             {
-                ok = true,
-                scoreBoard
+                await _hubContext.Group(gameId).SendAsync("validation_time_elapsed", new
+                {
+                    currentTime
+                });
+            }, async (id) =>
+            {
+                await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
+                await FinishCurrentRoundAsync(gameId);
             });
+        }
 
+        private async Task FinishCurrentRoundAsync(Guid gameId)
+        {
+            await _gameManager.FinishCurrentRoundAsync(gameId, async (roundPontuation) =>
+            {
+                await _hubContext.Group(gameId).SendAsync("round_finished", new
+                {
+                    ok = true,
+                    scoreboard = roundPontuation
+                });
+            });
         }
 
         private async Task FinishGame(Game game)
         {
-            var winners = GetWinners(game);
+            var winners = await _gameManager.GetWinnersAsync(game.Id);
 
             game.Finish();
-            await _hubContext.Group(game.Id).SendAsync("game_end", new
+            await _hubContext.Group(game.Id).SendAsync("game_finished", new
             {
                 ok = true,
                 winners

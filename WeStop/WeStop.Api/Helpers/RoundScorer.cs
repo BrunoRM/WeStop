@@ -26,11 +26,12 @@ namespace WeStop.Api.Helpers
             _playersPontuations = new List<RoundPontuations>();
         }
 
-        public async Task ProcessRoundPontuationAsync(Guid gameId, int roundNumber)
+        public async Task ProcessCurrentRoundPontuationAsync(Guid gameId)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
-            var validations = await _validations.GetValidationsAsync(gameId, roundNumber);
-            var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, roundNumber);
+            var currentRoundNumber = game.CurrentRound.Number;
+            var validations = await _validations.GetValidationsAsync(gameId, currentRoundNumber);
+            var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, currentRoundNumber);
 
             foreach (var theme in game.Options.Themes)
             {
@@ -52,22 +53,22 @@ namespace WeStop.Api.Helpers
 
                         if (playersThatRepliedAnswer.Count() > 1)
                         {
-                            GiveFivePointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                            GiveFivePointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
                         }
                         else
                         {
-                            GiveTenPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                            GiveTenPointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
                         }
                     }
                     else
                     {
                         var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
-                        GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                        GiveZeroPointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
                     }
                 }
 
                 var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
-                GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersWithBlankAnswers);
+                GiveZeroPointsForEachPlayer(gameId, currentRoundNumber, theme, playersWithBlankAnswers);
             }
 
             await SavePlayersPontuations();

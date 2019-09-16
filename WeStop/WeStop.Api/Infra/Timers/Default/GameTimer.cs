@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using WeStop.Api.Domain;
 using WeStop.Api.Infra.Timers.Interfaces;
 
 namespace WeStop.Api.Infra.Timers.Default
@@ -17,7 +18,7 @@ namespace WeStop.Api.Infra.Timers.Default
             Timer sendAnswersTimer = new Timer((context) =>
             {
                 GameTimerContext timerContext = (GameTimerContext)context;
-                if (timerContext.ElapsedTime >= timerContext.LimitTime)
+                if (timerContext.ElapsedTime >= timerContext.RoundTime)
                 {
                     RemoveGameTimer(gameId);
                     onTimeOverAction?.Invoke(timerContext.GameId);
@@ -38,7 +39,7 @@ namespace WeStop.Api.Infra.Timers.Default
             Timer roundTimer = new Timer((context) =>
             {
                 GameTimerContext timerContext = (GameTimerContext)context;
-                if (timerContext.ElapsedTime >= timerContext.LimitTime)
+                if (timerContext.ElapsedTime >= timerContext.RoundTime)
                 {
                     StopRoundTimer(gameId);
                     onTimeOverAction?.Invoke(timerContext.GameId);
@@ -84,6 +85,26 @@ namespace WeStop.Api.Infra.Timers.Default
                 _timers[gameId]?.Dispose();
                 _timers[gameId] = null;
             }
+        }
+
+        public void StartValidationTimer(Guid gameId, Action<Guid, int> onTimeElapsed, Action<Guid> onTimeOver)
+        {
+            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, VALIDATION_LIMIT_TIME);
+            Timer validationTimer = new Timer((context) =>
+            {
+                GameTimerContext timerContext = (GameTimerContext)context;
+                if (timerContext.ElapsedTime >= VALIDATION_LIMIT_TIME)
+                {
+                    onTimeOver?.Invoke(timerContext.GameId);
+                }
+                else
+                {
+                    timerContext.AddSecondsToElapsedTime(1);
+                    onTimeElapsed?.Invoke(timerContext.GameId, timerContext.ElapsedTime);
+                }
+            }, gameTimerContext, 1000, 1000);
+
+            AddOrUpdateGameTimer(gameId, validationTimer);
         }
     }
 }

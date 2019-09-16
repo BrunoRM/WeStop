@@ -19,5 +19,8 @@ namespace WeStop.Api.Infra.Storages.InMemory
 
         public Task<Game> GetByIdAsync(Guid id) =>
             Task.FromResult(_games.FirstOrDefault(g => g.Id == id));
+
+        public Task UpdateAsync(Game game) =>
+            Task.Run(() => {});
     }
 }

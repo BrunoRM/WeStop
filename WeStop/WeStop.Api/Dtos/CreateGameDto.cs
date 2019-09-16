@@ -1,4 +1,5 @@
 using System;
+using WeStop.Api.Domain;
 
 namespace WeStop.Api.Dtos
 {
@@ -6,7 +7,7 @@ namespace WeStop.Api.Dtos
     {
         public Guid UserId { get; set; }
         public string Name { get; set; }
-        public GameOptionsDto GameOptions { get; set; }
+        public GameOptions GameOptions { get; set; }
     }
 
     public class GameOptionsDto

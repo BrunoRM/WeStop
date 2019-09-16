@@ -49,17 +49,17 @@ namespace WeStop.Api.Domain
         public int GetCurrentRoundNumber() =>
             CurrentRound?.Number ?? 1;
 
-        public Player AddPlayer(User user)
+        public void AddPlayer(User user)
         {
-            var player = _players.FirstOrDefault(p => p.Id == user.Id);
-            if (player is null)
+            if (!HasPlayerInGame(user.Id))
             {
-                player = new Player(Id, user, false);
+                var player = new Player(Id, user, false);
                 _players.Add(player);
             }
-
-            return player;
         }
+
+        public bool HasPlayerInGame(Guid userId) =>
+            _players.Any(p => p.Id == userId);
 
         public Player GetPlayer(Guid id) =>
             _players.FirstOrDefault(p => p.Id == id);        
@@ -114,8 +114,8 @@ namespace WeStop.Api.Domain
         public bool IsFinalRound() =>
             CurrentRound?.Number == Options.Rounds;
 
-        public string GetCurrentRoundSortedLetter() =>
-            CurrentRound.SortedLetter;
+        // public string GetCurrentRoundSortedLetter() =>
+        //     CurrentRound.SortedLetter;
 
         public GameState GetCurrentState()
         {
