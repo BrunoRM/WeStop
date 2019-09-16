@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
@@ -45,11 +46,11 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("join")]
-        public async Task JoinAsync(JoinToGameRoomDto dto)
+        public async Task JoinAsync(Guid gameId, Guid userId)
         {
-            await _gameManager.JoinToGameAsync(dto.GameId, dto.UserId, async (game, player) =>
+            await _gameManager.JoinToGameAsync(gameId, userId, async (game, player) =>
             {
-                ConnectionBinding.BindConnectionId(Context.ConnectionId, dto.UserId, game.Id);
+                ConnectionBinding.BindConnectionId(Context.ConnectionId, userId, game.Id);
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
                 GameState gameState = game.GetCurrentState();
@@ -62,13 +63,13 @@ namespace WeStop.Api.Infra.Hubs
                         {
                             ok = true,
                             game = _mapper.Map<Game, GameDto>(game),
-                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId))
+                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(userId))
                         });
 
                         await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
                         {
                             ok = true,
-                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId))
+                            player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(userId))
                         });
 
                         break;
@@ -81,7 +82,7 @@ namespace WeStop.Api.Infra.Hubs
                             {
                                 ok = true,
                                 game = _mapper.Map<Game, GameDto>(game),
-                                player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(dto.UserId)),
+                                player = _mapper.Map<Player, PlayerDto>(game.GetPlayer(userId)),
                                 round = game.CurrentRound
                             });
                         }
@@ -123,13 +124,13 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("start_round")]
-        public async Task StartNextRoundAsync(StartGameDto dto)
+        public async Task StartNextRoundAsync(Guid gameId)
         {
-            await _gameManager.StartNextRoundAsync(dto.GameRoomId, async (game) =>
+            await _gameManager.StartNextRoundAsync(gameId, async (game) =>
             {
                 var round = game.CurrentRound;
 
-                IClientProxy connectionGroup = Clients.Group(dto.GameRoomId.ToString());
+                IClientProxy connectionGroup = Clients.Group(gameId.ToString());
                 await connectionGroup.SendAsync("round_started", new
                 {
                     ok = true,
@@ -138,14 +139,14 @@ namespace WeStop.Api.Infra.Hubs
                 });
 
                 int limitTime = game.Options.Time;
-                _gameTimer.StartRoundTimer(game.Id, limitTime, async (gameId, currentTime) =>
+                _gameTimer.StartRoundTimer(game.Id, limitTime, async (id, currentTime) =>
                 {
-                    await _hubContext.Group(gameId).SendAsync("round_time_elapsed", currentTime);
+                    await _hubContext.Group(id).SendAsync("round_time_elapsed", currentTime);
                 },
-                async (gameId) =>
+                async (id) =>
                 {
-                    StopRoundTimer(game.Id);
-                    await _hubContext.Group(gameId).SendAsync("round_stop", new
+                    StopRoundTimer(game.Id, round.Number);
+                    await _hubContext.Group(id).SendAsync("round_stop", new
                     {
                         ok = true,
                         reason = "time_over"
@@ -155,18 +156,18 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("round_stop")]
-        public async Task StopRoundAsync(CallStopDto dto)
+        public async Task StopRoundAsync(Guid gameId, Guid userId)
         {
-            await _gameManager.StopRoundAsync(dto.GameId, dto.RoundNumber, dto.UserId, async (game) =>
+            await _gameManager.StopCurrentRoundAsync(gameId, userId, async (game) =>
             {
-                await Clients.Group(dto.GameId).SendAsync("game_stop", new
+                await Clients.Group(gameId).SendAsync("round_stop", new
                 {
                     ok = true,
                     reason = "player_call_stop",
-                    userId = dto.UserId
+                    userId
                 });
 
-                StopRoundTimer(game.Id);
+                StopRoundTimer(game.Id, game.CurrentRound.Number);
             });
         }
 
@@ -218,18 +219,28 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        private void StopRoundTimer(Guid gameId)
+        private void StopRoundTimer(Guid gameId, int roundNumber)
         {
             _gameTimer.StopRoundTimer(gameId);
             _gameTimer.StartSendAnswersTime(gameId, (id, elapsedTime) => { }, async (id) =>
             {
-                await OnSendAnswersTimeOver(id);
+                await OnSendAnswersTimeOver(id, roundNumber);
             });
         }
 
-        private async Task OnSendAnswersTimeOver(Guid gameId)
+        private async Task OnSendAnswersTimeOver(Guid gameId, int roundNumber)
         {
             await _hubContext.Group(gameId).SendAsync("send_answers_time_over");
+
+            var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
+
+            var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, roundNumber);
+            foreach (var connection in gameConnectionsIds)
+            {
+                var defaultPlayerValidations = roundAnswers.BuildValidationsForPlayer(connection.PlayerId).ToList();
+                await _hubContext.Clients.Client(connection.ConnectionId).SendAsync("validation_started", defaultPlayerValidations);
+            }
+
             _gameTimer.StartValidationTimer(gameId, async (id, currentTime) =>
             {
                 await _hubContext.Group(gameId).SendAsync("validation_time_elapsed", new

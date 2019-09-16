@@ -102,7 +102,6 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
         $http.post(API_SETTINGS.uri + '/games.create', $scope.game).then((resp) =>
         {
-            console.log(resp);
             $location.path('/game/' + resp.data.id);
         });
     };

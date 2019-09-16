@@ -93,7 +93,7 @@ namespace WeStop.Api.Managers
             return gameWinners;
         }
 
-        public async Task StopRoundAsync(Guid gameId, int roundNumber, Guid playerId, Action<Game> action)
+        public async Task StopCurrentRoundAsync(Guid gameId, Guid? playerId, Action<Game> action)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             // Alterar o estado da partida e salvar

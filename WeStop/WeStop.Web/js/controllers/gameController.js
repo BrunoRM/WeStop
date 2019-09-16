@@ -14,10 +14,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     function joinGame() {
-        $game.invoke("join", {
-            gameId: $routeParams.id,
-            userId: $rootScope.user.id
-        });
+        $game.invoke("join", $routeParams.id, $rootScope.user.id);
     };
 
     function setGame(game) {
@@ -162,13 +159,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.startRound = () => {
         $scope.changeStatus();
-        $game.invoke('game_start_round', {
-            gameRoomId: $routeParams.id,
-            userId: $rootScope.user.id
-        });
+        $game.invoke('start_round', $routeParams.id);
     };    
 
-    $game.on('game_round_started', data => {
+    $game.on('round_started', data => {
         setSortedLetter(data.sortedLetter);
         startRound();
     });
@@ -205,23 +199,21 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.stop = () => {
 
-        $game.invoke('game_stop', {
-            gameId: $routeParams.id,
-            userId: $rootScope.user.id
-        });
+        $game.invoke('round_stop', $routeParams.id, $rootScope.user.id);
 
     };
 
-    $game.on('game_stop', (resp) => {
+    $game.on('round_stop', (resp) => {
         
         if (resp.reason === 'player_call_stop') {
             //alert(resp.userName + ' chamou STOP!');
         }
-
+        
         stop();
         $game.invoke('send_answers', {
+            playerId: $rootScope.user.id,
             gameId: $routeParams.id,
-            userId: $rootScope.user.id,
+            roundNumber: $scope.game.currentRound,
             answers: $scope.answers
         });
 
@@ -260,11 +252,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         addGameCurrentRoundNumber();
     });    
 
-    $game.on('game_answers_time_elapsed', resp => {
+    $game.on('round_time_elapsed', resp => {
         refreshCurrentAnswersTime(resp);        
     });
 
-    $game.on('validation_for_theme_started', resp => {
+    $game.on('validation_started', resp => {
+        console.log(resp)
         setThemeValidation(resp);
         startValidation();
     });    
