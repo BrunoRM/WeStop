@@ -21,7 +21,6 @@ namespace WeStop.Api.Controllers
 
             return Ok(new
             {
-                ok = true,
                 themes
             });
         }

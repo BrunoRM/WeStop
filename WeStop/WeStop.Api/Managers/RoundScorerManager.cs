@@ -6,9 +6,9 @@ using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Helpers
+namespace WeStop.Api.Managers
 {
-    public sealed class RoundScorer
+    public sealed class RoundScorerManager
     {
         private readonly IGameStorage _gameStorage;
         private readonly IAnswerStorage _answersStorage;
@@ -16,7 +16,7 @@ namespace WeStop.Api.Helpers
         private readonly IPontuationStorage _gamePontuationStorage;
         private readonly ICollection<RoundPontuations> _playersPontuations;
 
-        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, 
+        public RoundScorerManager(IGameStorage gameStorage, IAnswerStorage answersStorage, 
             IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
         {
             _gameStorage = gameStorage;

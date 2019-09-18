@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using WeStop.Api.Domain;
-using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Api.Managers;
 using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
 
@@ -11,23 +11,28 @@ namespace WeStop.UnitTest
     [TestFixture]
     public class RoundScorerTests
     {
+        private UserStorage _userStorage;
+        private PlayerStorage _playerStorage;
         private IGameStorage _gameStorage;
         private IAnswerStorage _answerStorage;
         private IValidationStorage _validationStorage;
         private IPontuationStorage _gamePontuationStorage;
-        private RoundScorer _roundScorer;
+        private GameManager _gameManager;
+        private RoundScorerManager _roundScorerManager;
         private Game _game;
 
         [SetUp]
         public void Setup()
         {
+            _userStorage = new UserStorage();
+            _playerStorage = new PlayerStorage();
             _gameStorage = new GameStorage();
             _answerStorage = new AnswerStorage();
             _validationStorage = new ValidationStorage();
             _gamePontuationStorage = new PontuationStorage();
-            _roundScorer = new RoundScorer(_gameStorage, _answerStorage, _validationStorage, _gamePontuationStorage);
-            _game = TestGame.CreateGame();
-            _gameStorage.AddAsync(_game).Wait();
+            _gameManager = new GameManager(_gameStorage, _userStorage, _answerStorage, _validationStorage, _gamePontuationStorage, _playerStorage);
+            _roundScorerManager = new RoundScorerManager(_gameStorage, _answerStorage, _validationStorage, _gamePontuationStorage);
+            _game = _gameManager.CreateAsync(TestUsers.Dustin.Id, TestGame.Name, TestGame.Password, TestGame.Options).Result;
         }
 
         [Test]
@@ -71,7 +76,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
+            _roundScorerManager.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -126,7 +131,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
+            _roundScorerManager.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -160,7 +165,7 @@ namespace WeStop.UnitTest
             _answerStorage.AddAsync(dustinAnwers).Wait();
             _answerStorage.AddAsync(lucasAnswers).Wait();            
 
-            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
+            _roundScorerManager.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
 
             Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -215,7 +220,7 @@ namespace WeStop.UnitTest
             _validationStorage.AddAsync(dustinValidations).Wait();
             _validationStorage.AddAsync(lucasValidations).Wait();
 
-            _roundScorer.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
+            _roundScorerManager.ProcessCurrentRoundPontuationAsync(_game.Id).Wait();
             var roundPontuations = _gamePontuationStorage.GetPontuationsAsync(_game.Id, 1).Result;
             
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));

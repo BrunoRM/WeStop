@@ -1,8 +1,6 @@
-using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using WeStop.Api.Domain;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Managers;
@@ -28,7 +26,6 @@ namespace WeStop.Api.Controllers
 
             return Ok(new
             {
-                ok = true,
                 id = createdGame.Id
             });
         }
@@ -40,7 +37,6 @@ namespace WeStop.Api.Controllers
 
             return Ok(new
             {
-                ok = true,
                 games = games.Select(g => new 
                 {
                     g.Id,
@@ -50,8 +46,8 @@ namespace WeStop.Api.Controllers
                     g.Options.Rounds,
                     availableLetters = g.Options.AvailableLetters.Keys,
                     g.Options.NumberOfPlayers,
-                    playersInGame = g.Players.Count,
-                    currentRound = g.GetNextRoundNumber()
+                    //playersInGame = g.Players.Count,
+                    currentRound = g.CurrentRoundNumber
                 })
             });
         }

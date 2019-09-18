@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
-using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
@@ -46,7 +45,7 @@ namespace WeStop.Api
             services.AddSingleton<IPontuationStorage, PontuationStorage>();
             services.AddSingleton<IValidationStorage, ValidationStorage>();
             services.AddSingleton<GameManager, GameManager>();
-            services.AddSingleton<RoundScorer, RoundScorer>();
+            services.AddSingleton<RoundScorerManager, RoundScorerManager>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();

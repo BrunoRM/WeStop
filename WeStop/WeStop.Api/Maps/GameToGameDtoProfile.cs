@@ -13,7 +13,7 @@ namespace WeStop.Api.Maps
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.GetCurrentState().ToString("g");
+                        return src.State.ToString("g");
                     });
                 })
                 .ForMember(dst => dst.MaxNumberOfPlayers, config =>
@@ -48,7 +48,7 @@ namespace WeStop.Api.Maps
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.GetCurrentRoundNumber();
+                        return src.CurrentRoundNumber;
                     });
                 });
         }
