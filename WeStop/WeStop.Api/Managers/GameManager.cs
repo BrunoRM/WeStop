@@ -86,19 +86,11 @@ namespace WeStop.Api.Managers
             action?.Invoke(game);
         }
 
-        public async Task AddCurrentRoundAnswersAsync(Guid gameId, Guid playerId, ICollection<Answer> answers)
-        {
-            var currentRoundNumber = await _gameStorage.GetCurrentRoundNumberAsync(gameId);
-            var roundAnswers = new RoundAnswers(gameId, currentRoundNumber, playerId, answers);
+        public async Task AddRoundAnswersAsync(RoundAnswers roundAnswers) =>
             await _answerStorage.AddAsync(roundAnswers);
-        }
 
-        public async Task AddCurrentRoundValidationsAsync(Guid gameId, Guid playerId, ICollection<Validation> validations)
-        {
-            var currentRoundNumber = await _gameStorage.GetCurrentRoundNumberAsync(gameId);
-            var roundValidations = new RoundValidations(gameId, currentRoundNumber, playerId, validations);
+        public async Task AddRoundValidationsAsync(RoundValidations roundValidations) =>
             await _validationStorage.AddAsync(roundValidations);
-        }
 
         public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId)
         {

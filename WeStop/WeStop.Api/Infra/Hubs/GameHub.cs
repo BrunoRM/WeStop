@@ -154,16 +154,16 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("send_answers")]
-        public async Task SendAnswersAsync(Guid gameId, Guid playerId, ICollection<Answer> answers)
+        public async Task SendAnswersAsync(RoundAnswers roundAnswers)
         {
-            await _gameManager.AddCurrentRoundAnswersAsync(gameId, playerId, answers);
+            await _gameManager.AddRoundAnswersAsync(roundAnswers);
             await Clients.Caller.SendAsync("im_send_answers");
         }
 
         [HubMethodName("send_validations")]
-        public async Task SendValidationsAsync(Guid gameId, Guid playerId, ICollection<Validation> validations)
+        public async Task SendValidationsAsync(RoundValidations roundValidations)
         {
-            await _gameManager.AddCurrentRoundValidationsAsync(gameId, playerId, validations);
+            await _gameManager.AddRoundValidationsAsync(roundValidations);
             await Clients.Caller.SendAsync("im_send_validations");
         }
 
