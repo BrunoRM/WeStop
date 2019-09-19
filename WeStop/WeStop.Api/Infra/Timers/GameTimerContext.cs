@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WeStop.Api.Infra.Timers.Default
+namespace WeStop.Api.Infra.Timers
 {
     public class GameTimerContext
     {

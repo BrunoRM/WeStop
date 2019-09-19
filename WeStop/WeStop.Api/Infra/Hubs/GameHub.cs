@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
-using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Infra.Timers.Interfaces;
+using WeStop.Api.Infra.Timers;
 using WeStop.Api.Managers;
 
 namespace WeStop.Api.Infra.Hubs
@@ -17,20 +16,15 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly GameManager _gameManager;
         private readonly PlayerManager _playerManager;
-        private readonly IGameStorage _games;
-        private readonly IAnswerStorage _answersStorage;
-        private readonly IGameTimer _gameTimer;
+        private readonly GameTimer _gameTimer;
         private readonly RoundScorerManager _roundScorer;
         private readonly IMapper _mapper;
 
-        public GameHub(IGameStorage gameStorage, IAnswerStorage answersStorage, 
-            IGameTimer gameTimer, RoundScorerManager roundScorer, IMapper mapper, 
+        public GameHub(GameTimer gameTimer, RoundScorerManager roundScorer, IMapper mapper, 
             GameManager gameManager, PlayerManager playerManager)
         {
             _gameManager = gameManager;
             _playerManager = playerManager;
-            _games = gameStorage;
-            _answersStorage = answersStorage;
             _gameTimer = gameTimer;
             _roundScorer = roundScorer;
             _mapper = mapper;
@@ -69,7 +63,7 @@ namespace WeStop.Api.Infra.Hubs
 
                     case GameState.InProgress:
 
-                        if (player.IsInRound)
+                        if (player.InRound)
                         {
                             await Clients.Caller.SendAsync("im_reconected_game", new
                             {
@@ -81,11 +75,11 @@ namespace WeStop.Api.Infra.Hubs
 
                         break;
 
-                    case GameState.ThemesValidations:
+                    case GameState.Validations:
 
-                        if (player.IsInRound)
+                        if (player.InRound)
                         {
-                            var defaultPlayerValidations = await _gameManager.GetCurrentRoundDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id);
+                            var defaultPlayerValidations = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id);
 
                             if (defaultPlayerValidations.Any())
                             {
@@ -117,7 +111,7 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("start_round")]
         public async Task StartNextRoundAsync(Guid gameId)
         {
-            await _gameManager.StartNextRoundAsync(gameId, async (game) =>
+            await _gameManager.StartRoundAsync(gameId, async (game) =>
             {
                 var round = game.CurrentRound;
 
@@ -145,14 +139,14 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("round_stop")]
-        public async Task StopRoundAsync(Guid gameId, Guid userId)
+        public async Task StopRoundAsync(Guid gameId, Guid playerId)
         {
-            await _gameManager.StopCurrentRoundAsync(gameId, userId, async (game) =>
+            await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
                 await Clients.Group(gameId).SendAsync("round_stop", new
                 {
                     reason = "player_call_stop",
-                    userId
+                    playerId
                 });
 
                 StopRoundTimer(game.Id, game.CurrentRound.Number);
@@ -176,8 +170,6 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("player_change_status")]
         public async Task ChangePlayerStatusAsync(Guid gameId, Guid playerId, bool isReady)
         {
-            var game = await _games.GetByIdAsync(gameId);
-
             await _playerManager.ChangeStatusAsync(gameId, playerId, isReady, async (player) =>
             {
                 await Clients.GroupExcept(gameId.ToString(), Context.ConnectionId).SendAsync("player_changed_status", new
@@ -193,7 +185,6 @@ namespace WeStop.Api.Infra.Hubs
 
                 await Clients.Caller.SendAsync("im_change_status");
             });
-
         }
 
         private void StopRoundTimer(Guid gameId, int roundNumber)
@@ -205,11 +196,15 @@ namespace WeStop.Api.Infra.Hubs
 
                 var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
 
-                var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, roundNumber);
-                foreach (var (ConnectionId, PlayerId) in gameConnectionsIds)
+                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, roundNumber);
+
+                foreach (var (playerId, validations) in playersValidations)
                 {
-                    var defaultPlayerValidations = roundAnswers.BuildValidationsForPlayer(PlayerId).ToList();
-                    await hub.Clients.Client(ConnectionId).SendAsync("validation_started", defaultPlayerValidations);
+                    if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
+                    {
+                        string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
+                        await hub.Clients.Client(connectionId).SendAsync("validation_started", validations);
+                    }
                 }
 
                 _gameTimer.StartValidationTimer(gameId, async (gId, currentTime, hubContext) =>
@@ -220,8 +215,8 @@ namespace WeStop.Api.Infra.Hubs
                     });
                 }, async (gId, hubContext) =>
                 {
-                    await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-                    await _gameManager.FinishCurrentRoundAsync(gameId, async (roundPontuation) =>
+                    await _gameManager.FinishCurrentRoundAsync(gId);
+                    await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId, async (roundPontuation) =>
                     {
                         await hubContext.Group(gameId).SendAsync("round_finished", new
                         {

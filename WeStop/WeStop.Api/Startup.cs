@@ -8,8 +8,7 @@ using System;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Infra.Timers.Default;
-using WeStop.Api.Infra.Timers.Interfaces;
+using WeStop.Api.Infra.Timers;
 using WeStop.Api.Managers;
 
 namespace WeStop.Api
@@ -44,12 +43,12 @@ namespace WeStop.Api
             services.AddSingleton<IAnswerStorage, AnswerStorage>();
             services.AddSingleton<IPontuationStorage, PontuationStorage>();
             services.AddSingleton<IValidationStorage, ValidationStorage>();
-            services.AddSingleton<GameManager, GameManager>();
-            services.AddSingleton<RoundScorerManager, RoundScorerManager>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
-            services.AddScoped<IGameTimer, GameTimer>();
+            services.AddSingleton<GameManager, GameManager>();
+            services.AddSingleton<RoundScorerManager, RoundScorerManager>();
+            services.AddScoped<GameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
             services.AddAutoMapper(assembly);

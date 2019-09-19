@@ -14,10 +14,10 @@ namespace WeStop.UnitTest.Helpers
         private ICollection<Validation> _validAnswers = new List<Validation>();
         private ICollection<Validation> _invalidAnswers = new List<Validation>();
 
-        public PlayerValidationsBuilder(Guid gameId, int roundNumber)
+        public PlayerValidationsBuilder(Game game)
         {
-            _gameId = gameId;
-            _roundNumber = roundNumber;
+            _gameId = game.Id;
+            _roundNumber = game.CurrentRound.Number;
         }
 
         public PlayerValidationsBuilder ForPlayer(User user)

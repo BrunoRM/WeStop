@@ -17,7 +17,7 @@ namespace WeStop.Api.Managers
         public async Task ChangeStatusAsync(Guid gameId, Guid playerId, bool isReady, Action<Player> action)
         {
             var player = await _playerStorage.GetAsync(gameId, playerId);
-            player.ChangeStatus(isReady);
+            player.IsReady = isReady;
 
             await _playerStorage.UpdateAsync(player);
             action?.Invoke(player);

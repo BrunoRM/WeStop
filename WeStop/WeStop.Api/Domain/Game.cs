@@ -64,8 +64,8 @@ namespace WeStop.Api.Domain
         public bool IsFinalRound() =>
             CurrentRound?.Number == Options.Rounds;
 
-        public void BeginCurrentRoundThemesValidations() =>
-            State = GameState.ThemesValidations;
+        public void StartValidations() =>
+            State = GameState.Validations;
 
         public void FinishRound() =>
             State = GameState.Waiting;

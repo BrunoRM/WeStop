@@ -3,14 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using WeStop.Api.Infra.Hubs;
-using WeStop.Api.Infra.Timers.Interfaces;
 
-namespace WeStop.Api.Infra.Timers.Default
+namespace WeStop.Api.Infra.Timers
 {
-    public sealed class GameTimer : IGameTimer
-    {
-        private const int SEND_ANSWERS_LIMIT_TIME = 3;
-        private const int VALIDATION_LIMIT_TIME = 45;
+    public sealed class GameTimer
+    {        
         private static readonly Dictionary<Guid, Timer> _timers = new Dictionary<Guid, Timer>();
         private readonly IHubContext<GameHub> _gameHub;
 
@@ -21,7 +18,7 @@ namespace WeStop.Api.Infra.Timers.Default
 
         public void StartSendAnswersTimer(Guid gameId, Action<Guid, int, IHubContext<GameHub>> onTimeElapsedAction, Action<Guid, IHubContext<GameHub>> onTimeOverAction)
         {
-            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, SEND_ANSWERS_LIMIT_TIME);
+            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, Consts.SEND_ANSWERS_LIMIT_TIME);
             Timer sendAnswersTimer = new Timer((context) =>
             {
                 GameTimerContext timerContext = (GameTimerContext)context;
@@ -96,11 +93,11 @@ namespace WeStop.Api.Infra.Timers.Default
 
         public void StartValidationTimer(Guid gameId, Action<Guid, int, IHubContext<GameHub>> onTimeElapsed, Action<Guid, IHubContext<GameHub>> onTimeOver)
         {
-            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, VALIDATION_LIMIT_TIME);
+            GameTimerContext gameTimerContext = CreateGameTimerContext(gameId, Consts.VALIDATION_LIMIT_TIME);
             Timer validationTimer = new Timer((context) =>
             {
                 GameTimerContext timerContext = (GameTimerContext)context;
-                if (timerContext.ElapsedTime >= VALIDATION_LIMIT_TIME)
+                if (timerContext.ElapsedTime >= Consts.VALIDATION_LIMIT_TIME)
                 {
                     onTimeOver?.Invoke(timerContext.GameId, _gameHub);
                 }

@@ -4,7 +4,7 @@
     {
         Waiting,
         InProgress,
-        ThemesValidations,
+        Validations,
         Finished
     }
 }

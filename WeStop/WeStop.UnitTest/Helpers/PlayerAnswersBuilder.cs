@@ -11,10 +11,10 @@ namespace WeStop.UnitTest.Helpers
         private readonly Guid _gameId;
         private ICollection<Answer> _answers;
         
-        public PlayerAnswersBuilder(Guid gameId, int roundNumber)
+        public PlayerAnswersBuilder(Game game)
         {
-            _gameId = gameId;
-            _roundNumber = roundNumber;
+            _gameId = game.Id;
+            _roundNumber = game.CurrentRound.Number;
             _answers = new List<Answer>();
         }
 
