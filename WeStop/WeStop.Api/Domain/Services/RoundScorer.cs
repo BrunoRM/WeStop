@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Managers
+namespace WeStop.Api.Domain.Services
 {
-    public sealed class RoundScorerManager
+    public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;
         private readonly IAnswerStorage _answersStorage;
@@ -16,7 +15,7 @@ namespace WeStop.Api.Managers
         private readonly IPontuationStorage _gamePontuationStorage;
         private readonly ICollection<RoundPontuations> _playersPontuations;
 
-        public RoundScorerManager(IGameStorage gameStorage, IAnswerStorage answersStorage, 
+        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, 
             IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
         {
             _gameStorage = gameStorage;
@@ -26,7 +25,7 @@ namespace WeStop.Api.Managers
             _playersPontuations = new List<RoundPontuations>();
         }
 
-        public async Task ProcessCurrentRoundPontuationAsync(Guid gameId, Action<ICollection<RoundPontuations>> action)
+        public async Task<ICollection<RoundPontuations>> ProcessCurrentRoundPontuationAsync(Guid gameId)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             var currentRoundNumber = game.CurrentRound.Number;
@@ -72,7 +71,7 @@ namespace WeStop.Api.Managers
             }
 
             await SavePlayersPontuations();
-            action?.Invoke(_playersPontuations);
+            return _playersPontuations;
         }
 
         private async Task SavePlayersPontuations()

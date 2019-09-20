@@ -34,7 +34,7 @@ namespace WeStop.Api.Maps
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.Options.Time;
+                        return src.Options.RoundTime;
                     });
                 })
                 .ForMember(dst => dst.Themes, config =>

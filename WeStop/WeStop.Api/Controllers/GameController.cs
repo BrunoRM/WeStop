@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Api.Infra.Timers;
 using WeStop.Api.Managers;
 
 namespace WeStop.Api.Controllers
@@ -12,17 +13,22 @@ namespace WeStop.Api.Controllers
     {
         private readonly IGameStorage _gameStorage;
         private readonly GameManager _gameManager;
+        private readonly GamesTimers _gamesTimers;
 
-        public GameController(IGameStorage gameStorage, GameManager gameManager)
+        public GameController(IGameStorage gameStorage, GameManager gameManager,
+            GamesTimers gamesTimers)
         {
             _gameStorage = gameStorage;
             _gameManager = gameManager;
+            _gamesTimers = gamesTimers;
         }
 
         [Route("api/games.create"), HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody]CreateGameDto dto)
         {
             var createdGame = await _gameManager.CreateAsync(dto.UserId, dto.Name, "", dto.GameOptions);
+
+            _gamesTimers.Register(createdGame.Id, createdGame.Options.RoundTime);
 
             return Ok(new
             {

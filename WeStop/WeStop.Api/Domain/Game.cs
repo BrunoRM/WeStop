@@ -27,7 +27,7 @@ namespace WeStop.Api.Domain
         public Round CurrentRound => Rounds.First(r => r.Number == CurrentRoundNumber);
         public ICollection<Round> Rounds { get; private set; }
 
-        public void StartNextRound()
+        public Round StartNextRound()
         {
             if (IsFinalRound())
                 throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
@@ -35,13 +35,14 @@ namespace WeStop.Api.Domain
             var newRound = CreateNewRound();
             Rounds.Add(newRound);
             State = GameState.InProgress;
+            return newRound;
         }
 
         private Round CreateNewRound()
         {
             int nextRoundNumber = CurrentRoundNumber;
             string drawnLetter = SortOutLetter();
-            var newRound = new Round(nextRoundNumber, drawnLetter);
+            var newRound = new Round(this.Id, nextRoundNumber, drawnLetter);
 
             Rounds.Add(newRound);
             return newRound;

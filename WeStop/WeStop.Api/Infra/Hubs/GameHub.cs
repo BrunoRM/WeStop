@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
+using WeStop.Api.Domain.Services;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;
@@ -16,11 +16,11 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly GameManager _gameManager;
         private readonly PlayerManager _playerManager;
-        private readonly GameTimer _gameTimer;
-        private readonly RoundScorerManager _roundScorer;
+        private readonly GamesTimers _gameTimer;
+        private readonly RoundScorer _roundScorer;
         private readonly IMapper _mapper;
 
-        public GameHub(GameTimer gameTimer, RoundScorerManager roundScorer, IMapper mapper, 
+        public GameHub(GamesTimers gameTimer, RoundScorer roundScorer, IMapper mapper, 
             GameManager gameManager, PlayerManager playerManager)
         {
             _gameManager = gameManager;
@@ -111,25 +111,22 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("start_round")]
         public async Task StartNextRoundAsync(Guid gameId)
         {
-            await _gameManager.StartRoundAsync(gameId, async (game) =>
+            await _gameManager.StartRoundAsync(gameId, async (createdRound) =>
             {
-                var round = game.CurrentRound;
-
                 IClientProxy connectionGroup = Clients.Group(gameId.ToString());
                 await connectionGroup.SendAsync("round_started", new
                 {
-                    roundNumber = round.Number,
-                    sortedLetter = round.SortedLetter
+                    roundNumber = createdRound.Number,
+                    sortedLetter = createdRound.SortedLetter
                 });
 
-                int limitTime = game.Options.Time;
-                _gameTimer.StartRoundTimer(game.Id, limitTime, async (id, currentTime, hub) =>
+                _gameTimer.StartRoundTimer(gameId, createdRound.Number, async (id, currentTime, hub) =>
                 {
                     await hub.Group(id).SendAsync("round_time_elapsed", currentTime);
                 },
                 async (id, hub) =>
                 {
-                    StopRoundTimer(game.Id, round.Number);
+                    StopRoundTimer(gameId, createdRound.Number);
                     await hub.Group(id).SendAsync("round_stop", new
                     {
                         reason = "time_over"
@@ -190,7 +187,7 @@ namespace WeStop.Api.Infra.Hubs
         private void StopRoundTimer(Guid gameId, int roundNumber)
         {
             _gameTimer.StopRoundTimer(gameId);
-            _gameTimer.StartSendAnswersTimer(gameId, (id, elapsedTime, hub) => { }, async (id, hub) =>
+            _gameTimer.StartSendAnswersTimer(gameId, roundNumber, (id, elapsedTime, hub) => { }, async (id, hub) =>
             {
                 await hub.Group(gameId).SendAsync("send_answers_time_over");
 
@@ -207,7 +204,7 @@ namespace WeStop.Api.Infra.Hubs
                     }
                 }
 
-                _gameTimer.StartValidationTimer(gameId, async (gId, currentTime, hubContext) =>
+                _gameTimer.StartValidationTimer(gameId, roundNumber, async (gId, currentTime, hubContext) =>
                 {
                     await hubContext.Group(gameId).SendAsync("validation_time_elapsed", new
                     {
@@ -216,12 +213,11 @@ namespace WeStop.Api.Infra.Hubs
                 }, async (gId, hubContext) =>
                 {
                     await _gameManager.FinishCurrentRoundAsync(gId);
-                    await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId, async (roundPontuation) =>
+
+                    var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
+                    await hubContext.Group(gameId).SendAsync("round_finished", new
                     {
-                        await hubContext.Group(gameId).SendAsync("round_finished", new
-                        {
-                            scoreboard = roundPontuation
-                        });
+                        scoreboard = roundPontuation
                     });
                 });
             });

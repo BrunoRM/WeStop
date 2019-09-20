@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Api.Infra.Timers;
 
 namespace WeStop.Api.Managers
 {
@@ -43,7 +44,7 @@ namespace WeStop.Api.Managers
 
             var player = Player.CreateAsAdmin(game.Id, user);
             await _playerStorage.AddAsync(player);
-
+            
             return game;
         }
 
@@ -69,7 +70,7 @@ namespace WeStop.Api.Managers
             action?.Invoke(game, player);
         }
 
-        public async Task StartRoundAsync(Guid gameId, Action<Game> action)
+        public async Task StartRoundAsync(Guid gameId, Action<Round> action)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
 
@@ -80,10 +81,10 @@ namespace WeStop.Api.Managers
                 await _playerStorage.UpdateAsync(player);
             }
 
-            game.StartNextRound();
+            var createdRound = game.StartNextRound();
             await _gameStorage.UpdateAsync(game);
 
-            action?.Invoke(game);
+            action?.Invoke(createdRound);
         }
 
         public async Task AddRoundAnswersAsync(RoundAnswers roundAnswers) =>

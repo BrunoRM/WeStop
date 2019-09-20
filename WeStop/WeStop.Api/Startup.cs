@@ -1,15 +1,10 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
+using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Hubs;
-using WeStop.Api.Infra.Storages.InMemory;
-using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Infra.Timers;
-using WeStop.Api.Managers;
 
 namespace WeStop.Api
 {
@@ -40,18 +35,7 @@ namespace WeStop.Api
                         .AllowCredentials();
                 }));
 
-            services.AddSingleton<IAnswerStorage, AnswerStorage>();
-            services.AddSingleton<IPontuationStorage, PontuationStorage>();
-            services.AddSingleton<IValidationStorage, ValidationStorage>();
-            services.AddSingleton<IThemeStorage, ThemeStorage>();
-            services.AddSingleton<IUserStorage, UserStorage>();
-            services.AddSingleton<IGameStorage, GameStorage>();
-            services.AddSingleton<GameManager, GameManager>();
-            services.AddSingleton<RoundScorerManager, RoundScorerManager>();
-            services.AddScoped<GameTimer, GameTimer>();
-
-            var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
-            services.AddAutoMapper(assembly);
+            services.ConfigureDependencies();
 
             services.AddSignalR();
         }
