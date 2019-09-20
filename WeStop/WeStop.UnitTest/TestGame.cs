@@ -10,5 +10,7 @@ namespace WeStop.UnitTest
 
         public static GameOptions Options = new GameOptions(new string[] { "Nome", "CEP", "FDS" },
                 new string[] { "A", "B", "C" }, 3, 3, 30);
+
+        public static Game Game => new Game(Name, Password, Options);
     }
 }
