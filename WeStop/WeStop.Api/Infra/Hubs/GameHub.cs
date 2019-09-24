@@ -17,16 +17,14 @@ namespace WeStop.Api.Infra.Hubs
         private readonly GameManager _gameManager;
         private readonly PlayerManager _playerManager;
         private readonly GamesTimers _gameTimer;
-        private readonly RoundScorer _roundScorer;
         private readonly IMapper _mapper;
 
-        public GameHub(GamesTimers gameTimer, RoundScorer roundScorer, IMapper mapper, 
+        public GameHub(GamesTimers gameTimer, IMapper mapper, 
             GameManager gameManager, PlayerManager playerManager)
         {
             _gameManager = gameManager;
             _playerManager = playerManager;
             _gameTimer = gameTimer;
-            _roundScorer = roundScorer;
             _mapper = mapper;
         }
 
@@ -120,18 +118,7 @@ namespace WeStop.Api.Infra.Hubs
                     sortedLetter = createdRound.SortedLetter
                 });
 
-                _gameTimer.StartRoundTimer(gameId, createdRound.Number, async (id, currentTime, hub) =>
-                {
-                    await hub.Group(id).SendAsync("round_time_elapsed", currentTime);
-                },
-                async (id, hub) =>
-                {
-                    StopRoundTimer(gameId, createdRound.Number);
-                    await hub.Group(id).SendAsync("round_stop", new
-                    {
-                        reason = "time_over"
-                    });
-                });
+                _gameTimer.StartRoundTimer(gameId, createdRound.Number);
             });
         }
 
@@ -146,7 +133,7 @@ namespace WeStop.Api.Infra.Hubs
                     playerId
                 });
 
-                StopRoundTimer(game.Id, game.CurrentRound.Number);
+                _gameTimer.StopRoundTimer(gameId);
             });
         }
 
@@ -181,45 +168,6 @@ namespace WeStop.Api.Infra.Hubs
                 });
 
                 await Clients.Caller.SendAsync("im_change_status");
-            });
-        }
-
-        private void StopRoundTimer(Guid gameId, int roundNumber)
-        {
-            _gameTimer.StopRoundTimer(gameId);
-            _gameTimer.StartSendAnswersTimer(gameId, roundNumber, (id, elapsedTime, hub) => { }, async (id, hub) =>
-            {
-                await hub.Group(gameId).SendAsync("send_answers_time_over");
-
-                var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
-
-                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, roundNumber);
-
-                foreach (var (playerId, validations) in playersValidations)
-                {
-                    if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
-                    {
-                        string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
-                        await hub.Clients.Client(connectionId).SendAsync("validation_started", validations);
-                    }
-                }
-
-                _gameTimer.StartValidationTimer(gameId, roundNumber, async (gId, currentTime, hubContext) =>
-                {
-                    await hubContext.Group(gameId).SendAsync("validation_time_elapsed", new
-                    {
-                        currentTime
-                    });
-                }, async (gId, hubContext) =>
-                {
-                    await _gameManager.FinishCurrentRoundAsync(gId);
-
-                    var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-                    await hubContext.Group(gameId).SendAsync("round_finished", new
-                    {
-                        scoreboard = roundPontuation
-                    });
-                });
             });
         }
     }
