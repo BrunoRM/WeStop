@@ -44,6 +44,7 @@ namespace WeStop.Api.Managers
 
             var player = Player.CreateAsAdmin(game.Id, user);
             await _playerStorage.AddAsync(player);
+            game.Players.Add(player);
             
             return game;
         }
@@ -65,6 +66,7 @@ namespace WeStop.Api.Managers
                 var user = await _userStorage.GetByIdAsync(userId);
                 player = Player.Create(gameId, user);
                 await _playerStorage.AddAsync(player);
+                game.Players.Add(player);
             }
 
             action?.Invoke(game, player);
@@ -161,6 +163,20 @@ namespace WeStop.Api.Managers
             var game = await _gameStorage.GetByIdAsync(gameId);
             game.Finish();
             await _gameStorage.UpdateAsync(game);
+        }
+
+        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            var validations = await _validationStorage.GetValidationsAsync(gameId, game.CurrentRoundNumber);
+
+            foreach (var player in game.Players)
+            {
+                if (player.InRound && !validations.Any(v => v.PlayerId == player.Id))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

@@ -18,8 +18,10 @@ namespace WeStop.Api.Extensions
             services.AddSingleton<IValidationStorage, ValidationStorage>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IUserStorage, UserStorage>();
+            services.AddSingleton<IPlayerStorage, PlayerStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
             services.AddSingleton<GameManager, GameManager>();
+            services.AddSingleton<PlayerManager, PlayerManager>();
             services.AddSingleton<RoundScorer, RoundScorer>();
             services.AddScoped<GamesTimers, GamesTimers>();
 

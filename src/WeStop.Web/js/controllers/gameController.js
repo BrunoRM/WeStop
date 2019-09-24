@@ -127,6 +127,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $game.on("im_joined_game", (data) => {
+        console.log(data)
         setGame(data.game);
         setPlayer(data.player);
         checkAllPlayersReady();   
@@ -139,8 +140,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         startRound();
 
         switch (resp.game.state) {
-            case "InProgress":
-                break;
             case "ThemesValidations":
                 if (resp.validated) {
                     cleanThemeValidations();
@@ -181,17 +180,18 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.changeStatus = () => {
 
-        $game.invoke('player_change_status', {
-            gameId: $routeParams.id,
-            userId: $rootScope.user.id,
-            isReady: !$scope.player.isReady
-        });
+        $game.invoke('player_change_status', 
+            $routeParams.id,
+            $rootScope.user.id,
+            !$scope.player.isReady
+        );
 
         let player = getPlayer($scope.player.id);
         $scope.player.isReady = player.isReady = !$scope.player.isReady;
     };    
     
-    $game.on('player_status_changed', resp => {
+    $game.on('player_changed_status', resp => {
+        console.log(resp)
         let player = getPlayer(resp.player.id);
         player.isReady = resp.player.isReady;
         checkAllPlayersReady();

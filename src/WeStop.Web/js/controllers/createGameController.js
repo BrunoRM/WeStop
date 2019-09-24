@@ -6,9 +6,14 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
         resp.data.themes.forEach(theme => {
             $scope.themes.push({
                 name: theme.name,
-                enabled: true
+                enabled: false
             })
         }); 
+
+        for (let i = 0; i < 3; i++) {
+            let randonNumber = Math.floor(Math.random() * $scope.themes.length);
+            $scope.themes[randonNumber].enabled = true;
+        }
     });
 
     $scope.themeToAdd = {};

@@ -13,8 +13,9 @@ namespace WeStop.Api.Domain
             Name = name;
             Password = password;
             Options = options;
-            Rounds = new List<Round>();
             State = GameState.Waiting;
+            Rounds = new List<Round>();
+            Players = new List<Player>();
         }
 
         public Guid Id { get; private set; }
@@ -27,6 +28,7 @@ namespace WeStop.Api.Domain
         public Round CurrentRound => Rounds.LastOrDefault();
         public int CurrentRoundNumber => CurrentRound?.Number ?? 1;
         public ICollection<Round> Rounds { get; private set; }
+        public ICollection<Player> Players { get; set; }
 
         public Round StartNextRound()
         {

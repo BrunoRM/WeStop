@@ -34,11 +34,15 @@ namespace WeStop.Api.Infra.Hubs
         {
             if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out Guid? gameId, out Guid? playerId))
             {
+                // The player don't necessarily are disconected, this will be changed for us let know
+                // when player really left game or just refreshed.
+
+                // await Clients.Group(gameId.ToString()).SendAsync("player_left", new
+                // {
+                //     id = playerId
+                // });
+
                 await base.OnDisconnectedAsync(exception);
-                await Clients.Group(gameId.ToString()).SendAsync("player_left", new
-                {
-                    id = playerId
-                });
             }
         }
 
@@ -47,7 +51,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _gameManager.JoinAsync(gameId, userId, async (game, player) =>
             {
-                ConnectionBinding.BindConnectionId(Context.ConnectionId, userId, game.Id);
+                ConnectionBinding.BindConnectionId(Context.ConnectionId, userId, gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
                 switch (game.State)
@@ -168,6 +172,12 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _gameManager.AddRoundValidationsAsync(roundValidations);
             await Clients.Caller.SendAsync("im_send_validations");
+
+            var gameId = roundValidations.GameId;
+            if (await _gameManager.AllPlayersSendValidationsAsync(gameId))
+            {
+                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended");
+            }
         }
 
         [HubMethodName("player_change_status")]
