@@ -54,7 +54,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
             availableLetters: [],
             rounds: "4",
             numberOfPlayers: "6",
-            time: "30"
+            roundTime: "30"
         }
     };
 

@@ -132,12 +132,12 @@ namespace WeStop.Api.Infra.Hubs
             });
         }
 
-        [HubMethodName("round_stop")]
+        [HubMethodName("stop_round")]
         public async Task StopRoundAsync(Guid gameId, Guid playerId)
         {
             await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
-                await Clients.Group(gameId).SendAsync("round_stop", new
+                await Clients.Group(gameId).SendAsync("round_stoped", new
                 {
                     reason = "player_call_stop",
                     playerId

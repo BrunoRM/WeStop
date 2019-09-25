@@ -199,11 +199,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.stop = () => {
 
-        $game.invoke('round_stop', $routeParams.id, $rootScope.user.id);
+        $game.invoke('stop_round', $routeParams.id, $rootScope.user.id);
 
     };
 
-    $game.on('round_stop', (resp) => {
+    $game.on('round_stoped', (resp) => {
         
         if (resp.reason === 'player_call_stop') {
             //alert(resp.userName + ' chamou STOP!');
@@ -253,11 +253,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('round_time_elapsed', resp => {
+        console.log(resp);
         refreshCurrentAnswersTime(resp);        
     });
 
     $game.on('validation_started', resp => {
-        console.log(resp)
         setThemeValidation(resp);
         startValidation();
     });    

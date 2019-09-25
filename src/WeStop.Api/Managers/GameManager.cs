@@ -110,9 +110,10 @@ namespace WeStop.Api.Managers
             return new List<Validation>();
         }
 
-        public async Task<ICollection<(Guid playerId, ICollection<Validation> validations)>> GetPlayersDefaultValidationsAsync(Guid gameId, int roundNumber)
+        public async Task<ICollection<(Guid playerId, ICollection<Validation> validations)>> GetPlayersDefaultValidationsAsync(Guid gameId)
         {
-            var answers = await _answerStorage.GetPlayersAnswersAsync(gameId, roundNumber);
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            var answers = await _answerStorage.GetPlayersAnswersAsync(gameId, game.CurrentRoundNumber);
 
             var players = await _playerStorage.GetPlayersAsync(gameId);
 
