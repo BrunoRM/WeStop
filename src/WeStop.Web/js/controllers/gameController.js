@@ -127,7 +127,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $game.on("im_joined_game", (data) => {
-        console.log(data)
         setGame(data.game);
         setPlayer(data.player);
         checkAllPlayersReady();   
@@ -191,7 +190,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };    
     
     $game.on('player_changed_status', resp => {
-        console.log(resp)
         let player = getPlayer(resp.player.id);
         player.isReady = resp.player.isReady;
         checkAllPlayersReady();
@@ -253,11 +251,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('round_time_elapsed', resp => {
-        console.log(resp);
         refreshCurrentAnswersTime(resp);        
     });
 
     $game.on('validation_started', resp => {
+        console.log(resp);
         setThemeValidation(resp);
         startValidation();
     });    

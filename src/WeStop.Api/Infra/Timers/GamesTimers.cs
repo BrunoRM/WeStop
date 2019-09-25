@@ -163,7 +163,7 @@ namespace WeStop.Api.Infra.Timers
                 {
                     OnValidationTimeElapsed(gameId, ++timerContext.ElapsedTime, _gameHub);
                 }
-            }, gameTimerContext, 1000, 1000);
+            }, gameTimerContext, 3000, 1000);
 
             AddOrUpdateGameTimer(gameId, validationTimer);
         }
@@ -182,14 +182,16 @@ namespace WeStop.Api.Infra.Timers
             if (_timers.ContainsKey(gameId))
             {
                 RemoveGameTimer(gameId);
-                _timers[gameId] = timer;
             }
+
+            _timers[gameId] = timer;
         }
 
         private void RemoveGameTimer(Guid gameId)
         {
             if (_timers.ContainsKey(gameId))
             {
+                System.Console.WriteLine($"Caiu na eliminação do timer {gameId}");
                 _timers[gameId]?.Change(Timeout.Infinite, Timeout.Infinite);
                 _timers[gameId]?.Dispose();
                 _timers[gameId] = null;
