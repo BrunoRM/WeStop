@@ -16,10 +16,10 @@ namespace WeStop.Api.Infra.Hubs
     {
         private readonly GameManager _gameManager;
         private readonly PlayerManager _playerManager;
-        private readonly GamesTimers _gameTimer;
+        private readonly GameTimer _gameTimer;
         private readonly IMapper _mapper;
 
-        public GameHub(GamesTimers gameTimer, IMapper mapper, 
+        public GameHub(GameTimer gameTimer, IMapper mapper, 
             GameManager gameManager, PlayerManager playerManager)
         {
             _gameManager = gameManager;
@@ -128,7 +128,7 @@ namespace WeStop.Api.Infra.Hubs
                     sortedLetter = createdRound.SortedLetter
                 });
 
-                _gameTimer.StartRoundTimer(gameId, createdRound.Number);
+                _gameTimer.StartRoundTimer(gameId);
             });
         }
 

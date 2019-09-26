@@ -261,6 +261,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('validation_time_elapsed', resp => {
+        console.log(resp);
         refreshCurrentValidationTime(resp);
     });
 

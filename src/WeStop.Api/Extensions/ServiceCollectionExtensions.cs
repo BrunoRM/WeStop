@@ -23,7 +23,7 @@ namespace WeStop.Api.Extensions
             services.AddSingleton<GameManager, GameManager>();
             services.AddSingleton<PlayerManager, PlayerManager>();
             services.AddSingleton<RoundScorer, RoundScorer>();
-            services.AddSingleton<GamesTimers, GamesTimers>();
+            services.AddSingleton<GameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
             services.AddAutoMapper(assembly);

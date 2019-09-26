@@ -13,10 +13,10 @@ namespace WeStop.Api.Controllers
     {
         private readonly IGameStorage _gameStorage;
         private readonly GameManager _gameManager;
-        private readonly GamesTimers _gamesTimers;
+        private readonly GameTimer _gamesTimers;
 
         public GameController(IGameStorage gameStorage, GameManager gameManager,
-            GamesTimers gamesTimers)
+            GameTimer gamesTimers)
         {
             _gameStorage = gameStorage;
             _gameManager = gameManager;
