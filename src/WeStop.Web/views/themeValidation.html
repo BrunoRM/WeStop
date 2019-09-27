@@ -1,4 +1,4 @@
-<div ng-if="themeValidations">
+<div ng-if="currentValidation">
 
     <span class="nes-text is-warning">Valide as respostas dos outros jogadores</span>
 
@@ -8,7 +8,8 @@
 
     <br />
 
-    <h4>Tema: {{currentValidation.theme}}</h2>
+    <h4>Tema: {{currentValidation.theme}}</h4>
+    <p>Tema {{validationIndex + 1}} de {{groupedValidations.length}}</p>
     <div class="form-row">
         <div class="form-group col-6 col-md-4" ng-repeat="validation in currentValidation.validations">
 
@@ -18,12 +19,13 @@
             </label>
 
             <div class="row">
-                <button class="nes-btn is-success" ng-click="validate(themeValidations)">Voltar</button>
-                <button ng-if="" class="nes-btn is-success" ng-click="validate(themeValidations)">Próximo</button>
+                <button ng-if="validationIndex > 0" class="nes-btn is-success" ng-click="goToPreviousValidation()">Voltar</button>
+                <button ng-if="validationIndex >= 0 && validationIndex < groupedValidations.length - 1" class="nes-btn is-success" ng-click="goToNextValidation()">Próximo</button>
+                <button ng-if="validationIndex === groupedValidations.length - 1" class="nes-btn is-success" ng-click="finishValidation()">Finalizar</button>
             </div>
 
         </div>
     </div>
 </div>
 
-<p class="nes-text is-warning" ng-if="!themeValidations">Aguardando validação dos outros jogadores...</p>
+<p class="nes-text is-warning" ng-if="!currentValidation">Aguardando validação dos outros jogadores...</p>

@@ -100,10 +100,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.winners = winners;
     }
 
-    function setThemeValidation(themeValidation) {
-        $scope.themeValidations = themeValidation;
-    }
-
     function setSortedLetter(letter) {
         $scope.sortedLetter = letter;
     }
@@ -216,17 +212,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         });
 
     });
-
-    $scope.validate = (answersValidations) => {
-
-        let obj = {
-            gameId: $routeParams.id,
-            userId: $rootScope.user.id,
-            validation: answersValidations
-        }
-
-        $game.invoke('send_validations', obj);
-    };
     
     $game.on('im_send_validations', data => {
         cleanThemeValidations();
@@ -253,18 +238,17 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('round_time_elapsed', resp => {
         refreshCurrentAnswersTime(resp);        
     });
-    
-    $scope.groupedValidations = [];
-    $game.on('validation_started', resp => {
 
-        let validations = resp;
+    function groupValidations(validations) {
+
+        let groupedValidations = [];
 
         for (let i = 0; i < validations.length; i++) {
             let validation = validations[i];
-            if ($scope.groupedValidations.some(v => v.theme === validation.answer.theme)) {
-                $scope.groupedValidations.find(v => v.theme === validation.answer.theme).validations.push(validation);
+            if (groupedValidations.some(v => v.theme === validation.answer.theme)) {
+                groupedValidations.find(v => v.theme === validation.answer.theme).validations.push(validation);
             } else {
-                $scope.groupedValidations.push({
+                groupedValidations.push({
                     theme: validation.answer.theme,
                     validations: [
                         validation
@@ -272,17 +256,66 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 });
             }
         }
+        
+        return groupedValidations;
+    };
 
-        $scope.selectedIndex = 0;
-        $scope.currentValidation = $scope.groupedValidations[$scope.selectedIndex];
-
-        setThemeValidation(resp);
+    function setCurrentValidationTo(number) {
+        $scope.currentValidation = $scope.groupedValidations[number];
+    };
+    
+    $scope.groupedValidations = [];
+    $scope.validationIndex = 0;
+    $game.on('validation_started', resp => {
+        $scope.groupedValidations = groupValidations(resp);
+        setCurrentValidationTo($scope.validationIndex);
         startValidation();
     });    
 
     $game.on('validation_time_elapsed', resp => {
         refreshCurrentValidationTime(resp.currentTime);
     });
+
+    $scope.goToNextValidation = function () {
+        if (hasMoreValidations()) {
+            setCurrentValidationTo(++$scope.validationIndex);
+        }
+    };
+
+    function hasMoreValidations () {
+        return $scope.validationIndex < $scope.groupedValidations.length - 1;
+    };
+
+    $scope.goToPreviousValidation = function () {
+        if (hasPreviousValidations()) {
+            setCurrentValidationTo(--$scope.validationIndex);
+        }
+    };
+
+    function hasPreviousValidations () {
+        return $scope.validationIndex > 0;
+    };
+
+    $scope.finishValidation = function () {
+        
+        let validations = [];
+        for (let i = 0; i < $scope.groupedValidations.length; i++) {
+            for (let j = 0; j < $scope.groupedValidations[i].validations.length; j++) {
+                validations.push($scope.groupedValidations[i].validations[j]);
+            }
+        }
+
+        console.log(validations);
+
+        let data = {
+            gameId: $routeParams.id,
+            playerId: $rootScope.user.id,
+            roundNumber: $scope.game.currentRound,
+            validations: validations
+        }
+
+        $game.invoke('send_validations', data);
+    };
 
     init();
     joinGame();
