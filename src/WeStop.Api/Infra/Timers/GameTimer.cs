@@ -36,8 +36,6 @@ namespace WeStop.Api.Infra.Timers
 
             OnRoundTimeOver += async (gameId, hub) =>
             {
-                StopRoundTimer(gameId);
-
                 await hub.Clients.Group(gameId.ToString()).SendAsync("round_stop", new
                 {
                     reason = "time_over"
@@ -48,8 +46,6 @@ namespace WeStop.Api.Infra.Timers
 
             OnSendAnswersTimeOver += async (gameId, hub) =>
             {
-                RemoveGameTimer(gameId);
-
                 var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
 
                 var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId);
@@ -76,8 +72,6 @@ namespace WeStop.Api.Infra.Timers
 
             OnValidationTimeOver += async (gameId, hubContext) =>
             {
-                RemoveGameTimer(gameId);
-
                 await _gameManager.FinishCurrentRoundAsync(gameId);
 
                 var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
@@ -109,7 +103,8 @@ namespace WeStop.Api.Infra.Timers
             {
                 var roundTimerContext = (TimerContext)context;
                 if (roundTimerContext.ElapsedTime >= roundTimerContext.LimitTime)
-                {                    
+                {              
+                    RemoveGameTimer(gameId);      
                     OnRoundTimeOver(gameId, _gameHub);
                 }
                 else
@@ -134,9 +129,12 @@ namespace WeStop.Api.Infra.Timers
             {
                 TimerContext timerContext = (TimerContext)context;
                 if (timerContext.ElapsedTime >= timerContext.LimitTime)
-                {                    
+                {
+                    RemoveGameTimer(gameId);
                     OnSendAnswersTimeOver(gameId, _gameHub);
                 }
+
+                timerContext.ElapsedTime++;
             }, gameTimerContext, 1500, 1000);
 
             AddOrUpdateGameTimer(gameId, sendAnswersTimer);
@@ -149,7 +147,8 @@ namespace WeStop.Api.Infra.Timers
             {
                 TimerContext timerContext = (TimerContext)context;
                 if (timerContext.ElapsedTime >= Consts.VALIDATION_LIMIT_TIME)
-                {                    
+                {
+                    RemoveGameTimer(gameId);
                     OnValidationTimeOver(gameId, _gameHub);
                 }
                 else
