@@ -8,19 +8,22 @@
 
     <br />
 
-    <h4>Tema: {{themeValidations.theme}}</h2>
-        <div class="form-row">
-            <div class="form-group col-6 col-md-4" ng-repeat="answerValidation in themeValidations.answersValidations">
+    <h4>Tema: {{currentValidation.theme}}</h2>
+    <div class="form-row">
+        <div class="form-group col-6 col-md-4" ng-repeat="validation in currentValidation.validations">
 
-                <label>
-                    <input ng-model="answerValidation.valid" type="checkbox" class="nes-checkbox is-dark" />
-                    <span>{{answerValidation.answer}}</span>
-                </label>
+            <label>
+                <input ng-model="validation.valid" type="checkbox" class="nes-checkbox is-dark" />
+                <span>{{validation.answer.value}}</span>
+            </label>
 
-                <button class="nes-btn is-success" ng-click="validate(themeValidations)">Validar</button>
-
+            <div class="row">
+                <button class="nes-btn is-success" ng-click="validate(themeValidations)">Voltar</button>
+                <button ng-if="" class="nes-btn is-success" ng-click="validate(themeValidations)">Próximo</button>
             </div>
+
         </div>
+    </div>
 </div>
 
 <p class="nes-text is-warning" ng-if="!themeValidations">Aguardando validação dos outros jogadores...</p>

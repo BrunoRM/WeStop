@@ -253,16 +253,35 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('round_time_elapsed', resp => {
         refreshCurrentAnswersTime(resp);        
     });
-
+    
+    $scope.groupedValidations = [];
     $game.on('validation_started', resp => {
-        console.log(resp);
+
+        let validations = resp;
+
+        for (let i = 0; i < validations.length; i++) {
+            let validation = validations[i];
+            if ($scope.groupedValidations.some(v => v.theme === validation.answer.theme)) {
+                $scope.groupedValidations.find(v => v.theme === validation.answer.theme).validations.push(validation);
+            } else {
+                $scope.groupedValidations.push({
+                    theme: validation.answer.theme,
+                    validations: [
+                        validation
+                    ]
+                });
+            }
+        }
+
+        $scope.selectedIndex = 0;
+        $scope.currentValidation = $scope.groupedValidations[$scope.selectedIndex];
+
         setThemeValidation(resp);
         startValidation();
     });    
 
     $game.on('validation_time_elapsed', resp => {
-        console.log(resp);
-        refreshCurrentValidationTime(resp);
+        refreshCurrentValidationTime(resp.currentTime);
     });
 
     init();
