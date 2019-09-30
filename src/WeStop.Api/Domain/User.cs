@@ -4,13 +4,13 @@ namespace WeStop.Api.Domain
 {
     public class User
     {
-        public User(string userName)
+        public User(Guid id, string userName)
         {
-            Id = Guid.NewGuid();
-            UserName = userName;
+            this.Id = id;
+            this.UserName = userName;
         }
-
+        
         public Guid Id { get; private set; }
-        public string UserName { get; private set; }
+        public string UserName { get; set; }
     }
 }

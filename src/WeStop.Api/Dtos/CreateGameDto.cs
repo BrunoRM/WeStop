@@ -5,7 +5,7 @@ namespace WeStop.Api.Dtos
 {
     public class CreateGameDto
     {
-        public Guid UserId { get; set; }
+        public User User { get; set; }
         public string Name { get; set; }
         public GameOptions GameOptions { get; set; }
     }

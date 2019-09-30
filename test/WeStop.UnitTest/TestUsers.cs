@@ -1,12 +1,13 @@
+using System;
 using WeStop.Api.Domain;
 
 namespace WeStop.UnitTest
 {
     public static class TestUsers
     {
-        public static User Dustin = new User("Dustin");
-        public static User Mike = new User("Mike");
-        public static User Lucas = new User("Lucas");
-        public static User Will = new User("Will");
+        public static User Dustin = new User(Guid.NewGuid(), "Dustin");
+        public static User Mike = new User(Guid.NewGuid(), "Mike");
+        public static User Lucas = new User(Guid.NewGuid(), "Lucas");
+        public static User Will = new User(Guid.NewGuid(), "Will");
     }
 }

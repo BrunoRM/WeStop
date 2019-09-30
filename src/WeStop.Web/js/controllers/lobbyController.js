@@ -6,8 +6,12 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     $scope.createUser = () => {
         if ($scope.newUser) {
             
-            $http.post(API_SETTINGS.uri + '/users.create', { userName: $scope.newUser }).then((resp) => {
-                $user.create(resp.data.user);
+            $http.post(API_SETTINGS.uri + '/users.create').then((resp) => {
+                $user.create({
+                    id: resp.data.id,
+                    userName: $scope.newUser
+                });
+
                 $scope.hasUser = true;
             }, (error) => {
                 console.error(error);

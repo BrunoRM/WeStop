@@ -14,7 +14,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     function joinGame() {
-        $game.invoke("join", $routeParams.id, $rootScope.user.id);
+        $game.invoke("join", $routeParams.id, $rootScope.user);
     };
 
     function setGame(game) {
@@ -304,8 +304,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 validations.push($scope.groupedValidations[i].validations[j]);
             }
         }
-
-        console.log(validations);
 
         let data = {
             gameId: $routeParams.id,

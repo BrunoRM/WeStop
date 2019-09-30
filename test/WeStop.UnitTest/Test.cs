@@ -12,7 +12,6 @@ namespace WeStop.UnitTest
         public void CreateStorages()
         {
             GameStorage = new GameStorage();
-            UserStorage = new UserStorage();
             PlayerStorage = new PlayerStorage();
             AnswerStorage = new AnswerStorage();
             ValidationStorage = new ValidationStorage();
@@ -21,25 +20,20 @@ namespace WeStop.UnitTest
 
         public void CreateManagers()
         {
-            GameManager = new GameManager(GameStorage, UserStorage, AnswerStorage,
+            GameManager = new GameManager(GameStorage, AnswerStorage,
                 ValidationStorage, PontuationStorage, PlayerStorage);
         }
 
         public void CreateDefaultGame()
         {
-            UserStorage.CreateAsync(TestUsers.Dustin).Wait();
-            UserStorage.CreateAsync(TestUsers.Will).Wait();
-            UserStorage.CreateAsync(TestUsers.Lucas).Wait();
-            UserStorage.CreateAsync(TestUsers.Mike).Wait();
-
-            Game = GameManager.CreateAsync(TestUsers.Dustin.Id, TestGame.Name, TestGame.Password, TestGame.Options).Result;
-            GameManager.JoinAsync(Game.Id, TestUsers.Will.Id, null).Wait();
-            GameManager.JoinAsync(Game.Id, TestUsers.Lucas.Id, null).Wait();
-            GameManager.JoinAsync(Game.Id, TestUsers.Mike.Id, null).Wait();
+            Game = GameManager.CreateAsync(TestUsers.Dustin, TestGame.Name, TestGame.Password, TestGame.Options).Result;
+            GameManager.JoinAsync(Game.Id, TestUsers.Will, null).Wait();
+            GameManager.JoinAsync(Game.Id, TestUsers.Lucas, null).Wait();
+            GameManager.JoinAsync(Game.Id, TestUsers.Mike, null).Wait();
         }
 
-        public Game CreateGame(Guid userId, string name, string password, GameOptions options) =>
-            Game = GameManager.CreateAsync(userId, name, password, options).Result;
+        public Game CreateGame(User user, string name, string password, GameOptions options) =>
+            Game = GameManager.CreateAsync(user, name, password, options).Result;
 
         public void CreateDefaultConfig()
         {
@@ -49,7 +43,6 @@ namespace WeStop.UnitTest
         }
 
         public IGameStorage GameStorage { get; set; }
-        public IUserStorage UserStorage { get; set; }
         public IPlayerStorage PlayerStorage { get; set; }
         public IAnswerStorage AnswerStorage { get; set; }
         public IValidationStorage ValidationStorage { get; set; }

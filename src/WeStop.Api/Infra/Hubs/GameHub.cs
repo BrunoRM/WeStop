@@ -45,11 +45,11 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("join")]
-        public async Task JoinAsync(Guid gameId, Guid userId)
+        public async Task JoinAsync(Guid gameId, User user)
         {
-            await _gameManager.JoinAsync(gameId, userId, async (game, player) =>
+            await _gameManager.JoinAsync(gameId, user, async (game, player) =>
             {
-                ConnectionBinding.BindConnectionId(Context.ConnectionId, userId, gameId);
+                ConnectionBinding.BindConnectionId(Context.ConnectionId, user.Id, gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
                 switch (game.State)

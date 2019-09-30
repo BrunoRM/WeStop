@@ -26,7 +26,7 @@ namespace WeStop.Api.Controllers
         [Route("api/games.create"), HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody]CreateGameDto dto)
         {
-            var createdGame = await _gameManager.CreateAsync(dto.UserId, dto.Name, "", dto.GameOptions);
+            var createdGame = await _gameManager.CreateAsync(dto.User, dto.Name, "", dto.GameOptions);
 
             _gamesTimers.Register(createdGame.Id, createdGame.Options.RoundTime);
 

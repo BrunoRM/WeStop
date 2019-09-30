@@ -17,7 +17,6 @@ namespace WeStop.Api.Extensions
             services.AddSingleton<IPontuationStorage, PontuationStorage>();
             services.AddSingleton<IValidationStorage, ValidationStorage>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
-            services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<IPlayerStorage, PlayerStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
             services.AddSingleton<GameManager, GameManager>();

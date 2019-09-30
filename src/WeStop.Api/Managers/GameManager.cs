@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Infra.Timers;
 
 namespace WeStop.Api.Managers
 {
@@ -15,25 +14,21 @@ namespace WeStop.Api.Managers
         private readonly IAnswerStorage _answerStorage;
         private readonly IValidationStorage _validationStorage;
         private readonly IPontuationStorage _pontuationStorage;
-        private readonly IUserStorage _userStorage;
         private readonly IPlayerStorage _playerStorage;
 
-        public GameManager(IGameStorage gameStorage, IUserStorage userStorage,
-            IAnswerStorage answerStorage, IValidationStorage validationStorage,
-            IPontuationStorage pontuationStorage, IPlayerStorage playerStorage)
+        public GameManager(IGameStorage gameStorage, IAnswerStorage answerStorage, 
+            IValidationStorage validationStorage, IPontuationStorage pontuationStorage, 
+            IPlayerStorage playerStorage)
         {
             _gameStorage = gameStorage;
             _answerStorage = answerStorage;
             _validationStorage = validationStorage;
             _pontuationStorage = pontuationStorage;
-            _userStorage = userStorage;
             _playerStorage = playerStorage;
         }
 
-        public async Task<Game> CreateAsync(Guid userId, string name, string password, GameOptions options)
-        {
-            var user = await _userStorage.GetByIdAsync(userId);
-            
+        public async Task<Game> CreateAsync(User user, string name, string password, GameOptions options)
+        {            
             if (!string.IsNullOrEmpty(password))
             {
                 // Criptografar a senha
@@ -56,14 +51,13 @@ namespace WeStop.Api.Managers
             return (game, players.ToList());
         }
 
-        public async Task JoinAsync(Guid gameId, Guid userId, Action<Game, Player> action)
+        public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> action)
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);
 
-            var player = await _playerStorage.GetAsync(gameId, userId);
+            var player = await _playerStorage.GetAsync(gameId, user.Id);
             if (player is null)
             {
-                var user = await _userStorage.GetByIdAsync(userId);
                 player = Player.Create(gameId, user);
                 await _playerStorage.AddAsync(player);
                 game.Players.Add(player);
