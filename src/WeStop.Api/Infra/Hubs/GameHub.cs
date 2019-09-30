@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
-using WeStop.Api.Domain.Services;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;

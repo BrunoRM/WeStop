@@ -44,13 +44,6 @@ namespace WeStop.Api.Managers
             return game;
         }
 
-        public async Task<(Game Game, IReadOnlyCollection<Player> Players)> GetAsync(Guid gameId)
-        {
-            var game = await _gameStorage.GetByIdAsync(gameId);
-            var players = await _playerStorage.GetPlayersAsync(gameId);
-            return (game, players.ToList());
-        }
-
         public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> action)
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);

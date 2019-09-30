@@ -6,7 +6,7 @@
     <div class="form-row">
         <div class="form-group col-6 col-md-6" ng-repeat="answer in answers track by $index">
             <label for="{{answer.theme}}">{{answer.theme}}</label>
-            <input maxlength="15" class="nes-input form-control" ng-disabled="roundStopped" type="text"
+            <input style="text-transform: uppercase;" maxlength="15" class="nes-input form-control" ng-disabled="roundStopped" type="text"
                 name="{{answer.theme}}" ng-model="answer.value" />
         </div>
     </div>

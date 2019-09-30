@@ -7,7 +7,7 @@ namespace WeStop.Api.Domain
         public Answer(string theme, string value)
         {
             Theme = theme;
-            Value = value?.Trim() ?? string.Empty;
+            Value = value?.Trim().ToUpper() ?? string.Empty;
         }
 
         public string Theme { get; private set; }
