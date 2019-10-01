@@ -169,38 +169,40 @@ namespace WeStop.Api.Infra.Hubs
             {
                 await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
 
-                await _gameManager.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber, async (theme) => 
+                var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber);
+
+                if (!string.IsNullOrEmpty(themeToValidate))
                 {
-                    // TODO: Remover duplicidade de código daqui e do hub
                     var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
 
-                    var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, theme);
+                    var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                     foreach (var (playerId, validations) in playersValidations)
                     {
                         if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
                         {
                             string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
-                            await Clients.Client(connectionId).SendAsync("validation_started", new 
-                            { 
-                                theme,
-                                validations 
+                            await Clients.Client(connectionId).SendAsync("validation_started", new
+                            {
+                                theme = themeToValidate,
+                                validations
                             });
                         }
                     }
 
-                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber, theme);
-                }, async () =>
+                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber, themeToValidate);
+                }
+                else
                 {
                     await _gameManager.FinishCurrentRoundAsync(gameId);
 
                     var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-                    
+
                     await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
                     {
                         scoreboard = roundPontuation
                     });
-                });
+                }
             }
         }
 

@@ -116,7 +116,7 @@ namespace WeStop.Api.Managers
             return playersValidations;
         }
 
-        public async Task StartValidationForNextThemeAsync(Guid gameId, int roundNumber, Action<string> validationStartedAction, Action allThemesValidatedAction)
+        public async Task<string> StartValidationForNextThemeAsync(Guid gameId, int roundNumber)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
@@ -124,12 +124,11 @@ namespace WeStop.Api.Managers
                 if (!game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
                     game.CurrentRound.ThemeBeingValidated = theme;
-                    validationStartedAction?.Invoke(theme);
-                    return;
+                    return theme;
                 }                
             }
 
-            allThemesValidatedAction?.Invoke();
+            return string.Empty;
         }
 
         public async Task<Guid[]> GetWinnersAsync(Guid gameId)

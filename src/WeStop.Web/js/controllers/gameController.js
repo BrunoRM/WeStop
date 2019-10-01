@@ -215,7 +215,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         cleanThemeValidations();
     });    
 
-    $game.on('game_round_finished', resp => {
+    $game.on('round_finished', resp => {
+        console.log(resp);
         init();
         refreshGameScoreBoard(resp.scoreBoard);
         updateGamePontuation();
@@ -238,7 +239,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
     
     $game.on('validation_started', resp => {
-        console.log(resp)
         $scope.currentValidation = resp;
         startValidation();
     });    

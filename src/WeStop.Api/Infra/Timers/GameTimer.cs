@@ -66,12 +66,14 @@ namespace WeStop.Api.Infra.Timers
 
         private async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber, IHubContext<GameHub> hub)
         {
-            await _gameManager.StartValidationForNextThemeAsync(gameId, currentRoundNumber, async (theme) =>
+            var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId, currentRoundNumber);
+
+            if (!string.IsNullOrEmpty(themeToValidate))
             {
                 // TODO: Remover duplicidade de código daqui e do hub
                 var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
 
-                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, theme);
+                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                 foreach (var (playerId, validations) in playersValidations)
                 {
@@ -80,14 +82,14 @@ namespace WeStop.Api.Infra.Timers
                         string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
                         await hub.Clients.Client(connectionId).SendAsync("validation_started", new
                         {
-                            theme,
+                            theme = themeToValidate,
                             validations
                         });
                     }
                 }
 
-                StartValidationTimer(gameId, currentRoundNumber, theme);
-            }, null);
+                StartValidationTimer(gameId, currentRoundNumber, themeToValidate);
+            }
         }
 
         public Action<Guid, int, int, IHubContext<GameHub>> OnRoundTimeElapsed { get; set; }
