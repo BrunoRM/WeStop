@@ -63,7 +63,7 @@ namespace WeStop.UnitTest.Helpers
         public RoundValidations Build()
         {
             var validations = _validAnswers.Union(_invalidAnswers).ToList();
-            return new RoundValidations(_gameId, _roundNumber, _playerId, validations);
+            return new RoundValidations(_gameId, _roundNumber, _playerId, _theme, validations);
         }
     }
 }

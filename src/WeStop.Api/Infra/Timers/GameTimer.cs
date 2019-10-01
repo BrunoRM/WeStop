@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Managers;
@@ -24,114 +25,120 @@ namespace WeStop.Api.Infra.Timers
             _gameManager = gameManager;
             _roundScorer = roundScorer;
 
-            OnRoundTimeElapsed += async (gameId, currentTime, hub) =>
+            OnRoundTimeElapsed += async (gameId, currentRoundNumber, currentTime, hub) =>
             {
                 await hub.Clients.Group(gameId.ToString()).SendAsync("round_time_elapsed", currentTime);
             };
 
-            OnRoundTimeStoped += (gameId, hub) =>
+            OnRoundTimeStoped += (gameId, currentRoundNumber, hub) =>
             {
-                StartSendAnswersTimer(gameId);
+                StartSendAnswersTimer(gameId, currentRoundNumber);
             };
 
-            OnRoundTimeOver += async (gameId, hub) =>
+            OnRoundTimeOver += async (gameId, currentRoundNumber, hub) =>
             {
                 await hub.Clients.Group(gameId.ToString()).SendAsync("round_stop", new
                 {
                     reason = "time_over"
                 });
 
-                StartSendAnswersTimer(gameId);
+                StartSendAnswersTimer(gameId, currentRoundNumber);
             };
 
-            OnSendAnswersTimeOver += async (gameId, hub) =>
+            OnSendAnswersTimeOver += async (gameId, currentRoundNumber, hub) =>
             {
+                await StartValidationForNextTheme(gameId, currentRoundNumber, hub);
+            };
+
+            OnValidationTimeElapsed += async (gameId, roundNumber, currentTime, hub) =>
+            {
+                await hub.Clients.Group(gameId.ToString()).SendAsync("validation_time_elapsed", new
+                {
+                    currentTime
+                });
+            };
+
+            OnValidationTimeOver += async (gameId, roundNumber, hub) =>
+            {
+                await StartValidationForNextTheme(gameId, roundNumber, hub);
+            };
+        }
+
+        private async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber, IHubContext<GameHub> hub)
+        {
+            await _gameManager.StartValidationForNextThemeAsync(gameId, currentRoundNumber, async (theme) =>
+            {
+                // TODO: Remover duplicidade de código daqui e do hub
                 var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
 
-                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId);
+                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, theme);
 
                 foreach (var (playerId, validations) in playersValidations)
                 {
                     if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
                     {
                         string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
-                        await hub.Clients.Client(connectionId).SendAsync("validation_started", validations);
+                        await hub.Clients.Client(connectionId).SendAsync("validation_started", new
+                        {
+                            theme,
+                            validations
+                        });
                     }
                 }
 
-                StartValidationTimer(gameId);
-            };
-
-            OnValidationTimeElapsed += async (gameId, currentTime, hubContext) =>
-            {
-                await hubContext.Clients.Group(gameId.ToString()).SendAsync("validation_time_elapsed", new
-                {
-                    currentTime
-                });
-            };
-
-            OnValidationTimeOver += async (gameId, hubContext) =>
-            {
-                await _gameManager.FinishCurrentRoundAsync(gameId);
-
-                var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-                
-                await hubContext.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
-                {
-                    scoreboard = roundPontuation
-                });
-            };
+                StartValidationTimer(gameId, currentRoundNumber, theme);
+            }, null);
         }
 
-        public Action<Guid, int, IHubContext<GameHub>> OnRoundTimeElapsed { get; set; }
-        public Action<Guid, IHubContext<GameHub>> OnRoundTimeStoped { get; set; }
-        public Action<Guid, IHubContext<GameHub>> OnRoundTimeOver { get; set; }
+        public Action<Guid, int, int, IHubContext<GameHub>> OnRoundTimeElapsed { get; set; }
+        public Action<Guid, int, IHubContext<GameHub>> OnRoundTimeStoped { get; set; }
+        public Action<Guid, int, IHubContext<GameHub>> OnRoundTimeOver { get; set; }
 
-        public Action<Guid, IHubContext<GameHub>> OnSendAnswersTimeOver { get; set; }
+        public Action<Guid, int, IHubContext<GameHub>> OnSendAnswersTimeOver { get; set; }
 
-        public Action<Guid, int, IHubContext<GameHub>> OnValidationTimeElapsed { get; set; }
-        public Action<Guid, IHubContext<GameHub>> OnValidationTimeStoped { get; set; }
-        public Action<Guid, IHubContext<GameHub>> OnValidationTimeOver { get; set; }
+        public Action<Guid, int, int, IHubContext<GameHub>> OnValidationTimeElapsed { get; set; }
+        public Action<Guid, int, IHubContext<GameHub>> OnValidationTimeStoped { get; set; }
+        public Action<Guid, int, IHubContext<GameHub>> OnValidationTimeOver { get; set; }
 
         public void Register(Guid gameId, int roundTime) =>
             _gamesRoundsTimes.Add(gameId, roundTime);
         
-        public void StartRoundTimer(Guid gameId)
+        public void StartRoundTimer(Guid gameId, int roundNumber)
         {
-            TimerContext gameTimerContext = CreateGameTimerContext(gameId, _gamesRoundsTimes[gameId]);
+            TimerContext gameTimerContext = CreateGameTimerContext(gameId, roundNumber, _gamesRoundsTimes[gameId]);
             Timer roundTimer = new Timer((context) =>
             {
                 var roundTimerContext = (TimerContext)context;
                 if (roundTimerContext.ElapsedTime >= roundTimerContext.LimitTime)
                 {              
                     RemoveGameTimer(gameId);      
-                    OnRoundTimeOver(gameId, _gameHub);
+                    OnRoundTimeOver(gameId, roundTimerContext.RoundNumber, _gameHub);
                 }
                 else
                 {
-                    OnRoundTimeElapsed(gameId, ++roundTimerContext.ElapsedTime, _gameHub);
+                    OnRoundTimeElapsed(gameId, roundTimerContext.RoundNumber, ++roundTimerContext.ElapsedTime, _gameHub);
                 }
             }, gameTimerContext, 1000, 1000);
 
             AddOrUpdateGameTimer(gameId, roundTimer);
         }
 
-        public void StopRoundTimer(Guid gameId)
+        public void StopRoundTimer(Guid gameId, int roundNumber)
         {
             RemoveGameTimer(gameId);
-            OnRoundTimeStoped(gameId, _gameHub);
+            OnRoundTimeStoped(gameId, roundNumber, _gameHub);
         }
 
-        public void StartSendAnswersTimer(Guid gameId)
+        public void StartSendAnswersTimer(Guid gameId, int roundNumber)
         {
-            TimerContext gameTimerContext = CreateGameTimerContext(gameId, Consts.SEND_ANSWERS_LIMIT_TIME);
+            TimerContext gameTimerContext = CreateGameTimerContext(gameId, roundNumber, Consts.SEND_ANSWERS_LIMIT_TIME);
             Timer sendAnswersTimer = new Timer((context) =>
             {
                 TimerContext timerContext = (TimerContext)context;
                 if (timerContext.ElapsedTime >= timerContext.LimitTime)
                 {
                     RemoveGameTimer(gameId);
-                    OnSendAnswersTimeOver(gameId, _gameHub);
+                    OnSendAnswersTimeOver(gameId, timerContext.RoundNumber, _gameHub);
                 }
 
                 timerContext.ElapsedTime++;
@@ -140,34 +147,34 @@ namespace WeStop.Api.Infra.Timers
             AddOrUpdateGameTimer(gameId, sendAnswersTimer);
         }
         
-        public void StartValidationTimer(Guid gameId)
+        public void StartValidationTimer(Guid gameId, int roundNumber, string theme)
         {
-            TimerContext gameTimerContext = CreateGameTimerContext(gameId, Consts.VALIDATION_LIMIT_TIME);
+            TimerContext gameTimerContext = CreateGameTimerContext(gameId, roundNumber, Consts.VALIDATION_LIMIT_TIME);
             Timer validationTimer = new Timer((context) =>
             {
                 TimerContext timerContext = (TimerContext)context;
                 if (timerContext.ElapsedTime >= Consts.VALIDATION_LIMIT_TIME)
                 {
                     RemoveGameTimer(gameId);
-                    OnValidationTimeOver(gameId, _gameHub);
+                    OnValidationTimeOver(gameId, timerContext.RoundNumber, _gameHub);
                 }
                 else
                 {
-                    OnValidationTimeElapsed(gameId, ++timerContext.ElapsedTime, _gameHub);
+                    OnValidationTimeElapsed(gameId, timerContext.RoundNumber, ++timerContext.ElapsedTime, _gameHub);
                 }
             }, gameTimerContext, 1500, 1000);
 
             AddOrUpdateGameTimer(gameId, validationTimer);
         }
 
-        public void StopValidationTimer(Guid gameId)
+        public void StopValidationTimer(Guid gameId, int roundNumber)
         {
             RemoveGameTimer(gameId);
-            OnValidationTimeStoped(gameId, _gameHub);
+            OnValidationTimeStoped(gameId, roundNumber, _gameHub);
         }
 
-        private TimerContext CreateGameTimerContext(Guid gameId, int limitTime) =>
-            new TimerContext(gameId, limitTime);
+        private TimerContext CreateGameTimerContext(Guid gameId, int roundNumber, int limitTime) =>
+            new TimerContext(gameId, roundNumber, limitTime);
 
         private void AddOrUpdateGameTimer(Guid gameId, Timer timer)
         {

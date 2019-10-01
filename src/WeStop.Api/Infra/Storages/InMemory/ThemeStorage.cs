@@ -11,24 +11,24 @@ namespace WeStop.Api.Infra.Storages.InMemory
         {
             var themes = new List<Theme>
             {
-                new Theme { Name = "Nome" },
-                new Theme { Name = "CEP" },
-                new Theme { Name = "Cor" },
-                new Theme { Name = "Carro" },
-                new Theme { Name = "Objeto" },
-                new Theme { Name = "PCH" },
-                new Theme { Name = "Fruta" },
-                new Theme { Name = "Comida" },
-                new Theme { Name = "FDS" },
-                new Theme { Name = "Marca" },
-                new Theme { Name = "Profissão" },
-                new Theme { Name = "Inseto" },
-                new Theme { Name = "Instrumento musical" },
-                new Theme { Name = "Programa de televisão" },
-                new Theme { Name = "Flor" },
-                new Theme { Name = "Banda" },
-                new Theme { Name = "Super-herói" },
-                new Theme { Name = "MSÉ" }
+                new Theme ("Nome"),
+                new Theme ("CEP"),
+                new Theme ("Cor"),
+                new Theme ("Carro"),
+                new Theme ("Objeto"),
+                new Theme ("PCH"),
+                new Theme ("Fruta"),
+                new Theme ("Comida"),
+                new Theme ("FDS"),
+                new Theme ("Marca"),
+                new Theme ("Profissão"),
+                new Theme ("Inseto"),
+                new Theme ("Instrumento musical"),
+                new Theme ("Programa de televisão"),
+                new Theme ("Flor"),
+                new Theme ("Banda"),
+                new Theme ("Super-herói"),
+                new Theme ("MSÉ")
             };
             
             return Task.FromResult<ICollection<Theme>>(themes);

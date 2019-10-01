@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace WeStop.Api.Domain
 {
@@ -9,10 +10,13 @@ namespace WeStop.Api.Domain
             GameId = gameId;
             Number = number;
             SortedLetter = sortedLetter;
+            ValidatedThemes = new List<string>();
         }
 
         public Guid GameId { get; set; }
         public int Number { get; private set; }
         public string SortedLetter { get; private set; }
+        public string ThemeBeingValidated { get; set; }
+        public ICollection<string> ValidatedThemes { get; set; }
     }
 }

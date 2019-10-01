@@ -84,7 +84,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function cleanThemeValidations() {
-        $scope.themeValidations = null;
+        $scope.currentValidation = null;
     }
 
     function stop() {
@@ -192,9 +192,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.stop = () => {
-
-        $game.invoke('stop_round', $routeParams.id, $rootScope.user.id);
-
+        $game.invoke('stop_round', $routeParams.id, $scope.game.currentRound, $rootScope.user.id);
     };
 
     $game.on('round_stoped', (resp) => {
@@ -238,37 +236,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('round_time_elapsed', resp => {
         refreshCurrentAnswersTime(resp);        
     });
-
-    function groupValidations(validations) {
-
-        let groupedValidations = [];
-
-        for (let i = 0; i < validations.length; i++) {
-            let validation = validations[i];
-            if (groupedValidations.some(v => v.theme === validation.answer.theme)) {
-                groupedValidations.find(v => v.theme === validation.answer.theme).validations.push(validation);
-            } else {
-                groupedValidations.push({
-                    theme: validation.answer.theme,
-                    validations: [
-                        validation
-                    ]
-                });
-            }
-        }
-        
-        return groupedValidations;
-    };
-
-    function setCurrentValidationTo(number) {
-        $scope.currentValidation = $scope.groupedValidations[number];
-    };
     
-    $scope.groupedValidations = [];
-    $scope.validationIndex = 0;
     $game.on('validation_started', resp => {
-        $scope.groupedValidations = groupValidations(resp);
-        setCurrentValidationTo($scope.validationIndex);
+        console.log(resp)
+        $scope.currentValidation = resp;
         startValidation();
     });    
 
@@ -276,40 +247,14 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshCurrentValidationTime(resp.currentTime);
     });
 
-    $scope.goToNextValidation = function () {
-        if (hasMoreValidations()) {
-            setCurrentValidationTo(++$scope.validationIndex);
-        }
-    };
-
-    function hasMoreValidations () {
-        return $scope.validationIndex < $scope.groupedValidations.length - 1;
-    };
-
-    $scope.goToPreviousValidation = function () {
-        if (hasPreviousValidations()) {
-            setCurrentValidationTo(--$scope.validationIndex);
-        }
-    };
-
-    function hasPreviousValidations () {
-        return $scope.validationIndex > 0;
-    };
-
     $scope.finishValidation = function () {
         
-        let validations = [];
-        for (let i = 0; i < $scope.groupedValidations.length; i++) {
-            for (let j = 0; j < $scope.groupedValidations[i].validations.length; j++) {
-                validations.push($scope.groupedValidations[i].validations[j]);
-            }
-        }
-
         let data = {
             gameId: $routeParams.id,
             playerId: $rootScope.user.id,
             roundNumber: $scope.game.currentRound,
-            validations: validations
+            theme: $scope.currentValidation.theme,
+            validations: $scope.currentValidation.validations
         }
 
         $game.invoke('send_validations', data);

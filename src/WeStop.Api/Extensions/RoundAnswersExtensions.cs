@@ -16,17 +16,13 @@ namespace WeStop.Api.Extensions
         public static Answer[] GetAnswersOfTheme(this IEnumerable<RoundAnswers> roundAnswers, string theme) =>
             roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).Distinct().ToArray();
 
-        public static IEnumerable<Validation> BuildValidationsForPlayer(this IEnumerable<RoundAnswers> roundsAnswers, Guid playerId)
+        public static IEnumerable<Validation> BuildValidationsForPlayer(this IEnumerable<RoundAnswers> roundsAnswers, Guid playerId, string theme)
         {
-            var themes = roundsAnswers.SelectMany(ra => ra.Answers.Select(a => a.Theme)).Distinct().ToList();
-
-            foreach (var theme in themes)
+            var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).ToList();
+            
+            foreach (var answer in answers)
             {
-                var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).ToList();
-                foreach (var answer in answers)
-                {
-                    yield return new Validation(answer);
-                }
+                yield return new Validation(answer);
             }
         }
     }

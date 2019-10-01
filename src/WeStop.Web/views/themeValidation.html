@@ -19,9 +19,7 @@
             </label>
 
             <div class="row">
-                <button ng-if="validationIndex > 0" class="nes-btn is-success" ng-click="goToPreviousValidation()">Voltar</button>
-                <button ng-if="validationIndex >= 0 && validationIndex < groupedValidations.length - 1" class="nes-btn is-success" ng-click="goToNextValidation()">Próximo</button>
-                <button ng-if="validationIndex === groupedValidations.length - 1" class="nes-btn is-success" ng-click="finishValidation()">Finalizar</button>
+                <button class="nes-btn is-success" ng-click="finishValidation()">Confirmar</button>
             </div>
 
         </div>

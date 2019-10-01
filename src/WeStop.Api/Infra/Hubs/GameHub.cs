@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
+using WeStop.Api.Domain.Services;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;
@@ -17,14 +18,17 @@ namespace WeStop.Api.Infra.Hubs
         private readonly PlayerManager _playerManager;
         private readonly GameTimer _gameTimer;
         private readonly IMapper _mapper;
+        private readonly RoundScorer _roundScorer;
 
         public GameHub(GameTimer gameTimer, IMapper mapper, 
-            GameManager gameManager, PlayerManager playerManager)
+            GameManager gameManager, PlayerManager playerManager,
+            RoundScorer roundScorer)
         {
             _gameManager = gameManager;
             _playerManager = playerManager;
             _gameTimer = gameTimer;
             _mapper = mapper;
+            _roundScorer = roundScorer;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -86,7 +90,7 @@ namespace WeStop.Api.Infra.Hubs
 
                         if (player.InRound)
                         {
-                            var defaultPlayerValidations = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id);
+                            var defaultPlayerValidations = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated);
 
                             if (defaultPlayerValidations.Any())
                             {
@@ -128,12 +132,12 @@ namespace WeStop.Api.Infra.Hubs
                     sortedLetter = createdRound.SortedLetter
                 });
 
-                _gameTimer.StartRoundTimer(gameId);
+                _gameTimer.StartRoundTimer(gameId, createdRound.Number);
             });
         }
 
         [HubMethodName("stop_round")]
-        public async Task StopRoundAsync(Guid gameId, Guid playerId)
+        public async Task StopRoundAsync(Guid gameId, int roundNumber, Guid playerId)
         {
             await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
@@ -143,7 +147,7 @@ namespace WeStop.Api.Infra.Hubs
                     playerId
                 });
 
-                _gameTimer.StopRoundTimer(gameId);
+                _gameTimer.StopRoundTimer(gameId, roundNumber);
             });
         }
 
@@ -161,9 +165,42 @@ namespace WeStop.Api.Infra.Hubs
             await Clients.Caller.SendAsync("im_send_validations");
 
             var gameId = roundValidations.GameId;
-            if (await _gameManager.AllPlayersSendValidationsAsync(gameId))
+            if (await _gameManager.AllPlayersSendValidationsAsync(gameId, roundValidations.Theme))
             {
-                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended");
+                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
+
+                await _gameManager.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber, async (theme) => 
+                {
+                    // TODO: Remover duplicidade de código daqui e do hub
+                    var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
+
+                    var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, theme);
+
+                    foreach (var (playerId, validations) in playersValidations)
+                    {
+                        if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
+                        {
+                            string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
+                            await Clients.Client(connectionId).SendAsync("validation_started", new 
+                            { 
+                                theme,
+                                validations 
+                            });
+                        }
+                    }
+
+                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber, theme);
+                }, async () =>
+                {
+                    await _gameManager.FinishCurrentRoundAsync(gameId);
+
+                    var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
+                    
+                    await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                    {
+                        scoreboard = roundPontuation
+                    });
+                });
             }
         }
 

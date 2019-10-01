@@ -39,14 +39,16 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id).ToList();
-            var willDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id).ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
 
-            Assert.False(dustinDefaultValidations.Any(v => v.Answer == new Answer("CEP", "")));
-            Assert.True(dustinDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruno")));
+            Assert.False(dustinDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "")));
+            Assert.True(dustinDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
 
-            Assert.False(willDefaultValidations.Any(v => v.Answer == new Answer("Nome", "")));
-            Assert.True(willDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasil")));
+            Assert.False(willDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "")));
+            Assert.True(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
         }
 
         [Test]
@@ -73,17 +75,20 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id).ToList();
-            var willDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id).ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
 
-            Assert.AreEqual(2, dustinDefaultValidations.Count());
-            Assert.AreEqual(2, willDefaultValidations.Count());
+            Assert.AreEqual(1, dustinDefaultValidationsForThemeNome.Count());
+            Assert.AreEqual(1, dustinDefaultValidationsForThemeCEP.Count());
+            Assert.True(dustinDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
+            Assert.True(dustinDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
 
-            Assert.True(dustinDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruno")));
-            Assert.True(dustinDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasil")));
-
-            Assert.True(willDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruno")));
-            Assert.True(willDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasil")));
+            Assert.AreEqual(1, willDefaultValidationsForThemeNome.Count());
+            Assert.AreEqual(1, willDefaultValidationsForThemeCEP.Count());
+            Assert.True(willDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
+            Assert.True(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
         }
 
         [Test]
@@ -110,21 +115,24 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id).ToList();
-            var willDefaultValidations = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id).ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
 
-            Assert.AreEqual(2, dustinDefaultValidations.Count());
-            Assert.AreEqual(2, willDefaultValidations.Count());
+            Assert.AreEqual(1, dustinDefaultValidationsForThemeNome.Count());
+            Assert.AreEqual(1, dustinDefaultValidationsForThemeCEP.Count());
+            Assert.True(dustinDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruna")));
+            Assert.True(dustinDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasilia")));
+            Assert.False(dustinDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
+            Assert.False(dustinDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
 
-            Assert.True(dustinDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruna")));
-            Assert.True(dustinDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasilia")));
-            Assert.False(dustinDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruno")));
-            Assert.False(dustinDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasil")));
-
-            Assert.True(willDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruno")));
-            Assert.True(willDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasil")));
-            Assert.False(willDefaultValidations.Any(v => v.Answer == new Answer("Nome", "Bruna")));
-            Assert.False(willDefaultValidations.Any(v => v.Answer == new Answer("CEP", "Brasilia")));
+            Assert.AreEqual(1, willDefaultValidationsForThemeNome.Count());
+            Assert.AreEqual(1, willDefaultValidationsForThemeCEP.Count());
+            Assert.True(willDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
+            Assert.True(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
+            Assert.False(willDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruna")));
+            Assert.False(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasilia")));
         }
     }
 }

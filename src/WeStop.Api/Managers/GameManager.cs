@@ -82,14 +82,14 @@ namespace WeStop.Api.Managers
         public async Task AddRoundValidationsAsync(RoundValidations roundValidations) =>
             await _validationStorage.AddAsync(roundValidations);
 
-        public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId)
+        public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
         {
             var playerValidations = await _validationStorage.GetValidationsAsync(gameId, roundNumber, playerId);
 
             if (!playerValidations.Any())
             {
                 var answers = await _answerStorage.GetPlayersAnswersAsync(gameId, roundNumber);
-                var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(playerId);
+                var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(playerId, theme);
 
                 return defaultValidationsForPlayer.ToList();
             }
@@ -97,11 +97,10 @@ namespace WeStop.Api.Managers
             return new List<Validation>();
         }
 
-        public async Task<ICollection<(Guid playerId, ICollection<Validation> validations)>> GetPlayersDefaultValidationsAsync(Guid gameId)
+        public async Task<ICollection<(Guid playerId, ICollection<Validation> validations)>> GetPlayersDefaultValidationsAsync(Guid gameId, string theme)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             var answers = await _answerStorage.GetPlayersAnswersAsync(gameId, game.CurrentRoundNumber);
-
             var players = await _playerStorage.GetPlayersAsync(gameId);
 
             var playersValidations = new List<(Guid PlayerId, ICollection<Validation> Validations)>();
@@ -109,12 +108,28 @@ namespace WeStop.Api.Managers
             {
                 if (player.InRound)
                 {
-                    var playerValidations = answers.BuildValidationsForPlayer(player.Id).ToList();
+                    var playerValidations = answers.BuildValidationsForPlayer(player.Id, theme).ToList();
                     playersValidations.Add((player.Id, playerValidations));
                 }
             }
 
             return playersValidations;
+        }
+
+        public async Task StartValidationForNextThemeAsync(Guid gameId, int roundNumber, Action<string> validationStartedAction, Action allThemesValidatedAction)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            foreach (var theme in game.Options.Themes)
+            {
+                if (!game.CurrentRound.ValidatedThemes.Contains(theme))
+                {
+                    game.CurrentRound.ThemeBeingValidated = theme;
+                    validationStartedAction?.Invoke(theme);
+                    return;
+                }                
+            }
+
+            allThemesValidatedAction?.Invoke();
         }
 
         public async Task<Guid[]> GetWinnersAsync(Guid gameId)
@@ -153,10 +168,10 @@ namespace WeStop.Api.Managers
             await _gameStorage.UpdateAsync(game);
         }
 
-        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId)
+        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId, string theme)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
-            var validations = await _validationStorage.GetValidationsAsync(gameId, game.CurrentRoundNumber);
+            var validations = await _validationStorage.GetValidationsAsync(gameId, game.CurrentRoundNumber, theme);
 
             foreach (var player in game.Players)
             {
@@ -164,6 +179,7 @@ namespace WeStop.Api.Managers
                     return false;
             }
 
+            game.CurrentRound.ValidatedThemes.Add(theme);
             return true;
         }
     }
