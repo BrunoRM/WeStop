@@ -1,5 +1,7 @@
+using System.Linq;
 using NUnit.Framework;
 using WeStop.Api.Domain.Services;
+using WeStop.Api.Extensions;
 using WeStop.Api.Managers;
 using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
@@ -59,7 +61,7 @@ namespace WeStop.UnitTest
 
             RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
             
-            var roundPontuations = PontuationStorage.GetPontuationsAsync(Game.Id, Game.CurrentRoundNumber).Result;
+            var roundPontuations = Game.Players.GetInRoundPontuations(Game.CurrentRoundNumber).ToList();
 
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
@@ -115,7 +117,7 @@ namespace WeStop.UnitTest
             GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
             RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
-            var roundPontuations = PontuationStorage.GetPontuationsAsync(Game.Id, Game.CurrentRoundNumber).Result;
+            var roundPontuations = Game.Players.GetInRoundPontuations(Game.CurrentRoundNumber);
 
             Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
             Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
@@ -150,7 +152,7 @@ namespace WeStop.UnitTest
             GameManager.AddRoundAnswersAsync(lucasAnswers).Wait();
 
             RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
-            var roundPontuations = PontuationStorage.GetPontuationsAsync(Game.Id, Game.CurrentRoundNumber).Result;
+            var roundPontuations = Game.Players.GetInRoundPontuations(Game.CurrentRoundNumber).ToList();
 
             Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
             Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
@@ -206,7 +208,7 @@ namespace WeStop.UnitTest
             GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
             RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
-            var roundPontuations = PontuationStorage.GetPontuationsAsync(Game.Id, Game.CurrentRoundNumber).Result;
+            var roundPontuations = Game.Players.GetInRoundPontuations(Game.CurrentRoundNumber).ToList();
             
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
@@ -262,7 +264,7 @@ namespace WeStop.UnitTest
             GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
             RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
-            var roundPontuations = PontuationStorage.GetPontuationsAsync(Game.Id, Game.CurrentRoundNumber).Result;
+            var roundPontuations = Game.Players.GetInRoundPontuations(Game.CurrentRoundNumber);
             
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
             Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));

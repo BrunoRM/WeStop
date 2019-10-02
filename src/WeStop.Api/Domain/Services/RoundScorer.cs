@@ -10,29 +10,25 @@ namespace WeStop.Api.Domain.Services
     public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;
-        private readonly IAnswerStorage _answersStorage;
-        private readonly IValidationStorage _validations;
-        private readonly IPontuationStorage _gamePontuationStorage;
+        private readonly IPlayerStorage _playerStorage;
         private readonly ICollection<RoundPontuations> _playersPontuations;
+        private Game _game;
 
-        public RoundScorer(IGameStorage gameStorage, IAnswerStorage answersStorage, 
-            IValidationStorage validationsStorage, IPontuationStorage gamePontuationStorage)
+        public RoundScorer(IGameStorage gameStorage, IPlayerStorage playerStorage)
         {
             _gameStorage = gameStorage;
-            _answersStorage = answersStorage;
-            _validations = validationsStorage;
-            _gamePontuationStorage = gamePontuationStorage;
+            _playerStorage = playerStorage;
             _playersPontuations = new List<RoundPontuations>();
         }
 
         public async Task<ICollection<RoundPontuations>> ProcessCurrentRoundPontuationAsync(Guid gameId)
         {
-            var game = await _gameStorage.GetByIdAsync(gameId);
-            var currentRoundNumber = game.CurrentRoundNumber;
-            var validations = await _validations.GetValidationsAsync(gameId, currentRoundNumber);
-            var roundAnswers = await _answersStorage.GetPlayersAnswersAsync(gameId, currentRoundNumber);
+            _game = await _gameStorage.GetByIdAsync(gameId);
+            var currentRoundNumber = _game.CurrentRoundNumber;
+            var roundAnswers = _game.Players.GetAnswers(currentRoundNumber);
+            var validations = _game.Players.GetValidations(currentRoundNumber);
 
-            foreach (var theme in game.Options.Themes)
+            foreach (var theme in _game.Options.Themes)
             {
                 var answers = roundAnswers.GetAnswersOfTheme(theme);
 
@@ -71,6 +67,7 @@ namespace WeStop.Api.Domain.Services
             }
 
             await SavePlayersPontuations();
+
             return _playersPontuations;
         }
 
@@ -78,7 +75,9 @@ namespace WeStop.Api.Domain.Services
         {
             foreach (var playerPontuations in _playersPontuations)
             {
-                await _gamePontuationStorage.AddAsync(playerPontuations);
+                var player = _game.Players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
+                player.Pontuations.Add(playerPontuations);
+                await _playerStorage.EditAsync(player);
             }
         }
 

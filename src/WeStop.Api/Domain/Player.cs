@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WeStop.Api.Domain
 {
@@ -12,6 +14,9 @@ namespace WeStop.Api.Domain
             IsAdmin = isAdmin;
             IsOnline = true;
             InRound = false;
+            Answers = new List<RoundAnswers>();
+            Validations = new List<RoundValidations>();
+            Pontuations = new List<RoundPontuations>();
         }
 
         public static Player CreateAsAdmin(Guid gameId, User user) =>
@@ -28,5 +33,17 @@ namespace WeStop.Api.Domain
         public bool IsReady { get; set; }
         public bool IsOnline { get; private set; }
         public bool InRound { get; set; }
+        public ICollection<RoundAnswers> Answers { get; set; }
+        public ICollection<RoundValidations> Validations { get; set; }
+        public ICollection<RoundPontuations> Pontuations { get; set; }
+
+        public RoundAnswers GetAnswersInRound(int roundNumber) =>
+            Answers.FirstOrDefault(a => a.RoundNumber == roundNumber);
+
+        public RoundValidations GetValidationsInRound(int roundNumber) =>
+            Validations.FirstOrDefault(v => v.RoundNumber == roundNumber);
+
+        public RoundPontuations GetPontuationInRound(int roundNumber) =>
+            Pontuations.FirstOrDefault(p => p.RoundNumber == roundNumber);
     }
 }

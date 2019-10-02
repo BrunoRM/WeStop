@@ -13,9 +13,6 @@ namespace WeStop.Api.Extensions
     {
         public static IServiceCollection ConfigureDependencies(this IServiceCollection services)
         {
-            services.AddSingleton<IAnswerStorage, AnswerStorage>();
-            services.AddSingleton<IPontuationStorage, PontuationStorage>();
-            services.AddSingleton<IValidationStorage, ValidationStorage>();
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IPlayerStorage, PlayerStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();

@@ -17,9 +17,19 @@ namespace WeStop.Api.Infra.Storages.InMemory
             return Task.CompletedTask;
         }
 
+        public Task EditAsync(Player player)
+        {
+            return Task.CompletedTask;
+        }
+
         public Task<Player> GetAsync(Guid gameId, Guid playerId)
         {
             return Task.FromResult(_players.FirstOrDefault(p => p.Id == playerId));
+        }
+
+        public Task<ICollection<Player>> GetPlayersInRoundAsync(Guid gameId)
+        {
+            return Task.FromResult<ICollection<Player>>(_players.Where(p => p.InRound && p.GameId == gameId).ToList());
         }
 
         public Task<ICollection<Player>> GetPlayersAsync(Guid gameId)

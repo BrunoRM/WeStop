@@ -13,15 +13,11 @@ namespace WeStop.UnitTest
         {
             GameStorage = new GameStorage();
             PlayerStorage = new PlayerStorage();
-            AnswerStorage = new AnswerStorage();
-            ValidationStorage = new ValidationStorage();
-            PontuationStorage = new PontuationStorage();
         }
 
         public void CreateManagers()
         {
-            GameManager = new GameManager(GameStorage, AnswerStorage,
-                ValidationStorage, PontuationStorage, PlayerStorage);
+            GameManager = new GameManager(GameStorage, PlayerStorage);
         }
 
         public void CreateDefaultGame()
@@ -44,12 +40,8 @@ namespace WeStop.UnitTest
 
         public IGameStorage GameStorage { get; set; }
         public IPlayerStorage PlayerStorage { get; set; }
-        public IAnswerStorage AnswerStorage { get; set; }
-        public IValidationStorage ValidationStorage { get; set; }
-        public IPontuationStorage PontuationStorage { get; set; }
         public GameManager GameManager { get; set; }
-        public RoundScorer RoundScorer => new RoundScorer(GameStorage, AnswerStorage, ValidationStorage,
-            PontuationStorage);
+        public RoundScorer RoundScorer => new RoundScorer(GameStorage, PlayerStorage);
         public Game Game { get; private set; }
     }
 }
