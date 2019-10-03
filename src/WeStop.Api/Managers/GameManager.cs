@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
@@ -23,7 +25,8 @@ namespace WeStop.Api.Managers
         {            
             if (!string.IsNullOrEmpty(password))
             {
-                // Criptografar a senha
+                var md5Provider = MD5.Create();
+                password = Encoding.UTF8.GetString(md5Provider.ComputeHash(Encoding.UTF8.GetBytes(password)));
             }
 
             var game = new Game(name, password, options);

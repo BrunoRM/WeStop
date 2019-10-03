@@ -216,7 +216,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('round_finished', resp => {
-        console.log(resp);
         init();
         refreshGameScoreBoard(resp.scoreBoard);
         updateGamePontuation();
