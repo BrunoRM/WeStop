@@ -55,11 +55,9 @@ namespace WeStop.Api.Managers
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
 
-            var players = await _playerStorage.GetPlayersAsync(gameId);
-
-            foreach (var player in players.PutReadyPlayersInRound())
+            foreach (var player in game.Players.PutReadyPlayersInRound())
             {
-                await _playerStorage.UpdateAsync(player);
+                await _playerStorage.EditAsync(player);
             }
 
             var createdRound = game.StartNextRound();
@@ -153,7 +151,7 @@ namespace WeStop.Api.Managers
             var players = await _playerStorage.GetPlayersAsync(gameId);
             foreach (var player in players.PutAllPlayersInWaiting())
             {
-                await _playerStorage.UpdateAsync(player);
+                await _playerStorage.EditAsync(player);
             }
 
             var game = await _gameStorage.GetByIdAsync(gameId);

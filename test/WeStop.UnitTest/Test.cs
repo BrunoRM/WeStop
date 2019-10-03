@@ -1,4 +1,3 @@
-using System;
 using WeStop.Api.Domain;
 using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Storages.InMemory;

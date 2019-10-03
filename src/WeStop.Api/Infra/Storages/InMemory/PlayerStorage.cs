@@ -9,7 +9,7 @@ namespace WeStop.Api.Infra.Storages.InMemory
 {
     public class PlayerStorage : IPlayerStorage
     {
-        private static readonly ICollection<Player> _players = new List<Player>();
+        private readonly ICollection<Player> _players = new List<Player>();
 
         public Task AddAsync(Player player)
         {
@@ -36,11 +36,6 @@ namespace WeStop.Api.Infra.Storages.InMemory
         {
             return Task.FromResult<ICollection<Player>>(
                 _players.Where(p => p.GameId == gameId).ToList());
-        }
-
-        public Task UpdateAsync(Player player)
-        {
-            return Task.CompletedTask;
         }
     }
 }

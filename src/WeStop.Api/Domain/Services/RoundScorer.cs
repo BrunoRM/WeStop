@@ -25,8 +25,8 @@ namespace WeStop.Api.Domain.Services
         {
             _game = await _gameStorage.GetByIdAsync(gameId);
             var currentRoundNumber = _game.CurrentRoundNumber;
-            var roundAnswers = _game.Players.GetAnswers(currentRoundNumber);
-            var validations = _game.Players.GetValidations(currentRoundNumber);
+            var roundAnswers = _game.Players.GetAnswers(currentRoundNumber).ToList();
+            var validations = _game.Players.GetValidations(currentRoundNumber).ToList();
 
             foreach (var theme in _game.Options.Themes)
             {

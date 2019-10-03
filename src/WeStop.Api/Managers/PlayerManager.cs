@@ -19,7 +19,7 @@ namespace WeStop.Api.Managers
             var player = await _playerStorage.GetAsync(gameId, playerId);
             player.IsReady = isReady;
 
-            await _playerStorage.UpdateAsync(player);
+            await _playerStorage.EditAsync(player);
             action?.Invoke(player);
         }
     }

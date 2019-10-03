@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WeStop.Api.Domain
 {
-    public struct RoundValidations
+    public class RoundValidations
     {
         public RoundValidations(Guid gameId, int roundNumber, Guid playerId, string theme, ICollection<Validation> validations)
         {
