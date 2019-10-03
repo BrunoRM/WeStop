@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Exceptions;
+using WeStop.Api.Extensions;
 
 namespace WeStop.Api.Domain
 {
@@ -61,6 +62,26 @@ namespace WeStop.Api.Domain
 
         private string[] GetNotSortedLetters() =>
             Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
+
+        public RoundScoreboard GetScoreboard(int roundNumber)
+        {
+            var roundScoreboard = new RoundScoreboard();
+            foreach (var player in Players)
+            {
+                var roundPontuations = player.Pontuations.GetRoundPontuations(roundNumber);
+                if (roundPontuations != null)
+                {
+                    roundScoreboard.Pontuations.Add(new PlayerPontuation
+                    {
+                        UserName = player.UserName,
+                        RoundPontuation = roundPontuations.TotalPontuation,
+                        GamePontuation = player.TotalPontuation
+                    });
+                }
+            }
+
+            return roundScoreboard;
+        }
 
         public bool IsFinalRound() =>
             CurrentRound?.Number == Options.Rounds;

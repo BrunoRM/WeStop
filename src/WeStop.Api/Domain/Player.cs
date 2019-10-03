@@ -36,6 +36,7 @@ namespace WeStop.Api.Domain
         public ICollection<RoundAnswers> Answers { get; set; }
         public ICollection<RoundValidations> Validations { get; set; }
         public ICollection<RoundPontuations> Pontuations { get; set; }
+        public int TotalPontuation => Pontuations.Sum(p => p.TotalPontuation);
 
         public RoundAnswers GetAnswersInRound(int roundNumber) =>
             Answers.FirstOrDefault(a => a.RoundNumber == roundNumber);

@@ -15,5 +15,8 @@ namespace WeStop.Api.Extensions
                 .OrderBy(p => p.PlayerId)
                 .Select(p => p.PlayerId).ToArray();
         }
+
+        public static RoundPontuations GetRoundPontuations(this IEnumerable<RoundPontuations> pontuations, int roundNumber) =>
+            pontuations.FirstOrDefault(p => p.RoundNumber == roundNumber);
     }
 }
