@@ -27,6 +27,7 @@ namespace WeStop.Api.Extensions
                 yield return player;
             }
         }
+
         public static IEnumerable<RoundAnswers> GetAnswers(this ICollection<Player> players, int roundNumber) =>
             players.SelectMany(p => p.Answers.Where(v => v.RoundNumber == roundNumber));
 

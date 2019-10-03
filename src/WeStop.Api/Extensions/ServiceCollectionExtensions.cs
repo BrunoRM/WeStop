@@ -17,8 +17,8 @@ namespace WeStop.Api.Extensions
             services.AddSingleton<IPlayerStorage, PlayerStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
             services.AddSingleton<GameManager, GameManager>();
-            services.AddSingleton<PlayerManager, PlayerManager>();
-            services.AddSingleton<RoundScorer, RoundScorer>();
+            services.AddTransient<PlayerManager, PlayerManager>();
+            services.AddTransient<RoundScorer, RoundScorer>();
             services.AddSingleton<GameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
