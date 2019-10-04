@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
+using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Managers
@@ -25,8 +24,7 @@ namespace WeStop.Api.Managers
         {            
             if (!string.IsNullOrEmpty(password))
             {
-                var md5Provider = MD5.Create();
-                password = Encoding.UTF8.GetString(md5Provider.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                password = MD5HashGenerator.GenerateHash(password);
             }
 
             var game = new Game(name, password, options);
@@ -39,9 +37,23 @@ namespace WeStop.Api.Managers
             return game;
         }
 
-        public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> action)
+        public async Task JoinAsync(Guid gameId, string password, User user, Action<Game, Player> successAction, Action<string> failureAction)
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);
+
+            if (game.IsPrivate())
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    failureAction?.Invoke("Senha não informada");
+                    return;
+                }
+                else if (!MD5HashGenerator.GenerateHash(password).Equals(game.Password))
+                {
+                    failureAction?.Invoke("Senha incorreta");
+                    return;
+                }
+            }
 
             var player = game.Players.FirstOrDefault(p => p.Id == user.Id);
             if (player is null)
@@ -51,7 +63,7 @@ namespace WeStop.Api.Managers
                 await _playerStorage.AddAsync(player);
             }
 
-            action?.Invoke(game, player);
+            successAction?.Invoke(game, player);
         }
 
         public async Task StartRoundAsync(Guid gameId, Action<Round> action)
@@ -81,6 +93,22 @@ namespace WeStop.Api.Managers
             var player = await _playerStorage.GetAsync(roundValidations.GameId, roundValidations.PlayerId);
             player.Validations.Add(roundValidations);
             await _playerStorage.EditAsync(player);
+        }
+
+        public async Task<ICollection<Guid>> GetInRoundPlayersIdsAsync(Guid gameId)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+
+            var ids = new List<Guid>();
+            foreach (var player in game.Players)
+            {
+                if (player.InRound)
+                {
+                    ids.Add(player.Id);
+                }
+            }
+
+            return ids;
         }
 
         public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
@@ -117,7 +145,22 @@ namespace WeStop.Api.Managers
             return playersValidations;
         }
 
-        public async Task<string> StartValidationForNextThemeAsync(Guid gameId, int roundNumber)
+        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId, string theme)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            var validations = game.Players.GetValidations(game.CurrentRoundNumber);
+
+            foreach (var player in game.Players)
+            {
+                if (player.InRound && !validations.Any(v => v.PlayerId == player.Id && v.Theme.Equals(theme)))
+                    return false;
+            }
+
+            game.CurrentRound.ValidatedThemes.Add(theme);
+            return true;
+        }
+
+        public async Task<string> StartValidationForNextThemeAsync(Guid gameId)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
@@ -167,21 +210,6 @@ namespace WeStop.Api.Managers
             var game = await _gameStorage.GetByIdAsync(gameId);
             game.Finish();
             await _gameStorage.UpdateAsync(game);
-        }
-
-        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId, string theme)
-        {
-            var game = await _gameStorage.GetByIdAsync(gameId);
-            var validations = game.Players.GetValidations(game.CurrentRoundNumber);
-
-            foreach (var player in game.Players)
-            {
-                if (player.InRound && !validations.Any(v => v.PlayerId == player.Id))
-                    return false;
-            }
-
-            game.CurrentRound.ValidatedThemes.Add(theme);
-            return true;
         }
     }
 }

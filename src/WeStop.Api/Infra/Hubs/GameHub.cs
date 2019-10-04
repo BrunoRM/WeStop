@@ -48,9 +48,9 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("join")]
-        public async Task JoinAsync(Guid gameId, User user)
+        public async Task JoinAsync(Guid gameId, string password, User user)
         {
-            await _gameManager.JoinAsync(gameId, user, async (game, player) =>
+            await _gameManager.JoinAsync(gameId, password, user, async (game, player) =>
             {
                 ConnectionBinding.BindConnectionId(Context.ConnectionId, user.Id, gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
@@ -62,6 +62,7 @@ namespace WeStop.Api.Infra.Hubs
                         await Clients.Caller.SendAsync("im_joined_game", new
                         {
                             game = _mapper.Map<Game, GameDto>(game),
+                            lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
                             player = _mapper.Map<Player, PlayerDto>(player)
                         });
 
@@ -117,7 +118,7 @@ namespace WeStop.Api.Infra.Hubs
 
                         break;
                 }
-            });            
+            }, async (error) => await Clients.Caller.SendAsync("game_join_error", error));
         }
 
         [HubMethodName("start_round")]
@@ -169,7 +170,7 @@ namespace WeStop.Api.Infra.Hubs
             {
                 await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
 
-                var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber);
+                var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
                 if (!string.IsNullOrEmpty(themeToValidate))
                 {
@@ -190,7 +191,7 @@ namespace WeStop.Api.Infra.Hubs
                         }
                     }
 
-                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber, themeToValidate);
+                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber);
                 }
                 else
                 {

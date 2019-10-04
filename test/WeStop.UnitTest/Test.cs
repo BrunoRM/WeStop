@@ -29,9 +29,9 @@ namespace WeStop.UnitTest
         public void CreateDefaultGame()
         {
             Game = GameManager.CreateAsync(TestUsers.Dustin, TestGame.Name, TestGame.Password, TestGame.Options).Result;
-            GameManager.JoinAsync(Game.Id, TestUsers.Will, null).Wait();
-            GameManager.JoinAsync(Game.Id, TestUsers.Lucas, null).Wait();
-            GameManager.JoinAsync(Game.Id, TestUsers.Mike, null).Wait();
+            GameManager.JoinAsync(Game.Id, "", TestUsers.Will, null, null).Wait();
+            GameManager.JoinAsync(Game.Id, "", TestUsers.Lucas, null, null).Wait();
+            GameManager.JoinAsync(Game.Id, "", TestUsers.Mike, null, null).Wait();
         }
 
         public Game CreateGame(User user, string name, string password, GameOptions options) =>

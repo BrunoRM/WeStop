@@ -44,11 +44,11 @@ namespace WeStop.Api.Maps
                         return src.Options.Themes;
                     });
                 })
-                .ForMember(dst => dst.CurrentRound, config =>
+                .ForMember(dst => dst.NextRoundNumber, config =>
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.CurrentRound?.Number ?? 1;
+                        return src.NextRoundNumber;
                     });
                 });
         }

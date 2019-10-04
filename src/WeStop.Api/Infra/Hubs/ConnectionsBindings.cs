@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeStop.Api.Infra.Hubs
 {
@@ -45,5 +46,8 @@ namespace WeStop.Api.Infra.Hubs
 
         public static ICollection<(string ConnectionId, Guid PlayerId)> GetGameConnections(Guid gameId) =>
             _gameConnectionsIds[gameId];
+
+        public static string GetPlayerConnectionId(Guid gameId, Guid playerId) =>
+            GetGameConnections(gameId).FirstOrDefault(x => x.PlayerId == playerId).ConnectionId;
     }
 }

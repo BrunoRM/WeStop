@@ -47,7 +47,7 @@ namespace WeStop.Api.Controllers
                 {
                     g.Id,
                     g.Name,
-                    isPrivate = string.IsNullOrEmpty(g.Password) ? false : true,
+                    isPrivate = g.IsPrivate(),
                     g.Options.Themes,
                     g.Options.Rounds,
                     availableLetters = g.Options.AvailableLetters.Keys,

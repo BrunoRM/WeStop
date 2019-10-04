@@ -27,9 +27,13 @@ namespace WeStop.Api.Domain
         public Round PreviousRound => Rounds.SkipLast(1).LastOrDefault();
         public int PreviousRoundNumber => PreviousRound?.Number ?? 1;
         public Round CurrentRound => Rounds.LastOrDefault();
+        public int NextRoundNumber => CurrentRound?.Number + 1 ?? 1;
         public int CurrentRoundNumber => CurrentRound?.Number ?? 1;
         public ICollection<Round> Rounds { get; private set; }
         public ICollection<Player> Players { get; set; }
+
+        public bool IsPrivate() =>
+            !string.IsNullOrEmpty(Password);
 
         public Round StartNextRound()
         {

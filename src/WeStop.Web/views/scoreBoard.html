@@ -14,8 +14,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text"
-                    ng-repeat="score in game.scoreBoard.pontuations">
+                {{ game.scoreBoard }}
+                <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text" ng-repeat="score in scoreboard">
                     <td>{{score.userName}}</td>
                     <td>{{score.roundPontuation}}</td>
                     <td>{{score.gamePontuation}}</td>

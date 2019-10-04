@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WeStop.Api.Domain.Services;
@@ -19,7 +18,8 @@ namespace WeStop.Api.Infra.Timers
         private readonly GameManager _gameManager;
         private readonly RoundScorer _roundScorer;
 
-        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager, RoundScorer roundScorer)
+        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager,
+            RoundScorer roundScorer)
         {
             _gameHub = gameHub;
             _gameManager = gameManager;
@@ -60,35 +60,48 @@ namespace WeStop.Api.Infra.Timers
 
             OnValidationTimeOver += async (gameId, roundNumber, hub) =>
             {
-                await StartValidationForNextTheme(gameId, roundNumber, hub);
+                var inRoundPlayersIds = await _gameManager.GetInRoundPlayersIdsAsync(gameId);
+
+                foreach (var playerId in inRoundPlayersIds)
+                {
+                    var playerConnectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
+                    await hub.Clients.Client(playerConnectionId).SendAsync("validation_time_over");
+                }
             };
         }
 
         private async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber, IHubContext<GameHub> hub)
         {
-            var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId, currentRoundNumber);
+            var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
             if (!string.IsNullOrEmpty(themeToValidate))
             {
                 // TODO: Remover duplicidade de código daqui e do hub
-                var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
-
                 var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                 foreach (var (playerId, validations) in playersValidations)
                 {
-                    if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
+                    string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
+
+                    await hub.Clients.Client(connectionId).SendAsync("validation_started", new
                     {
-                        string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
-                        await hub.Clients.Client(connectionId).SendAsync("validation_started", new
-                        {
-                            theme = themeToValidate,
-                            validations
-                        });
-                    }
+                        theme = themeToValidate,
+                        validations
+                    });
                 }
 
-                StartValidationTimer(gameId, currentRoundNumber, themeToValidate);
+                StartValidationTimer(gameId, currentRoundNumber);
+            }
+            else
+            {
+                await _gameManager.FinishCurrentRoundAsync(gameId);
+
+                var scoreboard = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
+
+                await hub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                {
+                    scoreboard
+                });
             }
         }
 
@@ -104,7 +117,7 @@ namespace WeStop.Api.Infra.Timers
 
         public void Register(Guid gameId, int roundTime) =>
             _gamesRoundsTimes.Add(gameId, roundTime);
-        
+
         public void StartRoundTimer(Guid gameId, int roundNumber)
         {
             TimerContext gameTimerContext = CreateGameTimerContext(gameId, roundNumber, _gamesRoundsTimes[gameId]);
@@ -112,8 +125,8 @@ namespace WeStop.Api.Infra.Timers
             {
                 var roundTimerContext = (TimerContext)context;
                 if (roundTimerContext.ElapsedTime >= roundTimerContext.LimitTime)
-                {              
-                    RemoveGameTimer(gameId);      
+                {
+                    RemoveGameTimer(gameId);
                     OnRoundTimeOver(gameId, roundTimerContext.RoundNumber, _gameHub);
                 }
                 else
@@ -148,8 +161,8 @@ namespace WeStop.Api.Infra.Timers
 
             AddOrUpdateGameTimer(gameId, sendAnswersTimer);
         }
-        
-        public void StartValidationTimer(Guid gameId, int roundNumber, string theme)
+
+        public void StartValidationTimer(Guid gameId, int roundNumber)
         {
             TimerContext gameTimerContext = CreateGameTimerContext(gameId, roundNumber, Consts.VALIDATION_LIMIT_TIME);
             Timer validationTimer = new Timer((context) =>

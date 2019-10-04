@@ -6,7 +6,7 @@
 
             <ng-include src="'views/game-overview.html'"></ng-include>
             
-            <div ng-if="game.scoreBoard.length > 0 && (!roundStarted || gameFinished)">
+            <div ng-if="scoreboard && scoreboard.length > 0 && (!roundStarted || gameFinished)">
                 <ng-include src="'views/scoreBoard.html'"></ng-include>
                 <br />
             </div>

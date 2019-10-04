@@ -14,7 +14,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     function joinGame() {
-        $game.invoke("join", $routeParams.id, $rootScope.user);
+        $game.invoke("join", $routeParams.id, '', $rootScope.user);
     };
 
     function setGame(game) {
@@ -61,7 +61,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function getPlayerGamePontuation() {
-        let playerScore = $scope.game.scoreBoard.pontuations.find(playerScore => {
+        let playerScore = $scope.scoreboard.find(playerScore => {
             return playerScore.playerId === $rootScope.user.id;
         });
 
@@ -104,8 +104,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.sortedLetter = letter;
     }
 
-    function refreshGameScoreBoard(scoreBoard) {
-        $scope.game.scoreBoard = scoreBoard;
+    function refreshGamescoreboard(scoreboard) {
+        $scope.scoreboard = scoreboard;
     }
 
     function getPlayer(id) {
@@ -119,11 +119,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function addGameCurrentRoundNumber() {
-        $scope.game.currentRound += 1;
+        $scope.game.nextRoundNumber += 1;
     }
 
     $game.on("im_joined_game", (data) => {
+        console.log(data)
         setGame(data.game);
+        refreshGamescoreboard(data.lastRoundScoreboard);
         setPlayer(data.player);
         checkAllPlayersReady();   
     });
@@ -192,7 +194,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.stop = () => {
-        $game.invoke('stop_round', $routeParams.id, $scope.game.currentRound, $rootScope.user.id);
+        $game.invoke('stop_round', $routeParams.id, $scope.game.nextRoundNumber, $rootScope.user.id);
     };
 
     $game.on('round_stoped', (resp) => {
@@ -205,7 +207,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $game.invoke('send_answers', {
             playerId: $rootScope.user.id,
             gameId: $routeParams.id,
-            roundNumber: $scope.game.currentRound,
+            roundNumber: $scope.game.nextRoundNumber,
             answers: $scope.answers
         });
 
@@ -217,7 +219,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('round_finished', resp => {
         init();
-        refreshGameScoreBoard(resp.scoreboard);
+        refreshGamescoreboard(resp.scoreboard);
         updateGamePontuation();
         cleanThemeValidations();
         $scope.changeStatus();
@@ -227,7 +229,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('game_end', resp => {
         finishGame();
-        refreshGameScoreBoard(resp.scoreBoard);
+        refreshGamescoreboard(resp.scoreboard);
         setWinners(resp.winners);
         updateGamePontuation();
         addGameCurrentRoundNumber();
@@ -238,6 +240,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
     
     $game.on('validation_started', resp => {
+        console.log(resp);
         $scope.currentValidation = resp;
         startValidation();
     });    
@@ -246,12 +249,14 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshCurrentValidationTime(resp.currentTime);
     });
 
+    $game.on('validation_time_over', () => $scope.finishValidation());
+
     $scope.finishValidation = function () {
         
         let data = {
             gameId: $routeParams.id,
             playerId: $rootScope.user.id,
-            roundNumber: $scope.game.currentRound,
+            roundNumber: $scope.game.nextRoundNumber,
             theme: $scope.currentValidation.theme,
             validations: $scope.currentValidation.validations
         }
