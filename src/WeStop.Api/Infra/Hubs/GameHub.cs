@@ -196,11 +196,11 @@ namespace WeStop.Api.Infra.Hubs
                 {
                     await _gameManager.FinishCurrentRoundAsync(gameId);
 
-                    var roundPontuation = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
+                    var scoreboard = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
 
                     await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
                     {
-                        scoreboard = roundPontuation
+                        scoreboard
                     });
                 }
             }

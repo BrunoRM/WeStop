@@ -21,7 +21,7 @@ namespace WeStop.Api.Domain.Services
             _playersPontuations = new List<RoundPontuations>();
         }
 
-        public async Task<ICollection<RoundPontuations>> ProcessCurrentRoundPontuationAsync(Guid gameId)
+        public async Task<IReadOnlyCollection<PlayerPontuation>> ProcessCurrentRoundPontuationAsync(Guid gameId)
         {
             _game = await _gameStorage.GetByIdAsync(gameId);
             var currentRoundNumber = _game.CurrentRoundNumber;
@@ -68,7 +68,7 @@ namespace WeStop.Api.Domain.Services
 
             await SavePlayersPontuations();
 
-            return _playersPontuations;
+            return _game.GetScoreboard(_game.CurrentRoundNumber);
         }
 
         private async Task SavePlayersPontuations()

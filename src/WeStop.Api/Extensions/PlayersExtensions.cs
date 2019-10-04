@@ -23,7 +23,6 @@ namespace WeStop.Api.Extensions
             foreach (var player in players)
             {
                 player.InRound = false;
-                player.IsReady = false;
                 yield return player;
             }
         }

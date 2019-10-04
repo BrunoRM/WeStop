@@ -61,7 +61,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function getPlayerGamePontuation() {
-        let playerScore = $scope.game.scoreBoard.find(playerScore => {
+        let playerScore = $scope.game.scoreBoard.pontuations.find(playerScore => {
             return playerScore.playerId === $rootScope.user.id;
         });
 
@@ -217,7 +217,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('round_finished', resp => {
         init();
-        refreshGameScoreBoard(resp.scoreBoard);
+        refreshGameScoreBoard(resp.scoreboard);
         updateGamePontuation();
         cleanThemeValidations();
         $scope.changeStatus();

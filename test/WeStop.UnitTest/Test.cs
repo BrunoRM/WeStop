@@ -3,11 +3,18 @@ using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Managers;
+using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest
 {
     public abstract class Test
-    {        
+    {    
+        public IGameStorage GameStorage { get; set; }
+        public IPlayerStorage PlayerStorage { get; set; }
+        public GameManager GameManager { get; set; }
+        public RoundScorer RoundScorer => new RoundScorer(GameStorage, PlayerStorage);
+        public Game Game { get; private set; }
+
         public void CreateStorages()
         {
             GameStorage = new GameStorage();
@@ -36,11 +43,5 @@ namespace WeStop.UnitTest
             CreateManagers();
             CreateDefaultGame();
         }
-
-        public IGameStorage GameStorage { get; set; }
-        public IPlayerStorage PlayerStorage { get; set; }
-        public GameManager GameManager { get; set; }
-        public RoundScorer RoundScorer => new RoundScorer(GameStorage, PlayerStorage);
-        public Game Game { get; private set; }
     }
 }

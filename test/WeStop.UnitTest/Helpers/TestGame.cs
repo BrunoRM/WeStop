@@ -1,6 +1,6 @@
 using WeStop.Api.Domain;
 
-namespace WeStop.UnitTest
+namespace WeStop.UnitTest.Helpers
 {
     public static class TestGame
     {

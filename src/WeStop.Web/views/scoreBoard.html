@@ -15,9 +15,9 @@
             </thead>
             <tbody>
                 <tr ng-class="{ 'is-primary': score.playerId == user.id }" class="nes-text"
-                    ng-repeat="score in game.scoreBoard">
+                    ng-repeat="score in game.scoreBoard.pontuations">
                     <td>{{score.userName}}</td>
-                    <td>{{score.lastRoundPontuation}}</td>
+                    <td>{{score.roundPontuation}}</td>
                     <td>{{score.gamePontuation}}</td>
                 </tr>
             </tbody>

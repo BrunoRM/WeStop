@@ -63,16 +63,17 @@ namespace WeStop.Api.Domain
         private string[] GetNotSortedLetters() =>
             Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
 
-        public RoundScoreboard GetScoreboard(int roundNumber)
+        public IReadOnlyCollection<PlayerPontuation> GetScoreboard(int roundNumber)
         {
-            var roundScoreboard = new RoundScoreboard();
+            var playersPontuations = new List<PlayerPontuation>();
             foreach (var player in Players)
             {
                 var roundPontuations = player.Pontuations.GetRoundPontuations(roundNumber);
                 if (roundPontuations != null)
                 {
-                    roundScoreboard.Pontuations.Add(new PlayerPontuation
+                    playersPontuations.Add(new PlayerPontuation
                     {
+                        PlayerId = player.Id,
                         UserName = player.UserName,
                         RoundPontuation = roundPontuations.TotalPontuation,
                         GamePontuation = player.TotalPontuation
@@ -80,7 +81,7 @@ namespace WeStop.Api.Domain
                 }
             }
 
-            return roundScoreboard;
+            return playersPontuations.ToList();
         }
 
         public bool IsFinalRound() =>

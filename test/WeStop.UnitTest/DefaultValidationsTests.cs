@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using WeStop.Api.Domain;
 using WeStop.Api.Extensions;
+using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest
 {
