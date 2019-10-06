@@ -20,6 +20,12 @@ namespace WeStop.Api.Infra.Storages.InMemory
         public Task<Game> GetByIdAsync(Guid id) =>
             Task.FromResult(_games.FirstOrDefault(g => g.Id == id));
 
+        public async Task<ICollection<string>> GetThemesAsync(Guid gameId)
+        {
+            var game = await GetByIdAsync(gameId);
+            return game.Options.Themes;
+        }
+
         public Task UpdateAsync(Game game) =>
             Task.Run(() => {});
     }

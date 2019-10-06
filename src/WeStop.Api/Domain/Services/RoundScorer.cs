@@ -12,7 +12,8 @@ namespace WeStop.Api.Domain.Services
         private readonly IGameStorage _gameStorage;
         private readonly IPlayerStorage _playerStorage;
         private readonly ICollection<RoundPontuations> _playersPontuations;
-        private Game _game;
+        private Round _round;
+        private ICollection<Player> _players;
 
         public RoundScorer(IGameStorage gameStorage, IPlayerStorage playerStorage)
         {
@@ -21,14 +22,23 @@ namespace WeStop.Api.Domain.Services
             _playersPontuations = new List<RoundPontuations>();
         }
 
-        public async Task<IReadOnlyCollection<PlayerPontuation>> ProcessCurrentRoundPontuationAsync(Guid gameId)
+        public async Task ProcessRoundPontuationAsync(Round round)
         {
-            _game = await _gameStorage.GetByIdAsync(gameId);
-            var currentRoundNumber = _game.CurrentRoundNumber;
-            var roundAnswers = _game.Players.GetAnswers(currentRoundNumber).ToList();
-            var validations = _game.Players.GetValidations(currentRoundNumber).ToList();
+            if (round.Finished)
+            {
+                return;
+            }
+            
+            _round = round;
+            _players = await _playerStorage.GetPlayersInRoundAsync(round.GameId);
 
-            foreach (var theme in _game.Options.Themes)
+            var gameId = round.GameId;
+            var roundNumber = round.Number;
+            var roundAnswers = _players.GetAnswers(roundNumber).ToList();
+            var validations = _players.GetValidations(roundNumber).ToList();
+            var gameThemes = await _gameStorage.GetThemesAsync(round.GameId);
+
+            foreach (var theme in gameThemes)
             {
                 var answers = roundAnswers.GetAnswersOfTheme(theme);
 
@@ -48,36 +58,39 @@ namespace WeStop.Api.Domain.Services
 
                         if (playersThatRepliedAnswer.Count() > 1)
                         {
-                            GiveFivePointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
+                            GiveFivePointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                         }
                         else
                         {
-                            GiveTenPointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
+                            GiveTenPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                         }
                     }
                     else
                     {
                         var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
-                        GiveZeroPointsForEachPlayer(gameId, currentRoundNumber, theme, playersThatRepliedAnswer);
+                        GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
                     }
                 }
 
                 var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
-                GiveZeroPointsForEachPlayer(gameId, currentRoundNumber, theme, playersWithBlankAnswers);
+                GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersWithBlankAnswers);
             }
 
             await SavePlayersPontuations();
-
-            return _game.GetScoreboard(_game.CurrentRoundNumber);
+            round.Finish();
         }
 
         private async Task SavePlayersPontuations()
         {
             foreach (var playerPontuations in _playersPontuations)
             {
-                var player = _game.Players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
-                player.Pontuations.Add(playerPontuations);
-                await _playerStorage.EditAsync(player);
+                var player = _players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
+
+                if (player != null)
+                {
+                    player.Pontuations.Add(playerPontuations);
+                    await _playerStorage.EditAsync(player);
+                }
             }
         }
 

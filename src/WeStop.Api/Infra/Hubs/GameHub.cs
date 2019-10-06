@@ -99,6 +99,7 @@ namespace WeStop.Api.Infra.Hubs
                                 {
                                     game = _mapper.Map<Game, GameDto>(game),
                                     player = _mapper.Map<Player, PlayerDto>(player),
+                                    theme = game.CurrentRound.ThemeBeingValidated,
                                     validations = defaultPlayerValidations
                                 });
                             }
@@ -108,12 +109,12 @@ namespace WeStop.Api.Infra.Hubs
 
                     case GameState.Finished:
 
-                        Guid[] gameWinners = await _gameManager.GetWinnersAsync(game.Id);
+                        var winners = game.GetWinners().ToList();
 
                         await Clients.Caller.SendAsync("im_reconected_game", new
                         {
                             game = _mapper.Map<Game, GameDto>(game),
-                            winners = gameWinners
+                            winners
                         });
 
                         break;
@@ -169,39 +170,46 @@ namespace WeStop.Api.Infra.Hubs
             if (await _gameManager.AllPlayersSendValidationsAsync(gameId, roundValidations.Theme))
             {
                 await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
-
+                
+                // TODO: Remover duplicidade de código daqui e do hub
                 var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
                 if (!string.IsNullOrEmpty(themeToValidate))
                 {
-                    var gameConnectionsIds = ConnectionBinding.GetGameConnections(gameId);
-
                     var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                     foreach (var (playerId, validations) in playersValidations)
                     {
-                        if (gameConnectionsIds.Any(gc => gc.PlayerId == playerId))
+                        string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
+
+                        await Clients.Client(connectionId).SendAsync("validation_started", new
                         {
-                            string connectionId = gameConnectionsIds.First(gc => gc.PlayerId == playerId).ConnectionId;
-                            await Clients.Client(connectionId).SendAsync("validation_started", new
-                            {
-                                theme = themeToValidate,
-                                validations
-                            });
-                        }
+                            theme = themeToValidate,
+                            validations
+                        });
                     }
 
                     _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber);
                 }
                 else
                 {
-                    await _gameManager.FinishCurrentRoundAsync(gameId);
-
-                    var scoreboard = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-
-                    await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                    await _gameManager.FinishCurrentRoundAsync(gameId, async (isFinalRound, roundScoreboard, winners) =>
                     {
-                        scoreboard
+                        if (isFinalRound)
+                        {
+                            await Clients.Group(gameId.ToString()).SendAsync("game_end", new
+                            {
+                                scoreboard = roundScoreboard,
+                                winners
+                            });
+                        }
+                        else
+                        {
+                            await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                            {
+                                scoreboard = roundScoreboard
+                            });
+                        }
                     });
                 }
             }

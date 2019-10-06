@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest.GameTests
@@ -11,6 +12,7 @@ namespace WeStop.UnitTest.GameTests
         public void Initialize()
         {
             CreateDefaultConfig();
+            Game.Players.PutAllPlayersInReadyState();
         }
 
         [Test]
@@ -56,7 +58,7 @@ namespace WeStop.UnitTest.GameTests
                 GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
                 GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
-                RoundScorer.ProcessCurrentRoundPontuationAsync(Game.Id).Wait();
+                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
 
                 var scoreBoard = Game.GetScoreboard(Game.CurrentRoundNumber);
 

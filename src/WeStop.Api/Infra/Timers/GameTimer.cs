@@ -72,11 +72,11 @@ namespace WeStop.Api.Infra.Timers
 
         private async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber, IHubContext<GameHub> hub)
         {
+            // TODO: Remover duplicidade de código daqui e do hub
             var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
             if (!string.IsNullOrEmpty(themeToValidate))
             {
-                // TODO: Remover duplicidade de código daqui e do hub
                 var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                 foreach (var (playerId, validations) in playersValidations)
@@ -94,13 +94,25 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                await _gameManager.FinishCurrentRoundAsync(gameId);
-
-                var scoreboard = await _roundScorer.ProcessCurrentRoundPontuationAsync(gameId);
-
-                await hub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                // Buscar todos os jogadores da partida que estão online e enviar o evento de round_finished para eles
+                // no objeto retornado deve conter uma propriedade para a pontuação atual
+                await _gameManager.FinishCurrentRoundAsync(gameId, async (isFinalRound, roundScoreboard, winners) =>
                 {
-                    scoreboard
+                    if (isFinalRound)
+                    {
+                        await hub.Clients.Group(gameId.ToString()).SendAsync("game_end", new
+                        {
+                            scoreboard = roundScoreboard,
+                            winners
+                        });
+                    }
+                    else
+                    {
+                        await hub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                        {
+                            scoreboard = roundScoreboard
+                        });
+                    }
                 });
             }
         }

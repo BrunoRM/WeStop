@@ -25,8 +25,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.player = player;
     };
     
-    function startRound() {
-        
+    function startRound() {        
         $scope.allPlayersReady = true;
         $scope.roundStarted = true;
         $scope.roundStopped = false;
@@ -119,7 +118,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function addGameCurrentRoundNumber() {
-        $scope.game.nextRoundNumber += 1;
+        $scope.game.currentRoundNumber += 1;
     }
 
     $game.on("im_joined_game", (data) => {
@@ -131,7 +130,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('im_reconected_game', (resp) => {
-
+        console.log(resp);
         setGame(resp.game);
         setPlayer(resp.player);
         startRound();
@@ -194,7 +193,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.stop = () => {
-        $game.invoke('stop_round', $routeParams.id, $scope.game.nextRoundNumber, $rootScope.user.id);
+        $game.invoke('stop_round', $routeParams.id, $scope.game.currentRoundNumber, $rootScope.user.id);
     };
 
     $game.on('round_stoped', (resp) => {
@@ -207,7 +206,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $game.invoke('send_answers', {
             playerId: $rootScope.user.id,
             gameId: $routeParams.id,
-            roundNumber: $scope.game.nextRoundNumber,
+            roundNumber: $scope.game.currentRoundNumber,
             answers: $scope.answers
         });
 
@@ -218,6 +217,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('round_finished', resp => {
+        console.log(resp);
         init();
         refreshGamescoreboard(resp.scoreboard);
         updateGamePontuation();
@@ -232,7 +232,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshGamescoreboard(resp.scoreboard);
         setWinners(resp.winners);
         updateGamePontuation();
-        addGameCurrentRoundNumber();
     });    
 
     $game.on('round_time_elapsed', resp => {
@@ -240,7 +239,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
     
     $game.on('validation_started', resp => {
-        console.log(resp);
         $scope.currentValidation = resp;
         startValidation();
     });    
@@ -256,7 +254,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         let data = {
             gameId: $routeParams.id,
             playerId: $rootScope.user.id,
-            roundNumber: $scope.game.nextRoundNumber,
+            roundNumber: $scope.game.currentRoundNumber,
             theme: $scope.currentValidation.theme,
             validations: $scope.currentValidation.validations
         }

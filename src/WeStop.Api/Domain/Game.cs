@@ -27,7 +27,7 @@ namespace WeStop.Api.Domain
         public Round PreviousRound => Rounds.SkipLast(1).LastOrDefault();
         public int PreviousRoundNumber => PreviousRound?.Number ?? 1;
         public Round CurrentRound => Rounds.LastOrDefault();
-        public int NextRoundNumber => CurrentRound?.Number + 1 ?? 1;
+        public int NextRoundNumber => Rounds.Count == 1 ? 1 : CurrentRound?.Number + 1 ?? 1;
         public int CurrentRoundNumber => CurrentRound?.Number ?? 1;
         public ICollection<Round> Rounds { get; private set; }
         public ICollection<Player> Players { get; set; }
@@ -80,7 +80,8 @@ namespace WeStop.Api.Domain
                         PlayerId = player.Id,
                         UserName = player.UserName,
                         RoundPontuation = roundPontuations.TotalPontuation,
-                        GamePontuation = player.TotalPontuation
+                        GamePontuation = player.TotalPontuation,
+                        Pontuations = roundPontuations.ThemesPontuations
                     });
                 }
             }
@@ -103,6 +104,20 @@ namespace WeStop.Api.Domain
                 throw new WeStopException("O jogo só poderá ser finalizado se a rodada atual for a última");
 
             State = GameState.Finished;
-        }        
+        }
+
+        public IEnumerable<string> GetWinners()
+        {
+            if (!IsFinalRound())
+                throw new WeStopException("O jogo ainda não chegou ao fim");
+
+            var playersPontuations = Players.GetPontuations();
+            var gameWinners = playersPontuations.GetWinners();
+
+            foreach (var winnerId in gameWinners)
+            {
+                yield return Players.First(p => p.Id == winnerId).UserName;
+            }
+        }
     }
 }

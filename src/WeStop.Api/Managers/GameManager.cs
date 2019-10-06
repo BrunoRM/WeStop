@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
+using WeStop.Api.Domain.Services;
 using WeStop.Api.Extensions;
 using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
@@ -13,19 +14,24 @@ namespace WeStop.Api.Managers
     {
         private readonly IGameStorage _gameStorage;
         private readonly IPlayerStorage _playerStorage;
+        private readonly RoundScorer _roundScorer;
 
-        public GameManager(IGameStorage gameStorage, IPlayerStorage playerStorage)
+        public GameManager(IGameStorage gameStorage, IPlayerStorage playerStorage,
+            RoundScorer roundScorer)
         {
             _gameStorage = gameStorage;
             _playerStorage = playerStorage;
+            _roundScorer = roundScorer;
         }
 
         public async Task<Game> CreateAsync(User user, string name, string password, GameOptions options)
-        {            
+        {
+            // TODO: mover essa lógica de criptografia pra dentro da classe Game
             if (!string.IsNullOrEmpty(password))
             {
                 password = MD5HashGenerator.GenerateHash(password);
             }
+            ///
 
             var game = new Game(name, password, options);
             await _gameStorage.AddAsync(game);
@@ -45,12 +51,12 @@ namespace WeStop.Api.Managers
             {
                 if (string.IsNullOrEmpty(password))
                 {
-                    failureAction?.Invoke("Senha n�o informada");
+                    failureAction?.Invoke("PASSWORD_REQUIRED");
                     return;
                 }
                 else if (!MD5HashGenerator.GenerateHash(password).Equals(game.Password))
                 {
-                    failureAction?.Invoke("Senha incorreta");
+                    failureAction?.Invoke("PASSWORD_INCORRECT");
                     return;
                 }
             }
@@ -157,6 +163,8 @@ namespace WeStop.Api.Managers
             }
 
             game.CurrentRound.ValidatedThemes.Add(theme);
+            await _gameStorage.UpdateAsync(game);
+
             return true;
         }
 
@@ -167,20 +175,14 @@ namespace WeStop.Api.Managers
             {
                 if (!game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
+                    game.StartValidations();
                     game.CurrentRound.ThemeBeingValidated = theme;
+                    await _gameStorage.UpdateAsync(game);
                     return theme;
                 }                
             }
 
             return string.Empty;
-        }
-
-        public async Task<Guid[]> GetWinnersAsync(Guid gameId)
-        {
-            var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
-            var playersPontuations = players.GetPontuations();
-            var gameWinners = playersPontuations.GetWinners();
-            return gameWinners;
         }
 
         public async Task StopCurrentRoundAsync(Guid gameId, Action<Game> action)
@@ -192,17 +194,31 @@ namespace WeStop.Api.Managers
             action?.Invoke(game);
         }
 
-        public async Task FinishCurrentRoundAsync(Guid gameId)
+        public async Task FinishCurrentRoundAsync(Guid gameId, Action<bool, IReadOnlyCollection<PlayerPontuation>, IEnumerable<string>> finishedRoundAction)
         {
             var players = await _playerStorage.GetPlayersAsync(gameId);
+
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            game.FinishRound(); // TODO: Revisar, pois Round possui um método finish também
+
+            await _roundScorer.ProcessRoundPontuationAsync(game.CurrentRound);
+            await _gameStorage.UpdateAsync(game);
+
+            var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
+            if (game.IsFinalRound())
+            {
+                var winners = game.GetWinners().ToList();
+                finishedRoundAction?.Invoke(true, roundScoreboard, winners);
+            }
+            else
+            {
+                finishedRoundAction?.Invoke(false, roundScoreboard, new List<string>());
+            }
+
             foreach (var player in players.PutAllPlayersInWaiting())
             {
                 await _playerStorage.EditAsync(player);
             }
-
-            var game = await _gameStorage.GetByIdAsync(gameId);
-            game.FinishRound();
-            await _gameStorage.UpdateAsync(game);
         }
 
         public async Task FinishAsync(Guid gameId)

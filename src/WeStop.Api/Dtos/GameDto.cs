@@ -12,7 +12,7 @@ namespace WeStop.Api.Dtos
         public int NumberOfRounds { get; set; }
         public int Time { get; set; }
         public string[] Themes { get; set; }
-        public int NextRoundNumber { get; set; }
+        public int CurrentRoundNumber { get; set; }
         public ICollection<PlayerDto> Players { get; set; }
         public ICollection<PlayerScoreDto> ScoreBoard { get; set; }
     }

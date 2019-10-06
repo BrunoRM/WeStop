@@ -9,6 +9,6 @@ namespace WeStop.Api.Dtos
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
         public bool IsOnline { get; set; }
-        public int EarnedPoints { get; set; }
+        public int TotalPontuation { get; set; }
     }
 }

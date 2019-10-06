@@ -44,7 +44,7 @@ namespace WeStop.Api.Maps
                         return src.Options.Themes;
                     });
                 })
-                .ForMember(dst => dst.NextRoundNumber, config =>
+                .ForMember(dst => dst.CurrentRoundNumber, config =>
                 {
                     config.MapFrom((src, dst) =>
                     {

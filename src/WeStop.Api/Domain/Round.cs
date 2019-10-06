@@ -11,6 +11,7 @@ namespace WeStop.Api.Domain
             Number = number;
             SortedLetter = sortedLetter;
             ValidatedThemes = new List<string>();
+            Finished = false;
         }
 
         public Guid GameId { get; set; }
@@ -18,5 +19,9 @@ namespace WeStop.Api.Domain
         public string SortedLetter { get; private set; }
         public string ThemeBeingValidated { get; set; }
         public ICollection<string> ValidatedThemes { get; set; }
+        public bool Finished { get; private set; }
+
+        public void Finish() =>
+            Finished = true;
     }
 }

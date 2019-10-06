@@ -23,7 +23,7 @@ namespace WeStop.UnitTest
 
         public void CreateManagers()
         {
-            GameManager = new GameManager(GameStorage, PlayerStorage);
+            GameManager = new GameManager(GameStorage, PlayerStorage, RoundScorer);
         }
 
         public void CreateDefaultGame()
