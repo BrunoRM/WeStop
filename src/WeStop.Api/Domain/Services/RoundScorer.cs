@@ -29,10 +29,11 @@ namespace WeStop.Api.Domain.Services
                 return;
             }
             
-            _round = round;
-            _players = await _playerStorage.GetPlayersInRoundAsync(round.GameId);
-
             var gameId = round.GameId;
+            
+            _round = round;
+            _players = await _playerStorage.GetPlayersInRoundAsync(gameId);
+
             var roundNumber = round.Number;
             var roundAnswers = _players.GetAnswers(roundNumber).ToList();
             var validations = _players.GetValidations(roundNumber).ToList();

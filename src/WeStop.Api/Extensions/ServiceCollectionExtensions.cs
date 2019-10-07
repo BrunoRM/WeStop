@@ -16,10 +16,10 @@ namespace WeStop.Api.Extensions
             services.AddSingleton<IThemeStorage, ThemeStorage>();
             services.AddSingleton<IPlayerStorage, PlayerStorage>();
             services.AddSingleton<IGameStorage, GameStorage>();
-            services.AddSingleton<GameManager, GameManager>();
-            services.AddTransient<PlayerManager, PlayerManager>();
-            services.AddTransient<RoundScorer, RoundScorer>();
-            services.AddSingleton<GameTimer, GameTimer>();
+            services.AddScoped<GameManager, GameManager>();
+            services.AddScoped<PlayerManager, PlayerManager>();
+            services.AddScoped<RoundScorer, RoundScorer>();
+            services.AddScoped<GameTimer, GameTimer>();
 
             var assembly = AppDomain.CurrentDomain.Load("WeStop.Api");
             services.AddAutoMapper(assembly);

@@ -202,11 +202,11 @@ namespace WeStop.Api.Managers
             game.FinishRound(); // TODO: Revisar, pois Round possui um método finish também
 
             await _roundScorer.ProcessRoundPontuationAsync(game.CurrentRound);
-            await _gameStorage.UpdateAsync(game);
 
             var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
             if (game.IsFinalRound())
             {
+                game.Finish();
                 var winners = game.GetWinners().ToList();
                 finishedRoundAction?.Invoke(true, roundScoreboard, winners);
             }
@@ -219,6 +219,8 @@ namespace WeStop.Api.Managers
             {
                 await _playerStorage.EditAsync(player);
             }
+
+            await _gameStorage.UpdateAsync(game);
         }
 
         public async Task FinishAsync(Guid gameId)

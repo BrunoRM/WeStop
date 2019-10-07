@@ -122,7 +122,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $game.on("im_joined_game", (data) => {
-        console.log(data)
         setGame(data.game);
         refreshGamescoreboard(data.lastRoundScoreboard);
         setPlayer(data.player);
