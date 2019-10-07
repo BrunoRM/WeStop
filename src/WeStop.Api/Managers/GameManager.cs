@@ -82,7 +82,7 @@ namespace WeStop.Api.Managers
             }
 
             var createdRound = game.StartNextRound();
-            await _gameStorage.UpdateAsync(game);
+            await _gameStorage.EditAsync(game);
 
             action?.Invoke(createdRound);
         }
@@ -120,7 +120,7 @@ namespace WeStop.Api.Managers
         public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
         {
             var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
-            var playerValidations = players.GetValidations(roundNumber);
+            var playerValidations = players.GetValidations(roundNumber, theme);
 
             if (!playerValidations.Any())
             {
@@ -163,7 +163,7 @@ namespace WeStop.Api.Managers
             }
 
             game.CurrentRound.ValidatedThemes.Add(theme);
-            await _gameStorage.UpdateAsync(game);
+            await _gameStorage.EditAsync(game);
 
             return true;
         }
@@ -177,7 +177,7 @@ namespace WeStop.Api.Managers
                 {
                     game.StartValidations();
                     game.CurrentRound.ThemeBeingValidated = theme;
-                    await _gameStorage.UpdateAsync(game);
+                    await _gameStorage.EditAsync(game);
                     return theme;
                 }                
             }
@@ -190,7 +190,7 @@ namespace WeStop.Api.Managers
             var game = await _gameStorage.GetByIdAsync(gameId);
             game.StartValidations();
 
-            await _gameStorage.UpdateAsync(game);
+            await _gameStorage.EditAsync(game);
             action?.Invoke(game);
         }
 
@@ -220,14 +220,14 @@ namespace WeStop.Api.Managers
                 await _playerStorage.EditAsync(player);
             }
 
-            await _gameStorage.UpdateAsync(game);
+            await _gameStorage.EditAsync(game);
         }
 
         public async Task FinishAsync(Guid gameId)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             game.Finish();
-            await _gameStorage.UpdateAsync(game);
+            await _gameStorage.EditAsync(game);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace WeStop.Api.Maps
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.NextRoundNumber;
+                        return src.CurrentRoundNumber;
                     });
                 });
         }

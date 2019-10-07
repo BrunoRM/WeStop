@@ -1,5 +1,11 @@
 <div ng-if="winners.length > 1">
-    <h6>A partida terminou empatada!!</h6>
+    <h6>
+        A partida terminou empatada entre
+        <span ng-repeat="winner in winners">
+            <span ng-if="winners.$last"> e </span>
+            {{ winner }}<span ng-if="!winners.$last">,</span>
+        </span>
+    </h6>
 </div>
 
 <div ng-if="winners.length === 1">

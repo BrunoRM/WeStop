@@ -1,9 +1,9 @@
 <div class="container">
     <div class="col-12 col-md-10 offset-md-1">
         <div class="nes-container is-dark with-title">
-            
-            <p class="title">{{ game.name }}</p>
 
+            <p class="title">{{ game.name }}</p>
+            
             <ng-include src="'views/game-overview.html'"></ng-include>
             
             <div ng-if="scoreboard && scoreboard.length > 0 && (!roundStarted || gameFinished)">

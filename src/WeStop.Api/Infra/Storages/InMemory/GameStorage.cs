@@ -26,7 +26,7 @@ namespace WeStop.Api.Infra.Storages.InMemory
             return game.Options.Themes;
         }
 
-        public Task UpdateAsync(Game game) =>
+        public Task EditAsync(Game game) =>
             Task.Run(() => {});
     }
 }

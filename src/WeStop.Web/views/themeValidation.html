@@ -12,17 +12,15 @@
     <p>Tema {{validationIndex + 1}} de {{groupedValidations.length}}</p>
     <div class="form-row">
         <div class="form-group col-6 col-md-4" ng-repeat="validation in currentValidation.validations">
-
             <label>
                 <input ng-model="validation.valid" type="checkbox" class="nes-checkbox is-dark" />
                 <span>{{validation.answer.value}}</span>
-            </label>
-
-            <div class="row">
-                <button class="nes-btn is-success" ng-click="finishValidation()">Confirmar</button>
-            </div>
-
+            </label>    
         </div>
+    </div>
+
+    <div class="row">
+        <button class="nes-btn is-success" ng-click="finishValidation()">Confirmar</button>
     </div>
 </div>
 

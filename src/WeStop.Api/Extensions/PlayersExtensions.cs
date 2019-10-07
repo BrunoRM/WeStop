@@ -33,8 +33,14 @@ namespace WeStop.Api.Extensions
         public static IEnumerable<RoundValidations> GetValidations(this ICollection<Player> players, int roundNumber) =>
             players.SelectMany(p => p.Validations.Where(v => v.RoundNumber == roundNumber));
 
-        public static IEnumerable<RoundPontuations> GetPontuations(this ICollection<Player> players) =>
-            players.SelectMany(p => p.Pontuations);
+        public static IEnumerable<RoundValidations> GetValidations(this ICollection<Player> players, int roundNumber, string theme) =>
+            players.SelectMany(p => p.Validations.Where(v => v.RoundNumber == roundNumber && v.Theme.Equals(theme)));
+
+        public static int GetHighPontuation(this ICollection<Player> players) =>
+            players.Max(p => p.TotalPontuation);
+
+        public static IReadOnlyCollection<Player> GetPlayersWithPontuation(this ICollection<Player> players, int pontuation) =>
+            players.Where(p => p.TotalPontuation == pontuation).ToList();
 
         public static IEnumerable<RoundPontuations> GetInRoundPontuations(this ICollection<Player> players, int roundNumber) =>
             players.SelectMany(p => p.Pontuations.Where(pt => pt.RoundNumber == roundNumber));

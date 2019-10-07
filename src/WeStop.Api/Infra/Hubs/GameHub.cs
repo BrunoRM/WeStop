@@ -18,17 +18,14 @@ namespace WeStop.Api.Infra.Hubs
         private readonly PlayerManager _playerManager;
         private readonly GameTimer _gameTimer;
         private readonly IMapper _mapper;
-        private readonly RoundScorer _roundScorer;
 
         public GameHub(GameTimer gameTimer, IMapper mapper, 
-            GameManager gameManager, PlayerManager playerManager,
-            RoundScorer roundScorer)
+            GameManager gameManager, PlayerManager playerManager)
         {
             _gameManager = gameManager;
             _playerManager = playerManager;
             _gameTimer = gameTimer;
             _mapper = mapper;
-            _roundScorer = roundScorer;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -114,6 +111,7 @@ namespace WeStop.Api.Infra.Hubs
                         await Clients.Caller.SendAsync("im_reconected_game", new
                         {
                             game = _mapper.Map<Game, GameDto>(game),
+                            lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
                             winners
                         });
 
@@ -199,7 +197,7 @@ namespace WeStop.Api.Infra.Hubs
                         {
                             await Clients.Group(gameId.ToString()).SendAsync("game_end", new
                             {
-                                scoreboard = roundScoreboard,
+                                lastRoundScoreboard = roundScoreboard,
                                 winners
                             });
                         }

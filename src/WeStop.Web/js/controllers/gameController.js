@@ -68,7 +68,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     function checkAllPlayersReady() {
-
         if ($scope.game.players.length === 1) {
             $scope.allPlayersReady = false;
         }
@@ -117,34 +116,35 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentAnswersTime = newValue;
     }
 
-    function addGameCurrentRoundNumber() {
+    function addRoundNumber() {
         $scope.game.currentRoundNumber += 1;
     }
 
     $game.on("im_joined_game", (data) => {
         setGame(data.game);
+        addRoundNumber();
         refreshGamescoreboard(data.lastRoundScoreboard);
         setPlayer(data.player);
         checkAllPlayersReady();   
     });
 
     $game.on('im_reconected_game', (resp) => {
-        console.log(resp);
         setGame(resp.game);
         setPlayer(resp.player);
         startRound();
 
         switch (resp.game.state) {
-            case "ThemesValidations":
+            case 'Validations':
                 if (resp.validated) {
                     cleanThemeValidations();
                 } else {
+                    setCurrentValidation(resp.theme, resp.validations);
                     startValidation();
-                    setThemeValidation(resp.themeValidations);
                 }
                 break;
-            case "Finished":
+            case 'Finished':
                 setWinners(resp.winners);
+                refreshGamescoreboard(resp.lastRoundScoreboard);
                 finishGame();
                 updateGamePontuation();
                 break;
@@ -216,19 +216,18 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('round_finished', resp => {
-        console.log(resp);
         init();
         refreshGamescoreboard(resp.scoreboard);
         updateGamePontuation();
         cleanThemeValidations();
         $scope.changeStatus();
-        addGameCurrentRoundNumber();
+        addRoundNumber();
         cleanThemeValidations();
     });
 
     $game.on('game_end', resp => {
         finishGame();
-        refreshGamescoreboard(resp.scoreboard);
+        refreshGamescoreboard(resp.lastRoundScoreboard);
         setWinners(resp.winners);
         updateGamePontuation();
     });    
@@ -236,9 +235,18 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('round_time_elapsed', resp => {
         refreshCurrentAnswersTime(resp);        
     });
+
+    function setCurrentValidation(theme, validations) {
+        if (validations.length !== 0) {
+            $scope.currentValidation = {
+                theme: theme,
+                validations: validations
+            }
+        }
+    };
     
     $game.on('validation_started', resp => {
-        $scope.currentValidation = resp;
+        setCurrentValidation(resp.theme, resp.validations);
         startValidation();
     });    
 

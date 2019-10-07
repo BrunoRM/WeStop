@@ -189,7 +189,7 @@ namespace WeStop.Api.Infra.Timers
                 {
                     OnValidationTimeElapsed(gameId, timerContext.RoundNumber, ++timerContext.ElapsedTime, _gameHub);
                 }
-            }, gameTimerContext, 1500, 1000);
+            }, gameTimerContext, 500, 1000);
 
             AddOrUpdateGameTimer(gameId, validationTimer);
         }

@@ -18,7 +18,7 @@ namespace WeStop.Api.Extensions
 
         public static IEnumerable<Validation> BuildValidationsForPlayer(this IEnumerable<RoundAnswers> roundsAnswers, Guid playerId, string theme)
         {
-            var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).ToList();
+            var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).Distinct().ToList();
             
             foreach (var answer in answers)
             {

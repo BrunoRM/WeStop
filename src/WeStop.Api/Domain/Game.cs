@@ -28,7 +28,7 @@ namespace WeStop.Api.Domain
         public int PreviousRoundNumber => PreviousRound?.Number ?? 1;
         public Round CurrentRound => Rounds.LastOrDefault();
         public int NextRoundNumber => Rounds.Count == 1 ? 1 : CurrentRound?.Number + 1 ?? 1;
-        public int CurrentRoundNumber => CurrentRound?.Number ?? 1;
+        public int CurrentRoundNumber => CurrentRound?.Number ?? 0;
         public ICollection<Round> Rounds { get; private set; }
         public ICollection<Player> Players { get; set; }
 
@@ -111,12 +111,12 @@ namespace WeStop.Api.Domain
             if (!IsFinalRound())
                 throw new WeStopException("O jogo ainda não chegou ao fim");
 
-            var playersPontuations = Players.GetPontuations();
-            var gameWinners = playersPontuations.GetWinners();
+            var highPontuation = Players.GetHighPontuation();
+            var gameWinners = Players.GetPlayersWithPontuation(highPontuation);
 
-            foreach (var winnerId in gameWinners)
+            foreach (var player in gameWinners)
             {
-                yield return Players.First(p => p.Id == winnerId).UserName;
+                yield return Players.First(p => p.Id == player.Id).UserName;
             }
         }
     }
