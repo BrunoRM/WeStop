@@ -5,7 +5,6 @@ using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Infra.Timers;
-using WeStop.Api.Managers;
 
 namespace WeStop.Api.Extensions
 {

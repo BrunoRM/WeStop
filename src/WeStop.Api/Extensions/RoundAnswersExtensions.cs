@@ -11,19 +11,26 @@ namespace WeStop.Api.Extensions
             roundAnswers.SelectMany(ra => ra.Answers.Where(a => a == answer).Select(a => ra.PlayerId)).ToList();
 
         public static IEnumerable<Guid> GetPlayersIdsWithBlankAnswers(this IEnumerable<RoundAnswers> roundAnswers) =>
-            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Value.Equals(string.Empty)).Select(a => ra.PlayerId)).ToList();
+            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.IsEmpty()).Select(a => ra.PlayerId)).ToList();
 
         public static Answer[] GetAnswersOfTheme(this IEnumerable<RoundAnswers> roundAnswers, string theme) =>
-            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).Distinct().ToArray();
+            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !a.IsEmpty())).Distinct().ToArray();
 
         public static IEnumerable<Validation> BuildValidationsForPlayer(this IEnumerable<RoundAnswers> roundsAnswers, Guid playerId, string theme)
         {
-            var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))).Distinct().ToList();
+            var answers = roundsAnswers.Where(ra => ra.PlayerId != playerId).SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !a.IsEmpty())).Distinct().ToList();
             
             foreach (var answer in answers)
             {
                 yield return new Validation(answer);
             }
+        }
+
+        public static int GetTotalThemesForPlayerValidate(this IEnumerable<RoundAnswers> roundAnswers, Guid playerId, int roundNumber)
+        {
+            return roundAnswers.Where(ra => ra.RoundNumber == roundNumber && ra.PlayerId != playerId)
+                .SelectMany(ra => ra.Answers.Where(a => !a.IsEmpty()).Select(a => a.Theme))
+                .Distinct().Count();
         }
     }
 }

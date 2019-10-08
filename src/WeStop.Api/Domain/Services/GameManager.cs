@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Api.Domain;
-using WeStop.Api.Domain.Services;
 using WeStop.Api.Extensions;
 using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Managers
+namespace WeStop.Api.Domain.Services
 {
     public class GameManager
     {
@@ -26,12 +24,10 @@ namespace WeStop.Api.Managers
 
         public async Task<Game> CreateAsync(User user, string name, string password, GameOptions options)
         {
-            // TODO: mover essa lógica de criptografia pra dentro da classe Game
             if (!string.IsNullOrEmpty(password))
             {
                 password = MD5HashGenerator.GenerateHash(password);
             }
-            ///
 
             var game = new Game(name, password, options);
             await _gameStorage.AddAsync(game);
@@ -117,7 +113,7 @@ namespace WeStop.Api.Managers
             return ids;
         }
 
-        public async Task<ICollection<Validation>> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
+        public async Task<(ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
         {
             var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
             var playerValidations = players.GetValidations(roundNumber, theme);
@@ -125,26 +121,29 @@ namespace WeStop.Api.Managers
             if (!playerValidations.Any())
             {
                 var answers = players.GetAnswers(roundNumber);
+                var totalValidations = answers.GetTotalThemesForPlayerValidate(playerId, roundNumber);
                 var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(playerId, theme);
 
-                return defaultValidationsForPlayer.ToList();
+                var validationsNumber = players.First(p => p.Id == playerId).GetTotalValidationsInRound(roundNumber) + 1;
+                return (defaultValidationsForPlayer.ToList(), totalValidations, validationsNumber);
             }
 
-            return new List<Validation>();
+            return (new List<Validation>(), 0, 0);
         }
 
-        public async Task<ICollection<(Guid playerId, ICollection<Validation> validations)>> GetPlayersDefaultValidationsAsync(Guid gameId, string theme)
+        public async Task<ICollection<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)>> GetPlayersDefaultValidationsAsync(Guid gameId, string theme)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
             var answers = game.Players.GetAnswers(game.CurrentRoundNumber);
 
-            var playersValidations = new List<(Guid PlayerId, ICollection<Validation> Validations)>();
+            var playersValidations = new List<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationNumber)>();
             foreach (var player in game.Players)
             {
                 if (player.InRound)
                 {
+                    var totalValidations = answers.GetTotalThemesForPlayerValidate(player.Id, game.CurrentRoundNumber);
                     var playerValidations = answers.BuildValidationsForPlayer(player.Id, theme).ToList();
-                    playersValidations.Add((player.Id, playerValidations));
+                    playersValidations.Add((player.Id, playerValidations, totalValidations, player.GetTotalValidationsInRound(game.CurrentRoundNumber) + 1));
                 }
             }
 
@@ -175,7 +174,7 @@ namespace WeStop.Api.Managers
             var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
             {
-                if (!game.CurrentRound.ValidatedThemes.Contains(theme))
+                if (game.Players.HasAnyAnswerForTheme(game.CurrentRoundNumber, theme) && !game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
                     game.StartValidations();
                     game.CurrentRound.ThemeBeingValidated = theme;

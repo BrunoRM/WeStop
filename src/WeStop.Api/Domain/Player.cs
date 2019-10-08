@@ -49,5 +49,8 @@ namespace WeStop.Api.Domain
 
         public RoundPontuations GetPontuationInRound(int roundNumber) =>
             Pontuations.FirstOrDefault(p => p.RoundNumber == roundNumber);
+
+        public int GetTotalValidationsInRound(int roundNumber) =>
+            Validations.Where(v => v.RoundNumber == roundNumber).Count();
     }
 }

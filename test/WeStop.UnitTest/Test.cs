@@ -2,7 +2,6 @@ using WeStop.Api.Domain;
 using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Managers;
 using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest

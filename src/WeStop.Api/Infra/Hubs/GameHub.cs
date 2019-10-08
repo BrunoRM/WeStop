@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Domain;
@@ -8,7 +9,6 @@ using WeStop.Api.Domain.Services;
 using WeStop.Api.Dtos;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;
-using WeStop.Api.Managers;
 
 namespace WeStop.Api.Infra.Hubs
 {
@@ -88,16 +88,18 @@ namespace WeStop.Api.Infra.Hubs
 
                         if (player.InRound)
                         {
-                            var defaultPlayerValidations = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated);
+                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) defaultValidationsData = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated);
 
-                            if (defaultPlayerValidations.Any())
+                            if (defaultValidationsData.Validations.Any())
                             {
                                 await Clients.Caller.SendAsync("im_reconected_game", new
                                 {
                                     game = _mapper.Map<Game, GameDto>(game),
                                     player = _mapper.Map<Player, PlayerDto>(player),
                                     theme = game.CurrentRound.ThemeBeingValidated,
-                                    validations = defaultPlayerValidations
+                                    validations = defaultValidationsData.Validations,
+                                    totalValidations = defaultValidationsData.TotalValidations,
+                                    validationsNumber = defaultValidationsData.ValidationNumber
                                 });
                             }
                             else
@@ -106,7 +108,10 @@ namespace WeStop.Api.Infra.Hubs
                                 {
                                     game = _mapper.Map<Game, GameDto>(game),
                                     player = _mapper.Map<Player, PlayerDto>(player),
-                                    theme = game.CurrentRound.ThemeBeingValidated
+                                    theme = game.CurrentRound.ThemeBeingValidated,
+                                    validations = defaultValidationsData.Validations,
+                                    totalValidations = defaultValidationsData.TotalValidations,
+                                    validationsNumber = defaultValidationsData.ValidationNumber
                                 });
                             }
                         }
@@ -179,21 +184,23 @@ namespace WeStop.Api.Infra.Hubs
             {
                 await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
                 
-                // TODO: Remover duplicidade de código daqui e do hub
+                // TODO: Remover duplicidade de código daqui e do Timer
                 var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
                 if (!string.IsNullOrEmpty(themeToValidate))
                 {
                     var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
-                    foreach (var (playerId, validations) in playersValidations)
+                    foreach (var (playerId, validations, totalValidations, validationsNumber) in playersValidations)
                     {
                         string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
 
                         await Clients.Client(connectionId).SendAsync("validation_started", new
                         {
                             theme = themeToValidate,
-                            validations
+                            validations,
+                            totalValidations,
+                            validationsNumber
                         });
                     }
 

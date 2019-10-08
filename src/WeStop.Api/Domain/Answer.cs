@@ -13,6 +13,9 @@ namespace WeStop.Api.Domain
         public string Theme { get; private set; }
         public string Value { get; private set; }
 
+        public bool IsEmpty() =>
+            string.IsNullOrEmpty(Value);
+
         public override bool Equals(object obj)
         {
             if(Object.ReferenceEquals(null, obj))

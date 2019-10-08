@@ -138,7 +138,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 if (resp.validated) {
                     cleanThemeValidations();
                 } else {
-                    setCurrentValidation(resp.theme, resp.validations);
+                    setCurrentValidation(resp);
                     startValidation();
                 }
                 break;
@@ -236,17 +236,19 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshCurrentAnswersTime(resp);        
     });
 
-    function setCurrentValidation(theme, validations) {
-        if (validations && validations.length !== 0) {
+    function setCurrentValidation(validationData) {
+        if (validationData.validations && validationData.validations.length !== 0) {
             $scope.currentValidation = {
-                theme: theme,
-                validations: validations
+                number: validationData.validationsNumber,
+                total: validationData.totalValidations,
+                theme: validationData.theme,
+                validations: validationData.validations
             }
         }
     };
     
     $game.on('validation_started', resp => {
-        setCurrentValidation(resp.theme, resp.validations);
+        setCurrentValidation(resp);
         startValidation();
     });    
 

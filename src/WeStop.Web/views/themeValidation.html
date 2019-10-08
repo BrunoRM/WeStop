@@ -9,7 +9,7 @@
     <br />
 
     <h4>Tema: {{currentValidation.theme}}</h4>
-    <p>Tema {{validationIndex + 1}} de {{groupedValidations.length}}</p>
+    <p>Tema {{currentValidation.number}} de {{currentValidation.total}}</p>
     <div class="form-row">
         <div class="form-group col-6 col-md-4" ng-repeat="validation in currentValidation.validations">
             <label>

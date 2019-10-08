@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WeStop.Api.Domain;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Managers
+namespace WeStop.Api.Domain.Services
 {
     public sealed class PlayerManager
     {

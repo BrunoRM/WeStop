@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WeStop.Api.Domain.Services;
 using WeStop.Api.Infra.Hubs;
-using WeStop.Api.Managers;
 
 namespace WeStop.Api.Infra.Timers
 {
@@ -16,14 +15,11 @@ namespace WeStop.Api.Infra.Timers
         private static readonly ConcurrentDictionary<Guid, Timer> _timers = new ConcurrentDictionary<Guid, Timer>();
         private readonly IHubContext<GameHub> _gameHub;
         private readonly GameManager _gameManager;
-        private readonly RoundScorer _roundScorer;
 
-        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager,
-            RoundScorer roundScorer)
+        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager)
         {
             _gameHub = gameHub;
             _gameManager = gameManager;
-            _roundScorer = roundScorer;
 
             OnRoundTimeElapsed += async (gameId, currentRoundNumber, currentTime, hub) =>
             {
@@ -79,14 +75,16 @@ namespace WeStop.Api.Infra.Timers
             {
                 var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
-                foreach (var (playerId, validations) in playersValidations)
+                foreach (var (playerId, validations, totalValidations, validationsNumber) in playersValidations)
                 {
                     string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
 
                     await hub.Clients.Client(connectionId).SendAsync("validation_started", new
                     {
                         theme = themeToValidate,
-                        validations
+                        validations,
+                        totalValidations,
+                        validationsNumber
                     });
                 }
 
@@ -94,8 +92,6 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                // Buscar todos os jogadores da partida que estão online e enviar o evento de round_finished para eles
-                // no objeto retornado deve conter uma propriedade para a pontuação atual
                 await _gameManager.FinishCurrentRoundAsync(gameId, async (isFinalRound, roundScoreboard, winners) =>
                 {
                     if (isFinalRound)

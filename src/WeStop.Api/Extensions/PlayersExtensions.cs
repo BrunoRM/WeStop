@@ -49,7 +49,10 @@ namespace WeStop.Api.Extensions
         public static bool IsValidationsRequiredForPlayer(this ICollection<Player> players, Guid playerId, int roundNumber, string theme)
         {
             return players.Where(p => p.Id != playerId).Any(p => p.Answers.Any(ra => ra.RoundNumber == roundNumber && 
-                ra.Answers.Any(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))));
+                ra.Answers.Any(a => a.Theme.Equals(theme) && !a.IsEmpty())));
         }
+
+        public static bool HasAnyAnswerForTheme(this ICollection<Player> players, int roundNumber, string theme) =>
+            players.Any(p => p.Answers.Where(ra => ra.RoundNumber == roundNumber).Any(ra => ra.Answers.Any(a => a.Theme.Equals(theme) && !a.IsEmpty())));
     }
 }

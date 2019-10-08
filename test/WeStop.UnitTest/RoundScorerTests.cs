@@ -1,8 +1,5 @@
-using System.Linq;
 using NUnit.Framework;
 using WeStop.Api.Domain.Services;
-using WeStop.Api.Extensions;
-using WeStop.Api.Managers;
 using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
 
