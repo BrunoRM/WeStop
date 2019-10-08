@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Domain;
 
@@ -44,5 +45,11 @@ namespace WeStop.Api.Extensions
 
         public static IEnumerable<RoundPontuations> GetInRoundPontuations(this ICollection<Player> players, int roundNumber) =>
             players.SelectMany(p => p.Pontuations.Where(pt => pt.RoundNumber == roundNumber));
+
+        public static bool IsValidationsRequiredForPlayer(this ICollection<Player> players, Guid playerId, int roundNumber, string theme)
+        {
+            return players.Where(p => p.Id != playerId).Any(p => p.Answers.Any(ra => ra.RoundNumber == roundNumber && 
+                ra.Answers.Any(a => a.Theme.Equals(theme) && !string.IsNullOrEmpty(a.Value))));
+        }
     }
 }

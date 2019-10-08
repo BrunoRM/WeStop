@@ -38,6 +38,9 @@ namespace WeStop.Api.Domain
         public ICollection<RoundPontuations> Pontuations { get; set; }
         public int TotalPontuation => Pontuations.Sum(p => p.TotalPontuation);
 
+        public bool HasValidatedTheme(int roundNumber, string theme) =>
+            Validations.Any(v => v.RoundNumber == roundNumber && v.Theme.Equals(theme));
+
         public RoundAnswers GetAnswersInRound(int roundNumber) =>
             Answers.FirstOrDefault(a => a.RoundNumber == roundNumber);
 

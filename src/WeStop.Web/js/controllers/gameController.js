@@ -120,11 +120,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.game.currentRoundNumber += 1;
     }
 
-    $game.on("im_joined_game", (data) => {
-        setGame(data.game);
+    $game.on("im_joined_game", (resp) => {
+        setGame(resp.game);
+        setPlayer(resp.player);
         addRoundNumber();
-        refreshGamescoreboard(data.lastRoundScoreboard);
-        setPlayer(data.player);
+        refreshGamescoreboard(resp.lastRoundScoreboard);
         checkAllPlayersReady();   
     });
 
@@ -237,7 +237,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     function setCurrentValidation(theme, validations) {
-        if (validations.length !== 0) {
+        if (validations && validations.length !== 0) {
             $scope.currentValidation = {
                 theme: theme,
                 validations: validations

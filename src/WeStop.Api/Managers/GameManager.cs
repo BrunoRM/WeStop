@@ -154,12 +154,14 @@ namespace WeStop.Api.Managers
         public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId, string theme)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
-            var validations = game.Players.GetValidations(game.CurrentRoundNumber);
 
             foreach (var player in game.Players)
             {
-                if (player.InRound && !validations.Any(v => v.PlayerId == player.Id && v.Theme.Equals(theme)))
-                    return false;
+                if (player.InRound)
+                {
+                    if (game.Players.IsValidationsRequiredForPlayer(player.Id, game.CurrentRoundNumber, theme) && !player.HasValidatedTheme(game.CurrentRoundNumber, theme))
+                        return false;
+                }
             }
 
             game.CurrentRound.ValidatedThemes.Add(theme);

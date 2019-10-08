@@ -100,6 +100,15 @@ namespace WeStop.Api.Infra.Hubs
                                     validations = defaultPlayerValidations
                                 });
                             }
+                            else
+                            {
+                                await Clients.Caller.SendAsync("im_reconected_game", new
+                                {
+                                    game = _mapper.Map<Game, GameDto>(game),
+                                    player = _mapper.Map<Player, PlayerDto>(player),
+                                    theme = game.CurrentRound.ThemeBeingValidated
+                                });
+                            }
                         }
 
                         break;
@@ -111,6 +120,7 @@ namespace WeStop.Api.Infra.Hubs
                         await Clients.Caller.SendAsync("im_reconected_game", new
                         {
                             game = _mapper.Map<Game, GameDto>(game),
+                            player = _mapper.Map<Player, PlayerDto>(player),
                             lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
                             winners
                         });
