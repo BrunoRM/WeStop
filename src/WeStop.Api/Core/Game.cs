@@ -4,7 +4,7 @@ using System.Linq;
 using WeStop.Api.Exceptions;
 using WeStop.Api.Extensions;
 
-namespace WeStop.Api.Domain
+namespace WeStop.Api.Core
 {
     public sealed class Game
     {

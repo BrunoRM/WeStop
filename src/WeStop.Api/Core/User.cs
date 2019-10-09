@@ -1,6 +1,6 @@
 using System;
 
-namespace WeStop.Api.Domain
+namespace WeStop.Api.Core
 {
     public class User
     {

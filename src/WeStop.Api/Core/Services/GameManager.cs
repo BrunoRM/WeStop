@@ -6,12 +6,12 @@ using WeStop.Api.Extensions;
 using WeStop.Api.Helpers;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Domain.Services
+namespace WeStop.Api.Core.Services
 {
-    /// Observação sobre a decisão de design desta classe:
-    /// Os métodos que envolvem envio de validações e verificação para validar se todos os players já enviaram
-    /// suas validações precisam ser sincronos, para o serviço poder enviar uma por vez aos storages, evitando
-    /// a concorrência, que levaria a dados inconsistentes.
+    /// Observaï¿½ï¿½o sobre a decisï¿½o de design desta classe:
+    /// Os mï¿½todos que envolvem envio de validaï¿½ï¿½es e verificaï¿½ï¿½o para validar se todos os players jï¿½ enviaram
+    /// suas validaï¿½ï¿½es precisam ser sincronos, para o serviï¿½o poder enviar uma por vez aos storages, evitando
+    /// a concorrï¿½ncia, que levaria a dados inconsistentes.
     public class GameManager
     {
         private readonly IGameStorage _gameStorage;

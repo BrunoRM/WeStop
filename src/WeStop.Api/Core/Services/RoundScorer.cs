@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Storages.Interfaces;
 
-namespace WeStop.Api.Domain.Services
+namespace WeStop.Api.Core.Services
 {
     /// Observação sobre a decisão de design desta classe:
     /// Como o GameManager precisou ser alterado para ser um Singleton, essa classe não pode guardar estado, portanto foi adicionado

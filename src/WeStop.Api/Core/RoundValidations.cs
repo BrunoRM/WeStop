@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WeStop.Api.Domain
+namespace WeStop.Api.Core
 {
     public class RoundValidations
     {

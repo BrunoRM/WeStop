@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WeStop.Api.Domain;
+using WeStop.Api.Core;
 
 namespace WeStop.Api.Extensions
 {

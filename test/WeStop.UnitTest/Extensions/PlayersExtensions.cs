@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using WeStop.Api.Domain;
+using WeStop.Api.Core;
 
 namespace WeStop.UnitTest.Extensions
 {

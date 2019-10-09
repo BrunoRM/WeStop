@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using WeStop.Api.Domain.Services;
+using WeStop.Api.Core.Services;
 using WeStop.Api.Infra.Storages.InMemory;
 using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Infra.Timers;

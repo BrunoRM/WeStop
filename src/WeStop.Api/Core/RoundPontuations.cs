@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WeStop.Api.Domain
+namespace WeStop.Api.Core
 {
     public sealed class RoundPontuations
     {

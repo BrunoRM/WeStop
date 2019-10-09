@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using WeStop.Api.Domain;
+using WeStop.Api.Core;
 using WeStop.Api.Extensions;
 using WeStop.UnitTest.Helpers;
 

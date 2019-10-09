@@ -1,4 +1,4 @@
-﻿namespace WeStop.Api.Domain
+﻿namespace WeStop.Api.Core
 {
     public class ThemePontuation
     {
