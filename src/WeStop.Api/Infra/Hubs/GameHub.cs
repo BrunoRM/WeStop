@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using WeStop.Api.Domain;
 using WeStop.Api.Domain.Services;
 using WeStop.Api.Dtos;
-using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;
 
 namespace WeStop.Api.Infra.Hubs
@@ -174,17 +173,26 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("send_validations")]
-        public async Task SendValidationsAsync(RoundValidations roundValidations)
+        public Task SendValidationsAsync(RoundValidations roundValidations)
         {
-            await _gameManager.AddRoundValidationsAsync(roundValidations);
-            await Clients.Caller.SendAsync("im_send_validations");
-
-            var gameId = roundValidations.GameId;
-            if (await _gameManager.AllPlayersSendValidationsAsync(gameId, roundValidations.Theme))
+            return Task.Run(() =>
             {
-                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
-                await _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber);
-            }
+                /// Precisamos utilizar o lock aqui pois quando o tempo de validação acaba, todos os clients irão enviar suas respostas de uma vez, ou seja,
+                /// vão estar concorrendo pelo GameManager e consequentemente pelos storages, o que pode resultar na validação abaixo ser true para um ou mais players
+                /// causando um erro para o client
+                lock (_gameManager)
+                {
+                    _gameManager.AddRoundValidations(roundValidations);
+                    Clients.Caller.SendAsync("im_send_validations");
+
+                    var gameId = roundValidations.GameId;
+                    if (_gameManager.AllPlayersSendValidations(gameId, roundValidations.Theme))
+                    {
+                        Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
+                        _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber).Wait();
+                    }
+                }
+            });
         }
 
         [HubMethodName("player_change_status")]

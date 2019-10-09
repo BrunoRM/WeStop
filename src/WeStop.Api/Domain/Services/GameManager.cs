@@ -8,6 +8,10 @@ using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Domain.Services
 {
+    /// Observação sobre a decisão de design desta classe:
+    /// Os métodos que envolvem envio de validações e verificação para validar se todos os players já enviaram
+    /// suas validações precisam ser sincronos, para o serviço poder enviar uma por vez aos storages, evitando
+    /// a concorrência, que levaria a dados inconsistentes.
     public class GameManager
     {
         private readonly IGameStorage _gameStorage;
@@ -90,11 +94,11 @@ namespace WeStop.Api.Domain.Services
             await _playerStorage.EditAsync(player);
         }
 
-        public async Task AddRoundValidationsAsync(RoundValidations roundValidations)
+        public void AddRoundValidations(RoundValidations roundValidations)
         {
-            var player = await _playerStorage.GetAsync(roundValidations.GameId, roundValidations.PlayerId);
+            var player = _playerStorage.GetAsync(roundValidations.GameId, roundValidations.PlayerId).Result;
             player.Validations.Add(roundValidations);
-            await _playerStorage.EditAsync(player);
+            _playerStorage.EditAsync(player).Wait();
         }
 
         public async Task<ICollection<Guid>> GetInRoundPlayersIdsAsync(Guid gameId)
@@ -150,9 +154,9 @@ namespace WeStop.Api.Domain.Services
             return playersValidations;
         }
 
-        public async Task<bool> AllPlayersSendValidationsAsync(Guid gameId, string theme)
+        public bool AllPlayersSendValidations(Guid gameId, string theme)
         {
-            var game = await _gameStorage.GetByIdAsync(gameId);
+            var game = _gameStorage.GetByIdAsync(gameId).Result;
 
             foreach (var player in game.Players)
             {
@@ -166,7 +170,7 @@ namespace WeStop.Api.Domain.Services
             }
 
             game.CurrentRound.ValidatedThemes.Add(theme);
-            await _gameStorage.EditAsync(game);
+            _gameStorage.EditAsync(game).Wait();
 
             return true;
         }

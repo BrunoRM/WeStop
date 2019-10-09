@@ -7,19 +7,18 @@ using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Domain.Services
 {
+    /// Observação sobre a decisão de design desta classe:
+    /// Como o GameManager precisou ser alterado para ser um Singleton, essa classe não pode guardar estado, portanto foi adicionado
+    /// local functions (ou local methods) para podermos ter acesso ao mesmo escopo que o método principal.
     public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;
         private readonly IPlayerStorage _playerStorage;
-        private readonly ICollection<RoundPontuations> _playersPontuations;
-        private Round _round;
-        private ICollection<Player> _players;
 
         public RoundScorer(IGameStorage gameStorage, IPlayerStorage playerStorage)
         {
             _gameStorage = gameStorage;
             _playerStorage = playerStorage;
-            _playersPontuations = new List<RoundPontuations>();
         }
 
         public async Task ProcessRoundPontuationAsync(Round round)
@@ -28,15 +27,15 @@ namespace WeStop.Api.Domain.Services
             {
                 return;
             }
-            
+
+            var pontuations = new List<RoundPontuations>();
             var gameId = round.GameId;
-            
-            _round = round;
-            _players = await _playerStorage.GetPlayersInRoundAsync(gameId);
+
+            var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
 
             var roundNumber = round.Number;
-            var roundAnswers = _players.GetAnswers(roundNumber).ToList();
-            var validations = _players.GetValidations(roundNumber).ToList();
+            var roundAnswers = players.GetAnswers(roundNumber).ToList();
+            var validations = players.GetValidations(roundNumber).ToList();
             var gameThemes = await _gameStorage.GetThemesAsync(round.GameId);
 
             foreach (var theme in gameThemes)
@@ -59,79 +58,81 @@ namespace WeStop.Api.Domain.Services
 
                         if (playersThatRepliedAnswer.Count() > 1)
                         {
-                            GiveFivePointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                            GiveFivePointsForEachPlayer(theme, playersThatRepliedAnswer);
                         }
                         else
                         {
-                            GiveTenPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                            GiveTenPointsForEachPlayer(theme, playersThatRepliedAnswer);
                         }
                     }
                     else
                     {
                         var playersThatRepliedAnswer = roundAnswers.GetPlayersIdsThatRepliedAnswer(answer);
-                        GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersThatRepliedAnswer);
+                        GiveZeroPointsForEachPlayer(theme, playersThatRepliedAnswer);
                     }
                 }
 
                 var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
-                GiveZeroPointsForEachPlayer(gameId, roundNumber, theme, playersWithBlankAnswers);
+                GiveZeroPointsForEachPlayer(theme, playersWithBlankAnswers);
             }
 
-            await SavePlayersPontuations();
+            await SavePlayersPontuations(pontuations);
             round.Finish();
-        }
 
-        private async Task SavePlayersPontuations()
-        {
-            foreach (var playerPontuations in _playersPontuations)
+            #region Local Methods
+            async Task SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
             {
-                var player = _players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
-
-                if (player != null)
+                foreach (var playerPontuations in roundPontuations)
                 {
-                    player.Pontuations.Add(playerPontuations);
-                    await _playerStorage.EditAsync(player);
+                    var player = players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
+
+                    if (player != null)
+                    {
+                        player.Pontuations.Add(playerPontuations);
+                        await _playerStorage.EditAsync(player);
+                    }
                 }
             }
-        }
 
-        private void GiveZeroPointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
-        {
-            foreach (var playerId in playersIds)
+            void GiveZeroPointsForEachPlayer(string theme, IEnumerable<Guid> playersIds)
             {
-                AddPlayerPontuation(gameId, roundNumber, playerId, theme, 0);
+                foreach (var playerId in playersIds)
+                {
+                    AddPlayerPontuation(playerId, theme, 0);
+                }
             }
-        }
 
-        private void GiveFivePointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
-        {
-            foreach (var playerId in playersIds)
+            void GiveFivePointsForEachPlayer(string theme, IEnumerable<Guid> playersIds)
             {
-                AddPlayerPontuation(gameId, roundNumber, playerId, theme, 5);
+                foreach (var playerId in playersIds)
+                {
+                    AddPlayerPontuation(playerId, theme, 5);
+                }
             }
-        }
 
-        private void GiveTenPointsForEachPlayer(Guid gameId, int roundNumber, string theme, IEnumerable<Guid> playersIds)
-        {
-            foreach (var playerId in playersIds)
+            void GiveTenPointsForEachPlayer(string theme, IEnumerable<Guid> playersIds)
             {
-                AddPlayerPontuation(gameId, roundNumber, playerId, theme, 10);
+                foreach (var playerId in playersIds)
+                {
+                    AddPlayerPontuation(playerId, theme, 10);
+                }
             }
-        }
 
-        private void AddPlayerPontuation(Guid gameId, int roundNumber, Guid playerId, string theme, int pontuation)
-        {
-            var playerPontuations = _playersPontuations.FirstOrDefault(pp => pp.PlayerId == playerId);
+            void AddPlayerPontuation(Guid playerId, string theme, int pontuation)
+            {
+                var playerPontuations = pontuations.FirstOrDefault(pp => pp.PlayerId == playerId);
 
-            if (playerPontuations is null)
-            {
-                var roundPontuations = new RoundPontuations(gameId, roundNumber, playerId, new ThemePontuation(theme, pontuation));
-                _playersPontuations.Add(roundPontuations);
+                if (playerPontuations is null)
+                {
+                    var roundPontuations = new RoundPontuations(gameId, roundNumber, playerId, new ThemePontuation(theme, pontuation));
+                    pontuations.Add(roundPontuations);
+                }
+                else
+                {
+                    playerPontuations.AddPontuationForTheme(theme, pontuation);
+                }
             }
-            else
-            {
-                playerPontuations.AddPontuationForTheme(theme, pontuation);
-            }
+            #endregion
         }
     }
 }
