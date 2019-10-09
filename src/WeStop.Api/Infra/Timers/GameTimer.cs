@@ -33,7 +33,7 @@ namespace WeStop.Api.Infra.Timers
 
             OnRoundTimeOver += async (gameId, currentRoundNumber, hub) =>
             {
-                await hub.Clients.Group(gameId.ToString()).SendAsync("round_stop", new
+                await hub.Clients.Group(gameId.ToString()).SendAsync("round_stoped", new
                 {
                     reason = "time_over"
                 });
@@ -43,7 +43,7 @@ namespace WeStop.Api.Infra.Timers
 
             OnSendAnswersTimeOver += async (gameId, currentRoundNumber, hub) =>
             {
-                await StartValidationForNextTheme(gameId, currentRoundNumber, hub);
+                await StartValidationForNextTheme(gameId, currentRoundNumber);
             };
 
             OnValidationTimeElapsed += async (gameId, roundNumber, currentTime, hub) =>
@@ -66,9 +66,8 @@ namespace WeStop.Api.Infra.Timers
             };
         }
 
-        private async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber, IHubContext<GameHub> hub)
+        public async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber)
         {
-            // TODO: Remover duplicidade de código daqui e do hub
             var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
 
             if (!string.IsNullOrEmpty(themeToValidate))
@@ -79,7 +78,7 @@ namespace WeStop.Api.Infra.Timers
                 {
                     string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
 
-                    await hub.Clients.Client(connectionId).SendAsync("validation_started", new
+                    await _gameHub.Clients.Client(connectionId).SendAsync("validation_started", new
                     {
                         theme = themeToValidate,
                         validations,
@@ -92,19 +91,21 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                await _gameManager.FinishCurrentRoundAsync(gameId, async (isFinalRound, roundScoreboard, winners) =>
+                await _gameManager.FinishCurrentRoundAsync(gameId, async (game) =>
                 {
-                    if (isFinalRound)
+                    var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
+                    if (game.IsFinalRound())
                     {
-                        await hub.Clients.Group(gameId.ToString()).SendAsync("game_end", new
+                        var winners = game.GetWinners();
+                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("game_finished", new
                         {
-                            scoreboard = roundScoreboard,
+                            lastRoundScoreboard = roundScoreboard,
                             winners
                         });
                     }
                     else
                     {
-                        await hub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
                         {
                             scoreboard = roundScoreboard
                         });

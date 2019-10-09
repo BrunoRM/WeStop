@@ -91,7 +91,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function updateGamePontuation() {
-        $scope.player.earnedPoints = getPlayerGamePontuation();
+        $scope.player.totalPontuation = getPlayerGamePontuation();
     }
 
     function setWinners(winners) {
@@ -131,6 +131,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('im_reconected_game', (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);
+        setSortedLetter(resp.round.sortedLetter);
         startRound();
 
         switch (resp.game.state) {
@@ -180,14 +181,16 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             $rootScope.user.id,
             !$scope.player.isReady
         );
+    };
 
+    $game.on('im_change_status', (resp) => {
         let player = getPlayer($scope.player.id);
-        $scope.player.isReady = player.isReady = !$scope.player.isReady;
-    };    
+        $scope.player.isReady = player.isReady = resp.isReady;
+    });
     
     $game.on('player_changed_status', resp => {
-        let player = getPlayer(resp.player.id);
-        player.isReady = resp.player.isReady;
+        let player = getPlayer(resp.id);
+        player.isReady = resp.isReady;
         checkAllPlayersReady();
     });
 
@@ -219,13 +222,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         init();
         refreshGamescoreboard(resp.scoreboard);
         updateGamePontuation();
-        cleanThemeValidations();
-        $scope.changeStatus();
         addRoundNumber();
         cleanThemeValidations();
+        $scope.changeStatus();
     });
 
-    $game.on('game_end', resp => {
+    $game.on('game_finished', resp => {
         finishGame();
         refreshGamescoreboard(resp.lastRoundScoreboard);
         setWinners(resp.winners);

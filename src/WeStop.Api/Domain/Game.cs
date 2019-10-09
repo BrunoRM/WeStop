@@ -65,7 +65,7 @@ namespace WeStop.Api.Domain
         }
 
         private string[] GetNotSortedLetters() =>
-            Options.AvailableLetters.Where(al => al.Value == false).Select(al => al.Key).ToArray();
+            Options.AvailableLetters.Where(al => !al.Value).Select(al => al.Key).ToArray();
 
         public IReadOnlyCollection<PlayerPontuation> GetScoreboard(int roundNumber)
         {

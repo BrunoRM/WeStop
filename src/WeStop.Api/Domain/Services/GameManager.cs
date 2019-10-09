@@ -159,7 +159,9 @@ namespace WeStop.Api.Domain.Services
                 if (player.InRound)
                 {
                     if (game.Players.IsValidationsRequiredForPlayer(player.Id, game.CurrentRoundNumber, theme) && !player.HasValidatedTheme(game.CurrentRoundNumber, theme))
+                    {
                         return false;
+                    }
                 }
             }
 
@@ -195,33 +197,31 @@ namespace WeStop.Api.Domain.Services
             action?.Invoke(game);
         }
 
-        public async Task FinishCurrentRoundAsync(Guid gameId, Action<bool, IReadOnlyCollection<PlayerPontuation>, IEnumerable<string>> finishedRoundAction)
+        public async Task FinishCurrentRoundAsync(Guid gameId, Action<Game> finishedRoundAction)
         {
             var players = await _playerStorage.GetPlayersAsync(gameId);
 
             var game = await _gameStorage.GetByIdAsync(gameId);
-            game.FinishRound(); // TODO: Revisar, pois Round possui um método finish também
+            game.FinishRound();
 
             await _roundScorer.ProcessRoundPontuationAsync(game.CurrentRound);
+            await PutAllPlayersInWaiting(players);
 
-            var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
             if (game.IsFinalRound())
             {
                 game.Finish();
-                var winners = game.GetWinners().ToList();
-                finishedRoundAction?.Invoke(true, roundScoreboard, winners);
-            }
-            else
-            {
-                finishedRoundAction?.Invoke(false, roundScoreboard, new List<string>());
             }
 
+            await _gameStorage.EditAsync(game);
+            finishedRoundAction?.Invoke(game);
+        }
+
+        private async Task PutAllPlayersInWaiting(ICollection<Player> players)
+        {
             foreach (var player in players.PutAllPlayersInWaiting())
             {
                 await _playerStorage.EditAsync(player);
             }
-
-            await _gameStorage.EditAsync(game);
         }
 
         public async Task FinishAsync(Guid gameId)

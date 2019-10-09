@@ -13,13 +13,13 @@ namespace WeStop.Api.Domain.Services
             _playerStorage = playerStorage;
         }
 
-        public async Task ChangeStatusAsync(Guid gameId, Guid playerId, bool isReady, Action<Player> action)
+        public async Task<Player> ChangeStatusAsync(Guid gameId, Guid playerId, bool isReady)
         {
             var player = await _playerStorage.GetAsync(gameId, playerId);
             player.IsReady = isReady;
 
             await _playerStorage.EditAsync(player);
-            action?.Invoke(player);
+            return player;
         }
     }
 }

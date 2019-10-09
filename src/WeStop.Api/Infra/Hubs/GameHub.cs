@@ -156,7 +156,7 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
-                await Clients.Group(gameId).SendAsync("round_stoped", new
+                await Clients.Group(gameId.ToString()).SendAsync("round_stoped", new
                 {
                     reason = "player_call_stop",
                     playerId
@@ -183,70 +183,26 @@ namespace WeStop.Api.Infra.Hubs
             if (await _gameManager.AllPlayersSendValidationsAsync(gameId, roundValidations.Theme))
             {
                 await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
-                
-                // TODO: Remover duplicidade de código daqui e do Timer
-                var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
-
-                if (!string.IsNullOrEmpty(themeToValidate))
-                {
-                    var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
-
-                    foreach (var (playerId, validations, totalValidations, validationsNumber) in playersValidations)
-                    {
-                        string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
-
-                        await Clients.Client(connectionId).SendAsync("validation_started", new
-                        {
-                            theme = themeToValidate,
-                            validations,
-                            totalValidations,
-                            validationsNumber
-                        });
-                    }
-
-                    _gameTimer.StartValidationTimer(gameId, roundValidations.RoundNumber);
-                }
-                else
-                {
-                    await _gameManager.FinishCurrentRoundAsync(gameId, async (isFinalRound, roundScoreboard, winners) =>
-                    {
-                        if (isFinalRound)
-                        {
-                            await Clients.Group(gameId.ToString()).SendAsync("game_end", new
-                            {
-                                lastRoundScoreboard = roundScoreboard,
-                                winners
-                            });
-                        }
-                        else
-                        {
-                            await Clients.Group(gameId.ToString()).SendAsync("round_finished", new
-                            {
-                                scoreboard = roundScoreboard
-                            });
-                        }
-                    });
-                }
+                await _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber);
             }
         }
 
         [HubMethodName("player_change_status")]
         public async Task ChangePlayerStatusAsync(Guid gameId, Guid playerId, bool isReady)
         {
-            await _playerManager.ChangeStatusAsync(gameId, playerId, isReady, async (player) =>
-            {
-                await Clients.GroupExcept(gameId.ToString(), Context.ConnectionId).SendAsync("player_changed_status", new
-                {
-                    player = new
-                    {
-                        player.Id,
-                        player.UserName,
-                        player.IsAdmin,
-                        player.IsReady
-                    }
-                });
+            var player = await _playerManager.ChangeStatusAsync(gameId, playerId, isReady);
 
-                await Clients.Caller.SendAsync("im_change_status");
+            await Clients.GroupExcept(gameId.ToString(), Context.ConnectionId).SendAsync("player_changed_status", new
+            {
+                player.Id,
+                player.UserName,
+                player.IsAdmin,
+                player.IsReady
+            });
+
+            await Clients.Caller.SendAsync("im_change_status", new
+            {
+                isReady
             });
         }
     }

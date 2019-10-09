@@ -44,6 +44,7 @@
                         <label>Tempo</label>
                         <div class="nes-select">
                             <select required ng-model="game.gameOptions.roundTime">
+                                <option value="5">05</option>
                                 <option value="30">30</option>
                                 <option value="45">45</option>
                                 <option value="60">60</option>
@@ -134,8 +135,12 @@
                         <input ng-class="{ 'is-error': frmAddTheme.$invalid && frmAddTheme.$dirty }" ng-model="themeToAdd.name" ng-required="true" placeholder="Adicionar tema" type="text" class="nes-input">
                     </div>
     
-                    <div class="col-md-3">
+                    <div class="col-md-1">
                         <button ng-disabled="frmAddTheme.$invalid" class="nes-btn" ng-click="addTheme()">+</button>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button class="nes-btn" ng-click="drawnAnotherThemes()">@</button>
                     </div>
                 </div>
             </form>

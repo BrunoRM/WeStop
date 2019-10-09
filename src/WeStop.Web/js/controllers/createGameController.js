@@ -1,5 +1,15 @@
 angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', '$http', 'API_SETTINGS', function ($game, $scope, $location, $rootScope, $http, API_SETTINGS) {
 
+    function drawnThemes(count) {
+        for (let i = 0; i < count; i++) {
+            let notDrawnThemes = $scope.themes.filter((theme) => !theme.enabled);
+            let randomNumber = Math.floor(Math.random() * notDrawnThemes.length);
+            let raffledTheme = notDrawnThemes[randomNumber];
+            let indexOfRaffledTheme = $scope.themes.indexOf(raffledTheme);
+            $scope.themes[indexOfRaffledTheme].enabled = true;
+        }
+    };
+
     $scope.themes = [];
     $http.get(API_SETTINGS.uri + '/themes.list').then((resp) => {
 
@@ -10,11 +20,16 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
             })
         }); 
 
-        for (let i = 0; i < 3; i++) {
-            let randonNumber = Math.floor(Math.random() * $scope.themes.length);
-            $scope.themes[randonNumber].enabled = true;
-        }
+        drawnThemes(3);
     });
+    
+    $scope.drawnAnotherThemes = function() {
+        for (let i = 0; i < $scope.themes.length; i++) {
+            $scope.themes[i].enabled = false;
+        }
+
+        drawnThemes(6);
+    };
 
     $scope.themeToAdd = {};
 
