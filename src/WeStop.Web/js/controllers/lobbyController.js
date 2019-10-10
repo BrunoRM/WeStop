@@ -1,22 +1,17 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$rootScope', '$user', '$http', 'API_SETTINGS', function ($scope, $location, $rootScope, $user, $http, API_SETTINGS) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$rootScope', '$user', '$http', 'API_SETTINGS', 'uuid', function ($scope, $location, $rootScope, $user, $http, API_SETTINGS, uuid) {
 
     $scope.hasUser = $rootScope.user !== null;
     $scope.newUser = '';
 
     $scope.createUser = () => {
         if ($scope.newUser) {
-            
-            $http.post(API_SETTINGS.uri + '/users.create').then((resp) => {
-                $user.create({
-                    id: resp.data.id,
-                    userName: $scope.newUser
-                });
 
-                $scope.hasUser = true;
-            }, (error) => {
-                console.error(error);
+            $user.create({
+                id: uuid.v4(),
+                userName: $scope.newUser
             });
-
+            
+            $scope.hasUser = true;
         }
     };
 

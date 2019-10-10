@@ -1,5 +1,6 @@
 angular.module('WeStop', [
-    'ngRoute'
+    'ngRoute',
+    'angular-uuid'
 ])
 
 .value('API_SETTINGS', { uri: 'http://localhost:5000/api' })
