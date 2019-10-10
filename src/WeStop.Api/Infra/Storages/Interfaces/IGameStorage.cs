@@ -14,6 +14,5 @@ namespace WeStop.Api.Infra.Storages.Interfaces
         Task<Game> GetByIdAsync(Guid id);
         Task<ICollection<Game>> GetAsync();
         ICollection<string> GetThemes(Guid gameId);
-        Task<ICollection<string>> GetThemesAsync(Guid gameId);
     }
 }

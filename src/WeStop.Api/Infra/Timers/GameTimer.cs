@@ -99,7 +99,7 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                _gameManager.FinishCurrentRoundAsync(gameId, (game) =>
+                _gameManager.FinishCurrentRound(gameId, (game) =>
                 {
                     var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
                     if (game.IsFinalRound())

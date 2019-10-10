@@ -15,6 +15,5 @@ namespace WeStop.Api.Infra.Storages.Interfaces
         ICollection<Player> GetPlayersInRound(Guid gameId);
         Task<ICollection<Player>> GetPlayersInRoundAsync(Guid gameId);
         ICollection<Player> GetAll(Guid gameId);
-        Task<ICollection<Player>> GetAllAsync(Guid gameId);
     }
 }

@@ -16,19 +16,22 @@ namespace WeStop.Api.Core
         public bool IsEmpty() =>
             string.IsNullOrEmpty(Value);
 
+        public bool StartsWith(string letter) =>
+            Value.StartsWith(letter);
+
         public override bool Equals(object obj)
         {
-            if(Object.ReferenceEquals(null, obj))
+            if(obj is null)
             {
                 return false;
             }
             
-            if (Object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
             {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }

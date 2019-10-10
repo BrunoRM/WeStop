@@ -1,6 +1,6 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using WeStop.Api.Core;
 using WeStop.Api.Extensions;
 using WeStop.UnitTest.Helpers;
@@ -40,10 +40,10 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
-            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
-            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
-            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome", "B").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP", "B").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome", "B").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP", "B").ToList();
 
             Assert.False(dustinDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "")));
             Assert.True(dustinDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruno")));
@@ -76,10 +76,10 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
-            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
-            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
-            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome", "B").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP", "B").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome", "B").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP", "B").ToList();
 
             Assert.AreEqual(1, dustinDefaultValidationsForThemeNome.Count());
             Assert.AreEqual(1, dustinDefaultValidationsForThemeCEP.Count());
@@ -116,10 +116,10 @@ namespace WeStop.UnitTest
                 willRoundAnswers
             };
 
-            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome").ToList();
-            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP").ToList();
-            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome").ToList();
-            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP").ToList();
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome", "B").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP", "B").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome", "B").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP", "B").ToList();
 
             Assert.AreEqual(1, dustinDefaultValidationsForThemeNome.Count());
             Assert.AreEqual(1, dustinDefaultValidationsForThemeCEP.Count());
@@ -134,6 +134,41 @@ namespace WeStop.UnitTest
             Assert.True(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasil")));
             Assert.False(willDefaultValidationsForThemeNome.Any(v => v.Answer == new Answer("Nome", "Bruna")));
             Assert.False(willDefaultValidationsForThemeCEP.Any(v => v.Answer == new Answer("CEP", "Brasilia")));
+        }
+
+        [Test]
+        public void ShouldInvalidateAnswersThatNotStartsWithSortedLetter()
+        {
+            Game.StartNextRound();
+            var dustinRoundAnswers = new RoundAnswers(Game.Id, Game.CurrentRoundNumber, TestUsers.Dustin.Id,
+                new List<Answer>
+                {
+                    new Answer("Nome", "A"),
+                    new Answer("CEP", "Brasil")
+                });
+
+            var willRoundAnswers = new RoundAnswers(Game.Id, Game.CurrentRoundNumber, TestUsers.Will.Id,
+                new List<Answer>
+                {
+                    new Answer("Nome", "Bruna"),
+                    new Answer("CEP", "C")
+                });
+
+            var roundAnswers = new List<RoundAnswers>
+            {
+                dustinRoundAnswers,
+                willRoundAnswers
+            };
+
+            var dustinDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "Nome", "B").ToList();
+            var dustinDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Dustin.Id, "CEP", "B").ToList();
+            var willDefaultValidationsForThemeNome = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "Nome", "B").ToList();
+            var willDefaultValidationsForThemeCEP = roundAnswers.BuildValidationsForPlayer(TestUsers.Will.Id, "CEP", "B").ToList();
+
+            Assert.IsTrue(dustinDefaultValidationsForThemeNome.First().Valid);
+            Assert.IsFalse(dustinDefaultValidationsForThemeCEP.First().Valid);
+            Assert.IsFalse(willDefaultValidationsForThemeNome.First().Valid);
+            Assert.IsTrue(willDefaultValidationsForThemeCEP.First().Valid);
         }
     }
 }

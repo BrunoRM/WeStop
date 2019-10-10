@@ -117,7 +117,7 @@ namespace WeStop.Api.Core.Services
             return ids;
         }
 
-        public async Task<(ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme)
+        public async Task<(ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)> GetPlayerDefaultValidationsAsync(Guid gameId, int roundNumber, Guid playerId, string theme, string sortedLetter)
         {
             var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
             var playerValidations = players.GetValidations(roundNumber, theme);
@@ -126,7 +126,7 @@ namespace WeStop.Api.Core.Services
             {
                 var answers = players.GetAnswers(roundNumber);
                 var totalValidations = answers.GetTotalThemesForPlayerValidate(playerId, roundNumber);
-                var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(playerId, theme);
+                var defaultValidationsForPlayer = answers.BuildValidationsForPlayer(playerId, theme, sortedLetter);
 
                 var validationsNumber = players.First(p => p.Id == playerId).GetTotalValidationsInRound(roundNumber) + 1;
                 return (defaultValidationsForPlayer.ToList(), totalValidations, validationsNumber);
@@ -146,7 +146,7 @@ namespace WeStop.Api.Core.Services
                 if (player.InRound)
                 {
                     var totalValidations = answers.GetTotalThemesForPlayerValidate(player.Id, game.CurrentRoundNumber);
-                    var playerValidations = answers.BuildValidationsForPlayer(player.Id, theme).ToList();
+                    var playerValidations = answers.BuildValidationsForPlayer(player.Id, theme, game.CurrentRound.SortedLetter).ToList();
                     playersValidations.Add((player.Id, playerValidations, totalValidations, player.GetTotalValidationsInRound(game.CurrentRoundNumber) + 1));
                 }
             }
@@ -154,15 +154,7 @@ namespace WeStop.Api.Core.Services
             return playersValidations;
         }
 
-        public Task<ICollection<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)>> GetPlayersDefaultValidationsAsync(Guid gameId, string theme)
-        {
-            return Task.Run(() =>
-            {
-                return GetPlayersDefaultValidations(gameId, theme);
-            });
-        }
-
-        public bool AllPlayersSendValidations(Guid gameId, string theme)
+        public bool CheckAllPlayersSendValidations(Guid gameId, string theme)
         {
             var game = _gameStorage.GetById(gameId);
 
@@ -200,14 +192,6 @@ namespace WeStop.Api.Core.Services
             return string.Empty;
         }
 
-        public Task<string> StartValidationForNextThemeAsync(Guid gameId)
-        {
-            return Task.Run(() =>
-            {
-                return StartValidationForNextTheme(gameId);
-            });
-        }
-
         public async Task StopCurrentRoundAsync(Guid gameId, Action<Game> action)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
@@ -242,23 +226,6 @@ namespace WeStop.Api.Core.Services
                     _playerStorage.Edit(player);
                 }
             }
-        }
-
-        public Task FinishCurrentRoundAsync(Guid gameId, Action<Game> finishedRoundAction)
-        {
-            return Task.Run(() =>
-            {
-                FinishCurrentRound(gameId, finishedRoundAction);
-            });
-        }
-
-        
-
-        public async Task FinishAsync(Guid gameId)
-        {
-            var game = await _gameStorage.GetByIdAsync(gameId);
-            game.Finish();
-            await _gameStorage.EditAsync(game);
         }
     }
 }

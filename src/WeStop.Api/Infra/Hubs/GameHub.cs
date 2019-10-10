@@ -29,16 +29,8 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out Guid? gameId, out Guid? playerId))
+            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out _, out _))
             {
-                // The player don't necessarily are disconected, this will be changed for us let know
-                // when player really left game or just refreshed.
-
-                // await Clients.Group(gameId.ToString()).SendAsync("player_left", new
-                // {
-                //     id = playerId
-                // });
-
                 await base.OnDisconnectedAsync(exception);
             }
         }
@@ -87,7 +79,7 @@ namespace WeStop.Api.Infra.Hubs
 
                         if (player.InRound)
                         {
-                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) defaultValidationsData = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated);
+                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) defaultValidationsData = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated, game.CurrentRound.SortedLetter);
 
                             if (defaultValidationsData.Validations.Any())
                             {
@@ -186,7 +178,7 @@ namespace WeStop.Api.Infra.Hubs
                     Clients.Caller.SendAsync("im_send_validations");
 
                     var gameId = roundValidations.GameId;
-                    if (_gameManager.AllPlayersSendValidations(gameId, roundValidations.Theme))
+                    if (_gameManager.CheckAllPlayersSendValidations(gameId, roundValidations.Theme))
                     {
                         Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
                         _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber);
