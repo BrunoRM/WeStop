@@ -58,7 +58,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidations(dustinValidations);
                 GameManager.AddRoundValidations(lucasValidations);
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -116,7 +116,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidations(dustinValidations);
                 GameManager.AddRoundValidations(lucasValidations);
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
                 
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -153,7 +153,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundAnswersAsync(dustinAnwers).Wait();
                 GameManager.AddRoundAnswersAsync(lucasAnswers).Wait();
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -211,7 +211,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidations(dustinValidations);
                 GameManager.AddRoundValidations(lucasValidations);
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
             
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -269,7 +269,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidations(dustinValidations);
                 GameManager.AddRoundValidations(lucasValidations);
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));

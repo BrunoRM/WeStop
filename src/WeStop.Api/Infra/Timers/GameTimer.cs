@@ -43,7 +43,7 @@ namespace WeStop.Api.Infra.Timers
 
             OnSendAnswersTimeOver += async (gameId, currentRoundNumber, hub) =>
             {
-                await StartValidationForNextTheme(gameId, currentRoundNumber);
+                await StartValidationForNextThemeAsync(gameId, currentRoundNumber);
             };
 
             OnValidationTimeElapsed += async (gameId, roundNumber, currentTime, hub) =>
@@ -66,19 +66,27 @@ namespace WeStop.Api.Infra.Timers
             };
         }
 
-        public async Task StartValidationForNextTheme(Guid gameId, int currentRoundNumber)
+        public Task StartValidationForNextThemeAsync(Guid gameId, int currentRoundNumber)
         {
-            var themeToValidate = await _gameManager.StartValidationForNextThemeAsync(gameId);
+            return Task.Run(() =>
+            {
+                StartValidationForNextTheme(gameId, currentRoundNumber);
+            });
+        }
+
+        public void StartValidationForNextTheme(Guid gameId, int currentRoundNumber)
+        {
+            var themeToValidate = _gameManager.StartValidationForNextTheme(gameId);
 
             if (!string.IsNullOrEmpty(themeToValidate))
             {
-                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
+                var playersValidations = _gameManager.GetPlayersDefaultValidations(gameId, themeToValidate);
 
                 foreach (var (playerId, validations, totalValidations, validationsNumber) in playersValidations)
                 {
                     string connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, playerId);
 
-                    await _gameHub.Clients.Client(connectionId).SendAsync("validation_started", new
+                    _gameHub.Clients.Client(connectionId).SendAsync("validation_started", new
                     {
                         theme = themeToValidate,
                         validations,
@@ -91,13 +99,13 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                await _gameManager.FinishCurrentRoundAsync(gameId, async (game) =>
+                _gameManager.FinishCurrentRoundAsync(gameId, (game) =>
                 {
                     var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
                     if (game.IsFinalRound())
                     {
                         var winners = game.GetWinners();
-                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("game_finished", new
+                        _gameHub.Clients.Group(gameId.ToString()).SendAsync("game_finished", new
                         {
                             lastRoundScoreboard = roundScoreboard,
                             winners
@@ -105,7 +113,7 @@ namespace WeStop.Api.Infra.Timers
                     }
                     else
                     {
-                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                        _gameHub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
                         {
                             scoreboard = roundScoreboard
                         });

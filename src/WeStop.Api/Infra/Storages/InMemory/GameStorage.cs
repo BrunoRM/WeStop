@@ -18,15 +18,26 @@ namespace WeStop.Api.Infra.Storages.InMemory
             Task.FromResult<ICollection<Game>>(_games.ToList());
 
         public Task<Game> GetByIdAsync(Guid id) =>
-            Task.FromResult(_games.FirstOrDefault(g => g.Id == id));
+            Task.FromResult(GetById(id));
 
-        public async Task<ICollection<string>> GetThemesAsync(Guid gameId)
-        {
-            var game = await GetByIdAsync(gameId);
-            return game.Options.Themes;
-        }
+        public Task<ICollection<string>> GetThemesAsync(Guid gameId) =>
+            Task.Run(() => GetThemes(gameId));
 
         public Task EditAsync(Game game) =>
-            Task.Run(() => {});
+            Task.Run(() => Edit(game));
+
+        public void Edit(Game game)
+        {
+            return;
+        }
+
+        public Game GetById(Guid id) =>
+            _games.FirstOrDefault(g => g.Id == id);
+
+        public ICollection<string> GetThemes(Guid gameId)
+        {
+            var game = GetById(gameId);
+            return game.Options.Themes;
+        }
     }
 }

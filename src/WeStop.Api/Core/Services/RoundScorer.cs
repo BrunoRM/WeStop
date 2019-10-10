@@ -21,7 +21,7 @@ namespace WeStop.Api.Core.Services
             _playerStorage = playerStorage;
         }
 
-        public async Task ProcessRoundPontuationAsync(Round round)
+        public void ProcessRoundPontuation(Round round)
         {
             if (round.Finished)
             {
@@ -31,12 +31,12 @@ namespace WeStop.Api.Core.Services
             var pontuations = new List<RoundPontuations>();
             var gameId = round.GameId;
 
-            var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
+            var players = _playerStorage.GetPlayersInRound(gameId);
 
             var roundNumber = round.Number;
             var roundAnswers = players.GetAnswers(roundNumber).ToList();
             var validations = players.GetValidations(roundNumber).ToList();
-            var gameThemes = await _gameStorage.GetThemesAsync(round.GameId);
+            var gameThemes = _gameStorage.GetThemes(round.GameId);
 
             foreach (var theme in gameThemes)
             {
@@ -76,11 +76,11 @@ namespace WeStop.Api.Core.Services
                 GiveZeroPointsForEachPlayer(theme, playersWithBlankAnswers);
             }
 
-            await SavePlayersPontuations(pontuations);
+            SavePlayersPontuations(pontuations);
             round.Finish();
 
             #region Local Methods
-            async Task SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
+            void SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
             {
                 foreach (var playerPontuations in roundPontuations)
                 {
@@ -89,7 +89,7 @@ namespace WeStop.Api.Core.Services
                     if (player != null)
                     {
                         player.Pontuations.Add(playerPontuations);
-                        await _playerStorage.EditAsync(player);
+                        _playerStorage.Edit(player);
                     }
                 }
             }
@@ -133,6 +133,14 @@ namespace WeStop.Api.Core.Services
                 }
             }
             #endregion
+        }
+
+        public Task ProcessRoundPontuationAsync(Round round)
+        {
+            return Task.Run(() =>
+            {
+                ProcessRoundPontuation(round);
+            });
         }
     }
 }

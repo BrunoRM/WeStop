@@ -189,7 +189,7 @@ namespace WeStop.Api.Infra.Hubs
                     if (_gameManager.AllPlayersSendValidations(gameId, roundValidations.Theme))
                     {
                         Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
-                        _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber).Wait();
+                        _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber);
                     }
                 }
             });
