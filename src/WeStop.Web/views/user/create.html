@@ -1,0 +1,22 @@
+<md-card layout="column" layout-align="center center">
+    <form name="frmCreateUser" novalidate autocapitalize autocomplete="off">
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">Crie seu usuário</span>
+
+                <md-input-container>
+                    <label>Nome</label>
+                    <input autofocus ng-required="true" type="text" class="nes-input" ng-model="newUser" name="userName" />
+                </md-input-container>
+                
+            </md-card-title-text>
+            <md-card-title-media>
+                <div class="md-media-sm card-media"></div>
+            </md-card-title-media>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+            <md-button ng-click="createUser()" ng-disabled="frmCreateUser.$invalid">Confirmar</md-button>
+            <!-- <md-button>Action 2</md-button> -->
+        </md-card-actions>
+    </form>
+</md-card>
