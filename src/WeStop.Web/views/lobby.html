@@ -1,5 +1,5 @@
-<div layout="column" layout-fill layout-align="center center" ng-show="!hasUser">
-    <div ng-include="'views/user/create.html'"></div>
+<div layout="row" layout-padding layout-margin layout-fill layout-align="center center" ng-if="!hasUser">
+    <div layout="row" layout-fill layout-align="center center" ng-include="'views/user/create.html'"></div>
 </div>
 
 <div class="col-md-8 offset-md-2" ng-if="hasUser">

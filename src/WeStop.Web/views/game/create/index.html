@@ -1,0 +1,78 @@
+<div flex="80" flex-xs="100">
+    <md-card layout="column">
+        
+        <div class="col-md-12 offset-md-12">
+            <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Voltar para o lobby</md-button>
+        </div>
+
+        <div class="nes-container with-title is-dark is-rounded container-fluid">
+
+            <p class="title">Informações gerais</p>
+
+            <form name="frmCreateGame" novalidate autocomplete="off">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Nome do jogo</label>
+                        <input autofocus maxlength="15" ng-class="{ 'is-error': frmCreateGame.$invalid && frmCreateGame.$dirty }" ng-required="true" class="nes-input" type="text" ng-model="game.name" />
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Número de rodadas</label>
+                        <div class="nes-select">
+                            <select required ng-model="game.gameOptions.rounds">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Tempo</label>
+                        <div class="nes-select">
+                            <select required ng-model="game.gameOptions.roundTime">
+                                <option value="30">30</option>
+                                <option value="45">45</option>
+                                <option value="60">60</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Número de jogadores</label>
+                        <div class="nes-select">
+                            <select required ng-model="game.gameOptions.numberOfPlayers">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12 offset-md-12">
+                        <button ng-class="{ 'is-success': frmCreateGame.$valid, 'is-disabled': frmCreateGame.$invalid }" ng-disabled="frmCreateGame.$invalid" style="float: right;" class="nes-btn" ng-click="nextStep()">Prosseguir <i class="fa fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </md-card>
+</div>

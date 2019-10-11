@@ -1,22 +1,59 @@
-<md-card layout="column" layout-align="center center">
-    <form name="frmCreateUser" novalidate autocapitalize autocomplete="off">
-        <md-card-title>
-            <md-card-title-text>
-                <span class="md-headline">Crie seu usuário</span>
+<div flex="80" flex-xs="100">
+    <md-card layout="row">
 
-                <md-input-container>
-                    <label>Nome</label>
-                    <input autofocus ng-required="true" type="text" class="nes-input" ng-model="newUser" name="userName" />
-                </md-input-container>
-                
-            </md-card-title-text>
-            <md-card-title-media>
-                <div class="md-media-sm card-media"></div>
-            </md-card-title-media>
-        </md-card-title>
-        <md-card-actions layout="row" layout-align="end center">
-            <md-button ng-click="createUser()" ng-disabled="frmCreateUser.$invalid">Confirmar</md-button>
-            <!-- <md-button>Action 2</md-button> -->
-        </md-card-actions>
-    </form>
-</md-card>
+        <div flex="50" layout-padding id="overview">
+            <h5>O que é STOP?</h5>
+            <p>Adedonha!, Adedanha! ou Stop! é um jogo que consiste em desenhar-se uma tabela em tópicos em um papel para cada jogador. Cada coluna da tabela recebe o nome de uma categoria de palavras como animais, automóveis, nomes pessoais, cores etc., e cada linha representa uma rodada do jogo.</p>
+            <p>A cada rodada uma letra é sorteada. Os jogadores então devem preencher todas as colunas com palavras que iniciam com essa letra. Quando um jogador preencher todas as colunas, ele pode chamar STOP, fazendo com que todos os outros parem imediatamente de preencher suas colunas.</p>
+            <p>É calculada então a pontuação de cada jogador, sendo que respostas repetidas valem 5 pontos, respostas não repetidas valem 10 pontos e respostas erradas ou em branco valem 0 pontos.</p>
+            <p>Para definir um vencedor, deve-se somar todas as pontuações dos jogadores em todas as rodadas, quem obtiver o maior valor, é o vencedor!</p>
+        </div>
+
+        <div layout="column" flex="50" layout-fill layout-align="center center">
+            
+            <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">Criar usuário</span>
+                    <span class="md-subhead">Crie seu usuário agora mesmo e divirta-se</span>
+                </md-card-title-text>
+            </md-card-title>
+            
+            <md-card-content layout="column">
+                <form name="frmCreateUser" novalidate a utocapitalize autocomplete="off">
+                    
+                    <div layout="column" layout-align="center center">
+                        
+                        <md-card-avatar>
+                            <img width="90" class="md-user-avatar" src="/images/default-user.jpg">
+                        </md-card-avatar>
+                        
+                        <div layout="row">
+                            <md-input-container layout-fill class="md-block">
+                                <input autofocus ng-required="true" type="text" class="nes-input" ng-model="user.name" name="userName" />
+                            </md-input-container>
+                        </div>
+                        
+                        <md-button class="md-primary md-raised" ng-click="createUser()" ng-disabled="frmCreateUser.$invalid">Confirmar</md-button>
+                    </div>
+
+                    <div layout="row" layout-align="center center">
+                        ou acesse com
+                    </div>
+
+                    <div layout="row" layout-align="center center">
+                        <md-button class="md-icon-button md-primary" aria-label="Settings">
+                            <i class="fa fa-facebook-official"></i>
+                        </md-button>
+                        <md-button class="md-icon-button md-primary" aria-label="Settings">
+                            <i class="fa fa-twitter"></i>
+                        </md-button>
+                        <md-button class="md-icon-button md-primary" aria-label="Settings">
+                            <i class="fa fa-google"></i>
+                        </md-button>
+                    </div>
+                </form>
+            </md-card-content>
+        </div>
+
+    </md-card>
+</div>
