@@ -1,78 +1,90 @@
-<div flex="80" flex-xs="100">
+<div flex="90" flex-xs="100">
     <md-card layout="column">
         
-        <div class="col-md-12 offset-md-12">
-            <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Voltar para o lobby</md-button>
-        </div>
+        <md-card-header>
+            <md-card-header-text>
+                <div class="col-md-12 offset-md-12">
+                    <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Voltar para o lobby</md-button>
+                </div>
+                <span class="md-title">Criar partida</span>
+            </md-card-header-text>
+        </md-card-header>
 
-        <div class="nes-container with-title is-dark is-rounded container-fluid">
+        <md-card-content layout="column" >
 
-            <p class="title">Informações gerais</p>
+            <div layout="row">
 
-            <form name="frmCreateGame" novalidate autocomplete="off">
-                <div class="row">
-                    <div class="col-md-12">
-                        <label>Nome do jogo</label>
+                <div layout="column" flex="30" layout-fill layout-padding layout-margin>
+                    <md-input-container layout-fill>
+                        <label>Nome da partida</label>
                         <input autofocus maxlength="15" ng-class="{ 'is-error': frmCreateGame.$invalid && frmCreateGame.$dirty }" ng-required="true" class="nes-input" type="text" ng-model="game.name" />
-                    </div>
+                    </md-input-container>
+
+                    <md-input-container>
+                        <label>Número de rodadas</label>
+                        <md-select ng-required="true" ng-model="game.gameOptions.rounds">
+                            <md-option ng-value="2">2</md-option>
+                            <md-option ng-value="3">3</md-option>
+                            <md-option ng-value="4">4</md-option>
+                            <md-option ng-value="5">5</md-option>
+                            <md-option ng-value="6">6</md-option>
+                            <md-option ng-value="7">7</md-option>
+                            <md-option ng-value="8">8</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <md-input-container>
+                        <label>Tempo</label>
+                        <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
+                            <md-option ng-value="30">30</md-option>
+                            <md-option ng-value="45">45</md-option>
+                            <md-option ng-value="60">60</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <md-input-container>
+                        <label>Número de jogadores</label>
+                        <md-select ng-required="true" ng-model="game.gameOptions.numberOfPlayers">
+                            <md-option ng-value="2">2</md-option>
+                            <md-option ng-value="3">3</md-option>
+                            <md-option ng-value="4">4</md-option>
+                            <md-option ng-value="5">5</md-option>
+                            <md-option ng-value="6">6</md-option>
+                            <md-option ng-value="7">7</md-option>
+                            <md-option ng-value="8">8</md-option>
+                        </md-select>
+                    </md-input-container>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-12">
-                        <label>Número de rodadas</label>
-                        <div class="nes-select">
-                            <select required ng-model="game.gameOptions.rounds">
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                            </select>
-                        </div>
+                <div layout="column" flex="33" layout-fill layout-padding layout-margin>
+
+                    <!-- <h3>Letras para sorteio</h3> -->
+
+                    <div layout-align="center center">
+                        <md-checkbox md-no-ink="" ng-model="availableLetter.enabled" aria-label="No Ink Effects" ng-repeat="availableLetter in availableLetters">
+                            {{ availableLetter.letter }}
+                        </md-checkbox>
                     </div>
                 </div>
+            
+                <div layout="column" flex="33" layout-fill>
+                    <md-content>
+                        <md-chips ng-model="selectedThemes" readonly="true" md-removable="true" md-max-chips="10" placeholder="Adicionar tema">
+                            <md-chip-template>
+                                <strong>{{$chip}}</strong>
+                            </md-chip-template>
+                        </md-chips>
+                    </md-content>
 
-                <div class="row">
-                    <div class="col-md-12">
-                        <label>Tempo</label>
-                        <div class="nes-select">
-                            <select required ng-model="game.gameOptions.roundTime">
-                                <option value="30">30</option>
-                                <option value="45">45</option>
-                                <option value="60">60</option>
-                            </select>
-                        </div>
-                    </div>
+                    <md-button ng-click="drawnAnotherThemes()"> <i class="fa fa-refresh"></i> Sortear outros temas</md-button>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12">
-                        <label>Número de jogadores</label>
-                        <div class="nes-select">
-                            <select required ng-model="game.gameOptions.numberOfPlayers">
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
-                <br />
+            <div layout="row" flex="100" layout-fill layout-align="center center">
+                <md-button class="md-primary md-raised">Criar sala</md-button>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-12 offset-md-12">
-                        <button ng-class="{ 'is-success': frmCreateGame.$valid, 'is-disabled': frmCreateGame.$invalid }" ng-disabled="frmCreateGame.$invalid" style="float: right;" class="nes-btn" ng-click="nextStep()">Prosseguir <i class="fa fa-arrow-right"></i></button>
-                    </div>
-                </div>
-
-            </form>
-        </div>
-    </md-card>
+        </md-card-content>        
+        
 </div>

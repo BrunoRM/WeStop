@@ -1,33 +1,28 @@
 angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', '$http', 'API_SETTINGS', function ($game, $scope, $location, $rootScope, $http, API_SETTINGS) {
 
+    $scope.selectedThemes = [];
+    let availableThemes = [];
+
     function drawnThemes(count) {
+        $scope.selectedThemes = [];
         for (let i = 0; i < count; i++) {
-            let notDrawnThemes = $scope.themes.filter((theme) => !theme.enabled);
+            let notDrawnThemes = availableThemes.filter((theme) => !$scope.selectedThemes.includes(theme));
             let randomNumber = Math.floor(Math.random() * notDrawnThemes.length);
             let raffledTheme = notDrawnThemes[randomNumber];
-            let indexOfRaffledTheme = $scope.themes.indexOf(raffledTheme);
-            $scope.themes[indexOfRaffledTheme].enabled = true;
+            let indexOfRaffledTheme = availableThemes.indexOf(raffledTheme);
+            $scope.selectedThemes.push(notDrawnThemes[indexOfRaffledTheme]);
         }
     };
-
-    $scope.themes = [];
+    
     $http.get(API_SETTINGS.uri + '/themes.list').then((resp) => {
-
         resp.data.themes.forEach(theme => {
-            $scope.themes.push({
-                name: theme.name,
-                enabled: false
-            })
-        }); 
+            availableThemes.push(theme.name);
+        });
 
-        drawnThemes(3);
+        drawnThemes(6);
     });
     
     $scope.drawnAnotherThemes = function() {
-        for (let i = 0; i < $scope.themes.length; i++) {
-            $scope.themes[i].enabled = false;
-        }
-
         drawnThemes(6);
     };
 
@@ -65,7 +60,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
     $scope.game = {
         user: $rootScope.user,
         gameOptions: {
-            themes: [],
+            availableThemes: [],
             availableLetters: [],
             rounds: "4",
             numberOfPlayers: "6",
@@ -89,10 +84,10 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
     };
 
     $scope.confirmThemes = () => {
-        $scope.game.gameOptions.themes = [];
-        $scope.themes.forEach((theme) => {
+        $scope.game.gameOptions.availableThemes = [];
+        $scope.selectedThemes.forEach((theme) => {
             if (theme.enabled)
-                $scope.game.gameOptions.themes.push(theme.name);
+                $scope.game.gameOptions.availableThemes.push(theme.name);
         });
         
         $scope.confirm();
@@ -110,7 +105,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
     $scope.addTheme = () => {
 
         if ($scope.themeToAdd && $scope.themeToAdd.name !== '') {
-            $scope.themes.push({ 
+            $scope.selectedThemes.push({ 
                 name: $scope.themeToAdd.name, 
                 enabled: true 
             });
