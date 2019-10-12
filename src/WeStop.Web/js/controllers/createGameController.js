@@ -1,16 +1,14 @@
 angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', '$http', 'API_SETTINGS', function ($game, $scope, $location, $rootScope, $http, API_SETTINGS) {
-
-    $scope.selectedThemes = [];
+    
     let availableThemes = [];
 
     function drawnThemes(count) {
-        $scope.selectedThemes = [];
+        $scope.game.gameOptions.themes = [];
         for (let i = 0; i < count; i++) {
-            let notDrawnThemes = availableThemes.filter((theme) => !$scope.selectedThemes.includes(theme));
+            let notDrawnThemes = availableThemes.filter((theme) => !$scope.game.gameOptions.themes.includes(theme));
             let randomNumber = Math.floor(Math.random() * notDrawnThemes.length);
             let raffledTheme = notDrawnThemes[randomNumber];
-            let indexOfRaffledTheme = availableThemes.indexOf(raffledTheme);
-            $scope.selectedThemes.push(notDrawnThemes[indexOfRaffledTheme]);
+            $scope.game.gameOptions.themes.push(raffledTheme);
         }
     };
     
@@ -28,93 +26,69 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.themeToAdd = {};
 
-    $scope.availableLetters = [
-        { letter: 'A', enabled: true },
-        { letter: 'B', enabled: true },
-        { letter: 'C', enabled: true },
-        { letter: 'D', enabled: true },
-        { letter: 'E', enabled: true },
-        { letter: 'F', enabled: true },
-        { letter: 'G', enabled: true },
-        { letter: 'H', enabled: true },
-        { letter: 'I', enabled: true },
-        { letter: 'J', enabled: true },
-        { letter: 'K', enabled: false },
-        { letter: 'L', enabled: true },
-        { letter: 'M', enabled: true },
-        { letter: 'N', enabled: true },
-        { letter: 'O', enabled: true },
-        { letter: 'P', enabled: true },
-        { letter: 'Q', enabled: true },
-        { letter: 'R', enabled: true },
-        { letter: 'S', enabled: true },
-        { letter: 'T', enabled: true },
-        { letter: 'U', enabled: true },
-        { letter: 'V', enabled: true },
-        { letter: 'W', enabled: false },
-        { letter: 'X', enabled: false },
-        { letter: 'Y', enabled: false },
-        { letter: 'Z', enabled: false }
+    $scope.letters = [
+        { value: 'A', enabled: true },
+        { value: 'B', enabled: true },
+        { value: 'C', enabled: true },
+        { value: 'D', enabled: true },
+        { value: 'E', enabled: true },
+        { value: 'F', enabled: true },
+        { value: 'G', enabled: true },
+        { value: 'H', enabled: false },
+        { value: 'I', enabled: true },
+        { value: 'J', enabled: true },
+        { value: 'K', enabled: false },
+        { value: 'L', enabled: true },
+        { value: 'M', enabled: true },
+        { value: 'N', enabled: true },
+        { value: 'O', enabled: true },
+        { value: 'P', enabled: true },
+        { value: 'Q', enabled: false },
+        { value: 'R', enabled: true },
+        { value: 'S', enabled: true },
+        { value: 'T', enabled: true },
+        { value: 'U', enabled: false },
+        { value: 'V', enabled: true },
+        { value: 'W', enabled: false },
+        { value: 'X', enabled: false },
+        { value: 'Y', enabled: false },
+        { value: 'Z', enabled: false }
     ];
 
     $scope.game = {
         user: $rootScope.user,
         gameOptions: {
-            availableThemes: [],
+            themes: [],
             availableLetters: [],
             rounds: "4",
             numberOfPlayers: "6",
             roundTime: "30"
         }
     };
-
-    $scope.changeStatus = (letter) => {
-        letter.enabled = !letter.enabled;
-    };
-
-    $scope.confirmLetters = () => {
-        
-        $scope.game.gameOptions.availableLetters = [];
-        $scope.availableLetters.forEach((availableLetter) => {
-            if (availableLetter.enabled)
-                $scope.game.gameOptions.availableLetters.push(availableLetter.letter);
-        });
-
-        $scope.nextStep();
-    };
-
-    $scope.confirmThemes = () => {
-        $scope.game.gameOptions.availableThemes = [];
-        $scope.selectedThemes.forEach((theme) => {
-            if (theme.enabled)
-                $scope.game.gameOptions.availableThemes.push(theme.name);
-        });
-        
-        $scope.confirm();
-    };
-
-    $scope.currentStep = 1;
-    $scope.nextStep = () => {
-        $scope.currentStep++;
-    };
-
-    $scope.previousStep = () => {
-        $scope.currentStep--;
-    };
     
-    $scope.addTheme = () => {
+    $scope.addTheme = (theme) => {
 
-        if ($scope.themeToAdd && $scope.themeToAdd.name !== '') {
-            $scope.selectedThemes.push({ 
-                name: $scope.themeToAdd.name, 
-                enabled: true 
-            });
-            $scope.themeToAdd = {};
+        if (!availableThemes.includes(theme)) {
+            availableThemes.push(theme);
         }
+
+        if ($scope.game.gameOptions.availableThemes.includes(theme))
+            return;
+    };
+
+    function getSelectedLetters() {
+        let selectedLetters = [];
+        $scope.letters.forEach((l) => {
+            if (l.enabled) {
+                selectedLetters.push(l.value);
+            }
+        });
+
+        return selectedLetters;
     };
 
     $scope.confirm = function() {
-
+        $scope.game.gameOptions.availableLetters = getSelectedLetters();
         $http.post(API_SETTINGS.uri + '/games.create', $scope.game).then((resp) =>
         {
             $location.path('/game/' + resp.data.id);

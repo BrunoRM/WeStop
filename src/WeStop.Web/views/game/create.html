@@ -1,25 +1,41 @@
-<div flex="90" flex-xs="100">
-    <md-card layout="column">
+<div flex="85" flex-xs="100">
+    <md-card layout="column" md-whiteframe="24">
         
-        <md-card-header>
-            <md-card-header-text>
+        <!-- <div ng-include="'/views/user/info.html'"></div> -->
+
+        <md-card-title layout-fill>
+            <md-card-title-text>
                 <div class="col-md-12 offset-md-12">
                     <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Voltar para o lobby</md-button>
                 </div>
-                <span class="md-title">Criar partida</span>
-            </md-card-header-text>
-        </md-card-header>
+                <span class="md-title">Criação de partida</span>
+            </md-card-title-text>
+        </md-card-title>
 
-        <md-card-content layout="column" >
+        <md-card-content layout-fill layout="column" >
 
-            <div layout="row">
+            <div layout="row" layout-fill>
+                
+                <div layout="column" flex="33">
 
-                <div layout="column" flex="30" layout-fill layout-padding layout-margin>
-                    <md-input-container layout-fill>
-                        <label>Nome da partida</label>
-                        <input autofocus maxlength="15" ng-class="{ 'is-error': frmCreateGame.$invalid && frmCreateGame.$dirty }" ng-required="true" class="nes-input" type="text" ng-model="game.name" />
-                    </md-input-container>
+                    <h3>Geral</h3>
+                    
+                    <div layout="row">
+                        <md-input-container layout-fill class="md-block">
+                            <input autofocus maxlength="15" ng-required="true" type="text" ng-model="game.name" placeholder="Nome da partida" />
+                        </md-input-container>
+                        <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
+                            <div ng-message="md-max-chips">O número máximo de temas é 10</div>
+                        </div>
+                    </div>
 
+                    <div layout="row">
+                        <md-input-container layout-fill class="md-block">
+                            <label>Senha</label>
+                            <input autofocus maxlength="15" type="password" ng-model="game.password" />
+                        </md-input-container>
+                    </div>
+                    
                     <md-input-container>
                         <label>Número de rodadas</label>
                         <md-select ng-required="true" ng-model="game.gameOptions.rounds">
@@ -58,31 +74,40 @@
                 
                 <div layout="column" flex="33" layout-fill layout-padding layout-margin>
 
-                    <!-- <h3>Letras para sorteio</h3> -->
+                    <h3>Letras para sorteio</h3>
 
                     <div layout-align="center center">
-                        <md-checkbox md-no-ink="" ng-model="availableLetter.enabled" aria-label="No Ink Effects" ng-repeat="availableLetter in availableLetters">
-                            {{ availableLetter.letter }}
+                        <md-checkbox ng-model="letter.enabled" ng-repeat="letter in letters">
+                            {{ letter.value }}
                         </md-checkbox>
                     </div>
                 </div>
             
                 <div layout="column" flex="33" layout-fill>
+                    
+                    <h3>Temas</h3>
+
                     <md-content>
-                        <md-chips ng-model="selectedThemes" readonly="true" md-removable="true" md-max-chips="10" placeholder="Adicionar tema">
-                            <md-chip-template>
-                                <strong>{{$chip}}</strong>
-                            </md-chip-template>
-                        </md-chips>
+                        <form name="frmThemes">
+                            <md-chips name="themes" md-on-add="addTheme($chip)" ng-model="game.gameOptions.themes" md-removable="true" md-max-chips="10" placeholder="Adicionar tema">
+                                <md-chip-template>
+                                    <strong>{{$chip}}</strong>
+                                </md-chip-template>
+                            </md-chips>
+                            <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
+                                <div ng-message="md-max-chips">O número máximo de temas é 10</div>
+                            </div>
+                        </form>
                     </md-content>
 
                     <md-button ng-click="drawnAnotherThemes()"> <i class="fa fa-refresh"></i> Sortear outros temas</md-button>
+
                 </div>
 
             </div>
-
-            <div layout="row" flex="100" layout-fill layout-align="center center">
-                <md-button class="md-primary md-raised">Criar sala</md-button>
+            
+            <div layout="row" flex="50" layout-fill layout-align="end center">
+                <md-button ng-click="confirm()" layout-fill flex="20" class="md-primary md-raised"> <i class="fa fa-check"></i> Concluído</md-button>
             </div>
 
         </md-card-content>        

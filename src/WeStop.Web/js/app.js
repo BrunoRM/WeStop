@@ -1,5 +1,7 @@
 angular.module('WeStop', [
     'ngRoute',
+    'ngMessages',
+    'ngAnimate',
     'angular-uuid',
     'ngMaterial'
 ])
@@ -20,7 +22,7 @@ angular.module('WeStop', [
 
         .when('/game/create', {
             controller: 'createGameController',
-            templateUrl: 'views/create-game.html',
+            templateUrl: 'views/game/create.html',
             secure: true
         })
         

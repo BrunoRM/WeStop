@@ -1,0 +1,12 @@
+<div>
+    <md-button class="md-raised" ng-class="{ 'md-primary': !player.isReady, 'md-warn': player.isReady }" class="nes-btn" ng-click="changeStatus()" ng-if="!player.isAdmin"><span ng-if="player.isReady">Não estou pronto</span> <span ng-if="!player.isReady">Estou Pronto</span></md-button>
+</div>
+
+<div class="col-12 col-md-12">
+    <button ng-class="{ 'is-primary': allPlayersReady, 'is-disabled': !allPlayersReady }" class="nes-btn"
+        ng-disabled="!allPlayersReady" ng-click="startRound()" ng-if="player.isAdmin">Iniciar jogo</button>
+</div>
+
+<div class="col-12 col-md-12">
+    <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
+</div>

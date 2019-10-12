@@ -19,12 +19,11 @@
             </md-card-title>
             
             <md-card-content layout="column">
-                <form name="frmCreateUser" novalidate a utocapitalize autocomplete="off">
+                <form name="frmCreateUser" ng-submit="createUser()" novalidate a utocapitalize autocomplete="off">
                     
                     <div layout="column" layout-align="center center">
-                        
                         <md-card-avatar>
-                            <img width="90" class="md-user-avatar" src="/images/default-user.jpg">
+                            <img ng-model="user.image" width="90" class="md-avatar" ng-src="/images/default-user.jpg">
                         </md-card-avatar>
                         
                         <div layout="row">
@@ -33,7 +32,7 @@
                             </md-input-container>
                         </div>
                         
-                        <md-button class="md-primary md-raised" ng-click="createUser()" ng-disabled="frmCreateUser.$invalid">Confirmar</md-button>
+                        <md-button type="submit" class="md-primary md-raised" ng-disabled="frmCreateUser.$invalid">Confirmar</md-button>
                     </div>
 
                     <div layout="row" layout-align="center center">

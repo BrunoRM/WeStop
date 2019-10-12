@@ -1,0 +1,14 @@
+<md-list layout-fill>
+    <md-list-item class="md-2-line" ng-repeat="player in game.players">
+        <img class="md-avatar" ng-src="images/default-user.jpg" />
+        <div ng-class="{ 'my-pontuation': player.id == user.id }" class="md-list-item-text" layout="column">
+            <h3>{{ player.userName }} <i ng-if="player.isAdmin" class="fa fa-flag"></i> </h3>
+            <h4>{{ player.totalPontuation }} pts</h4>
+            <h3>
+                <span ng-if="player.isReady">Pronto</span>
+                <span ng-if="!player.isReady">Aguardando...</span>
+            </h3>
+        </div>        
+        <md-divider ng-if="!$last"></md-divider>
+    </md-list-item>
+</md-list>

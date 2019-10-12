@@ -1,4 +1,18 @@
-<div class="container">
+<div flex="100" flex-xs="100">
+    <md-card layout="column" md-whiteframe="24">
+        <md-card-content layout-fill layout="row">
+
+            <md-content flex="20" layout-fill>
+                <div ng-include="'views/game/players.html'"></div>
+            </md-content>
+
+            <div layout="column" layout-align="end center" flex="50" ng-include="'views/game/main.html'"></div>
+
+        </md-card-content>
+    </md-card>
+</div>
+
+<!-- <div class="container">
     <div class="col-12 col-md-10 offset-md-1">
         <div class="nes-container is-dark with-title">
 
@@ -28,4 +42,4 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->

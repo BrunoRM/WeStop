@@ -5,7 +5,7 @@
 
 @font-face {
     font-family: 'Oswald';
-    src: url('../fonts/Oswald-VariableFont:wght.ttf');
+    src: url('../fonts/Oswald-VariableFont.ttf');
 }
 
 .material-icons {
@@ -34,10 +34,14 @@
   }
 
 body {
-    background-color: #1565c0;
+    /* background-color: #1565c0; */
     font-family: 'Oswald', sans-serif;
 }
 
 #overview > p {
     font-size: 15px;
+}
+
+.my-pontuation {
+    color: red;
 }

@@ -1,15 +1,14 @@
 angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$rootScope', '$user', '$http', 'API_SETTINGS', 'uuid', function ($scope, $location, $rootScope, $user, $http, API_SETTINGS, uuid) {
 
     $scope.hasUser = $rootScope.user !== null;
-    $scope.user = { name: '' };
+    $scope.user = { name: '', image: '/images/default-user.jpg' };
 
     $scope.createUser = () => {
         if ($scope.user.name) {
-            console.log('ca')
-
             $user.create({
                 id: uuid.v4(),
-                userName: $scope.user.name
+                userName: $scope.user.name,
+                image: $scope.user.image
             });
             
             $scope.hasUser = true;
