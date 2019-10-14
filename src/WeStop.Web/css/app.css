@@ -49,3 +49,8 @@ body {
 .game-info {
     font-size: 15px;
 }
+
+.selected-game {
+    border-color: red !important;
+    border: solid;
+}

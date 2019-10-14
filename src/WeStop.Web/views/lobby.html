@@ -4,45 +4,45 @@
     </div>
     <md-card layout="column">
 
-        <md-card-content layout="row" layout-margin layout-fill>
+        <md-card-content style="max-height: 300px;" layout="row" layout-margin>
             
-            <md-content layout-align="center center" flex="60">
-
+            <md-content flex="60">
+                    
                 <p layout="column" layout-align="center center" ng-if="!games || games.length == 0">
                     Não há nenhum jogo disponível no momento
                 </p>
 
-                <div ng-if="games && games.length > 0">
-                    <md-content layout="row">
-                        <md-card ng-repeat="game in games" ng-click="details(game)" flex="50">
-                            <div layout="column" layout-align="center center" >
-                                <p>{{game.name}}</p>
-                                <i ng-if="game.isPrivate" class="fa fa-lock">Privado</i>
-                                <div layout="row" layout-fill layout-align="space-between center">
-                                    <div layout="column" layout-fill layout-align="center center">
-                                        <i class="fa fa-users"></i> {{game.playersInGame}}/{{game.numberOfPlayers}}
-                                    </div>
-                                    <div layout="column" layout-fill layout-align="center center">
-                                        <i class="fa fa-edit"></i> {{game.themes.length}}
-                                    </div>
-                                    <div layout="column" layout-fill layout-align="center center">
-                                        <i class="fa fa-undo"></i> {{game.currentRound}}/{{game.rounds}}
-                                    </div>
+                <div ng-if="games && games.length > 0" layout="row" layout-wrap >
+                    <md-card ng-repeat="game in games" flex="45" ng-click="details(game)">
+                        <div layout="column" layout-align="center center" layout-padding>
+                            <p>{{game.name}}</p>
+                            <i ng-if="game.isPrivate" class="fa fa-lock">Privado</i>
+                            <div layout="row" layout-fill layout-align="space-between center">
+                                <div layout="column" layout-fill layout-align="center center">
+                                    <i class="fa fa-users"></i> {{game.playersInGame}}/{{game.numberOfPlayers}}
+                                </div>
+                                <div layout="column" layout-fill layout-align="center center">
+                                    <i class="fa fa-edit"></i> {{game.themes.length}}
+                                </div>
+                                <div layout="column" layout-fill layout-align="center center">
+                                    <i class="fa fa-undo"></i> {{game.currentRound}}/{{game.rounds}}
                                 </div>
                             </div>
-                        </md-card>
-                    </md-content>
+                        </div>
+                    </md-card>
+
                 </div>
             </md-content>
 
-            <md-content layout-align="center center" layout-margin layout-padding flex="40" layout="column">
+            <md-content flex="40">
                 
-                <p ng-if="!showGameDetails" layout="column" layout-align="center center" ng-if="!games || games.length == 0">
-                    Selecione uma partida ao lado para visualizar os detalhes
-                </p>
-
-                <md-card ng-if="showGameDetails">
-                    <md-card-content layout="column" layout-align="center center">
+                <div layout="column" layout-align="center center">
+                    
+                    <p ng-if="!showGameDetails" layout="column" layout-align="center center" ng-if="!games || games.length == 0">
+                        Selecione uma partida ao lado para visualizar os detalhes
+                    </p>
+                    
+                    <div ng-if="showGameDetails" layout="column" layout-align="center center">
                         <h2>Temas</h2>
                         <md-chips ng-model="gameDetails.themes" readonly="true">
                             <md-chip-template>{{$chip}}</md-chip-template>
@@ -52,8 +52,9 @@
                         <md-chips ng-model="gameDetails.availableLetters" readonly="true">
                             <md-chip-template>{{$chip}}</md-chip-template>
                         </md-chips>
-                    </md-card-content>
-                </md-card>
+                    </div>
+                </div>
+                        
             </md-content>
 
         </md-card-content>
