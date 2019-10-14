@@ -1,19 +1,4 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$rootScope', '$user', '$http', 'API_SETTINGS', 'uuid', function ($scope, $location, $rootScope, $user, $http, API_SETTINGS, uuid) {
-
-    $scope.hasUser = $rootScope.user !== null;
-    $scope.user = { name: '', image: '/images/default-user.jpg' };
-
-    $scope.createUser = () => {
-        if ($scope.user.name) {
-            $user.create({
-                id: uuid.v4(),
-                userName: $scope.user.name,
-                image: $scope.user.image
-            });
-            
-            $scope.hasUser = true;
-        }
-    };
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location',  '$http', 'API_SETTINGS', function ($scope, $location, $http, API_SETTINGS) {
 
     $http.get(API_SETTINGS.uri + '/games.list').then((resp) => {
         $scope.games = resp.data.games;
@@ -25,10 +10,8 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     $scope.showGameDetails = false;
 
     $scope.details = function(game) {
-
         $scope.gameDetails = game;
         $scope.showGameDetails = true;
-
     };
 
     $scope.backToGames = function () {

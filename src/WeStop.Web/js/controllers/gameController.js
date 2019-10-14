@@ -7,9 +7,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.gameFinished = false;
         $scope.validationsStarted = false;
 
-        $scope.sortedLetter = '';
-        $scope.currentAnswersTime = 0;
+        $scope.sortedLetter = '?';
+        $scope.answersTime = 0;
+        $scope.currentAnswersTimePercentage = 0;
         $scope.currentValidationTime = 0;
+        $scope.currentValidationTimePercentage = 0;
         $scope.themeValidations = null;        
     };
 
@@ -59,17 +61,21 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.validationStarted = false;
     }
 
-    function getPlayerGamePontuation() {
+    function getPlayerGamePontuation(playerId) {
         let playerScore = $scope.scoreboard.find(playerScore => {
-            return playerScore.playerId === $rootScope.user.id;
+            return playerScore.playerId === playerId;
         });
 
-        return playerScore.gamePontuation;
+        if (playerScore)
+            return playerScore.gamePontuation;
+        else
+            return 0;
     };
 
     function checkAllPlayersReady() {
         if ($scope.game.players.length === 1) {
             $scope.allPlayersReady = false;
+            return;
         }
 
         $scope.allPlayersReady = !$scope.game.players.some(player => {
@@ -91,7 +97,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     function updateGamePontuation() {
-        $scope.player.totalPontuation = getPlayerGamePontuation();
+        for (let i = 0; i < $scope.game.players.length; i++) {
+            let player = $scope.game.players[i];
+            player.totalPontuation = getPlayerGamePontuation(player.id);
+        }
     }
 
     function setWinners(winners) {
@@ -131,11 +140,14 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('im_reconected_game', (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);
-        setSortedLetter(resp.round.sortedLetter);
-        startRound();
+        console.log(resp)
 
         switch (resp.game.state) {
+            case 'InProgress':
+                setSortedLetter(resp.round.sortedLetter);
+                startRound();
             case 'Validations':
+                setSortedLetter(resp.round.sortedLetter);
                 if (resp.validated) {
                     cleanThemeValidations();
                 } else {
@@ -234,12 +246,18 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         updateGamePontuation();
     });    
 
+    function calculateTimePercentage(limitTime, time) {
+        return (time * 100) / limitTime;
+    };
+
     $game.on('round_time_elapsed', resp => {
+        $scope.currentAnswersTimePercentage = calculateTimePercentage($scope.game.time, resp);
         refreshCurrentAnswersTime(resp);        
     });
 
     function setCurrentValidation(validationData) {
         if (validationData.validations && validationData.validations.length !== 0) {
+            $scope.currentValidationTimePercentage = 0;
             $scope.currentValidation = {
                 number: validationData.validationsNumber,
                 total: validationData.totalValidations,
@@ -255,6 +273,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('validation_time_elapsed', resp => {
+        $scope.currentValidationTimePercentage = calculateTimePercentage(15, resp.currentTime);
         refreshCurrentValidationTime(resp.currentTime);
     });
 

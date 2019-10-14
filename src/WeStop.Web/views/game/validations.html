@@ -1,0 +1,23 @@
+<div layout="column" ng-if="currentValidation">
+
+    <h4>Tema: {{currentValidation.theme}}</h4>
+    <span class="nes-text is-warning">Valide as respostas dos outros jogadores</span>
+
+    <p>Tema {{currentValidation.number}} de {{currentValidation.total}}</p>
+    <div layout="row" layout-wrap>
+        <md-checkbox ng-model="validation.valid" ng-repeat="validation in currentValidation.validations">
+            {{validation.answer.value}}
+        </md-checkbox>
+    </div>
+
+    <div layout="row" layout-align="center center" >
+        <i class="fa fa-clock-o"></i>
+        <md-progress-linear flex="20" md-mode="determinate" value="{{currentValidationTimePercentage}}"></md-progress-linear>
+    </div>
+
+    <div layout="row" layout-align="center center" layout-fill>
+        <md-button class="md-primary md-raised" ng-click="finishValidation()"><i class="fa fa-check"></i> Validar respostas</md-button>
+    </div>
+</div>
+
+<p class="nes-text is-warning" ng-if="!currentValidation">Aguardando validação dos outros jogadores...</p>

@@ -122,7 +122,7 @@ namespace WeStop.Api.Core.Services
             var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
             var playerValidations = players.GetValidations(roundNumber, theme);
 
-            if (!playerValidations.Any())
+            if (!playerValidations.HasValidatiosOfPlayer(playerId))
             {
                 var answers = players.GetAnswers(roundNumber);
                 var totalValidations = answers.GetTotalThemesForPlayerValidate(playerId, roundNumber);

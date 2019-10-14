@@ -1,0 +1,36 @@
+<div flex="80" layout="row">
+
+    <md-card layout="column" md-whiteframe="10" flex="20">
+        <md-card-content layout="column" style="padding: 0px;">
+            <md-content style="max-height: 390px" layout-fill>
+                <div layout="column" layout-fill>
+                    <md-content layout-fill>
+                        <div ng-include="'views/game/players.html'"></div>
+                    </md-content>
+                </div>
+            </md-content>
+        </md-card-content>
+    </md-card>
+
+    <md-card layout="column" md-whiteframe="10" flex="80">
+        <md-card-content layout="column">
+
+            <ng-include layout="row" layout-align="space-between center" src="'views/game/info.html'"></ng-include>
+
+            <div ng-if="!roundStarted && !gameFinished" flex="100" ng-include="'views/game/main.html'"></div>
+
+            <div ng-if="roundStarted && !roundStopped && !gameFinished">
+                <ng-include src="'views/game/answers.html'"></ng-include>
+            </div>
+
+            <div ng-if="roundStopped && validationStarted">
+                <ng-include src="'views/game/validations.html'"></ng-include>
+            </div>
+            
+            <div ng-if="gameFinished">
+                <ng-include src="'views/game/finished.html'"></ng-include>
+            </div>
+
+        </md-card-content>
+    </md-card>
+</div>

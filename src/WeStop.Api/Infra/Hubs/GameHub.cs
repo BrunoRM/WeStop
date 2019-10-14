@@ -81,30 +81,16 @@ namespace WeStop.Api.Infra.Hubs
                         {
                             (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) defaultValidationsData = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated, game.CurrentRound.SortedLetter);
 
-                            if (defaultValidationsData.Validations.Any())
+                            await Clients.Caller.SendAsync("im_reconected_game", new
                             {
-                                await Clients.Caller.SendAsync("im_reconected_game", new
-                                {
-                                    game = _mapper.Map<Game, GameDto>(game),
-                                    player = _mapper.Map<Player, PlayerDto>(player),
-                                    theme = game.CurrentRound.ThemeBeingValidated,
-                                    validations = defaultValidationsData.Validations,
-                                    totalValidations = defaultValidationsData.TotalValidations,
-                                    validationsNumber = defaultValidationsData.ValidationNumber
-                                });
-                            }
-                            else
-                            {
-                                await Clients.Caller.SendAsync("im_reconected_game", new
-                                {
-                                    game = _mapper.Map<Game, GameDto>(game),
-                                    player = _mapper.Map<Player, PlayerDto>(player),
-                                    theme = game.CurrentRound.ThemeBeingValidated,
-                                    validations = defaultValidationsData.Validations,
-                                    totalValidations = defaultValidationsData.TotalValidations,
-                                    validationsNumber = defaultValidationsData.ValidationNumber
-                                });
-                            }
+                                game = _mapper.Map<Game, GameDto>(game),
+                                round = game.CurrentRound,
+                                player = _mapper.Map<Player, PlayerDto>(player),
+                                theme = game.CurrentRound.ThemeBeingValidated,
+                                validations = defaultValidationsData.Validations,
+                                totalValidations = defaultValidationsData.TotalValidations,
+                                validationsNumber = defaultValidationsData.ValidationNumber
+                            });
                         }
 
                         break;

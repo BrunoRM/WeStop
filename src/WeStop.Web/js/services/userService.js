@@ -9,4 +9,13 @@ angular.module('WeStop').service('$user', ['$rootScope', function($rootScope) {
         return JSON.parse(sessionStorage.getItem('user'));
     }
 
+    this.logout = (logoutCallback) => {
+
+        sessionStorage.removeItem('user');
+        $rootScope.user = null;
+
+        if (logoutCallback)
+            logoutCallback();
+    }
+
 }]);

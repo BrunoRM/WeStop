@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WeStop.Api.Core;
 
@@ -11,5 +12,8 @@ namespace WeStop.Api.Extensions
 
         public static int GetInvalidVotesCountForAnswer(this IEnumerable<RoundValidations> roundValidations, Answer answer) =>
             roundValidations.Count(rv => rv.Validations.Any(v => v.Answer == answer && !v.Valid));
+
+        public static bool HasValidatiosOfPlayer(this IEnumerable<RoundValidations> roundValidations, Guid playerId) =>
+            roundValidations.Any(rv => rv.PlayerId == playerId);
     }
 }

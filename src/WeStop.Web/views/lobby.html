@@ -1,93 +1,67 @@
-<div layout="row" layout-padding layout-margin layout-fill layout-align="center center" ng-if="!hasUser">
-    <div layout="row" layout-fill layout-align="center center" ng-include="'views/user/create.html'"></div>
-</div>
-
-<div class="col-md-8 offset-md-2" ng-if="hasUser">
-    
-    <div class="row">
-        <div class="col-12 col-md-12">
-            <button ng-if="showGameDetails" class="nes-btn is-warning" ng-click="backToGames()"><i class="fa fa-arrow-left"></i> Voltar</button>
-            <button class="nes-btn is-success" ng-click="newGame()"><i class="fa fa-plus"></i> Novo jogo</button>            
-        </div>
+<div flex="75">
+    <div layout="row" layout-align="end end" layout-fill>
+        <div ng-include="'/views/user/info.html'"></div>
     </div>
+    <md-card layout="column">
 
-    <br />
+        <md-card-content layout="row" layout-margin layout-fill>
+            
+            <md-content layout-align="center center" flex="60">
 
-    <div class="nes-container is-dark is-rounded container-fluid with-title" ng-if="!showGameDetails">
-        
-        <p class="title">Jogos</p>
+                <p layout="column" layout-align="center center" ng-if="!games || games.length == 0">
+                    Não há nenhum jogo disponível no momento
+                </p>
 
-        <p ng-if="!games || games.length == 0">Não há nenhum jogo disponível no momento</p>
-
-        <div class="row" ng-if="games && games.length > 0">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-12 col-sm-12 col-md-6 game-container" ng-repeat="game in games" ng-click="details(game)">
-                        <div class="nes-container is-dark is-rounded">
-                            <p style="text-align: center;">{{ game.name }}</p>
-                            <div class="row">
-
-                                <div class="col-4 col-md-4">
-                                    <div class="row">
-                                        <i style="margin: auto;" class="fa fa-users"></i>
+                <div ng-if="games && games.length > 0">
+                    <md-content layout="row">
+                        <md-card ng-repeat="game in games" ng-click="details(game)" flex="50">
+                            <div layout="column" layout-align="center center" >
+                                <p>{{game.name}}</p>
+                                <i ng-if="game.isPrivate" class="fa fa-lock">Privado</i>
+                                <div layout="row" layout-fill layout-align="space-between center">
+                                    <div layout="column" layout-fill layout-align="center center">
+                                        <i class="fa fa-users"></i> {{game.playersInGame}}/{{game.numberOfPlayers}}
                                     </div>
-                                    <div class="row" style="text-align: center;">
-                                        <p style="margin: auto;">{{game.playersInGame}}/{{game.numberOfPlayers}}</p>
+                                    <div layout="column" layout-fill layout-align="center center">
+                                        <i class="fa fa-edit"></i> {{game.themes.length}}
                                     </div>
-                                </div>
-
-                                <div class="col-4 col-md-4">
-                                    <div class="row">
-                                        <i style="margin: auto;" class="fa fa-edit"></i>
-                                    </div>
-                                    <div class="row">
-                                        <p style="margin: auto;">{{game.themes.length}}</p>
-                                    </div>
-                                </div>
-
-                                <div class="col-4 col-md-4">
-                                    <div class="row" style="margin: auto;">
-                                        <i style="margin: auto;" class="fa fa-undo"></i>
-                                    </div>
-                                    <div class="row">
-                                        <p style="margin: auto;">{{game.currentRound}}/{{game.rounds}}</p>
+                                    <div layout="column" layout-fill layout-align="center center">
+                                        <i class="fa fa-undo"></i> {{game.currentRound}}/{{game.rounds}}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>            
+                        </md-card>
+                    </md-content>
                 </div>
-            </div>
-        </div>
+            </md-content>
 
-    </div>
+            <md-content layout-align="center center" layout-margin layout-padding flex="40" layout="column">
+                
+                <p ng-if="!showGameDetails" layout="column" layout-align="center center" ng-if="!games || games.length == 0">
+                    Selecione uma partida ao lado para visualizar os detalhes
+                </p>
 
-    <div class="nes-container with-title is-dark" ng-if="showGameDetails">
+                <md-card ng-if="showGameDetails">
+                    <md-card-content layout="column" layout-align="center center">
+                        <h2>Temas</h2>
+                        <md-chips ng-model="gameDetails.themes" readonly="true">
+                            <md-chip-template>{{$chip}}</md-chip-template>
+                        </md-chips>
+                
+                        <h2>Letras</h2>
+                        <md-chips ng-model="gameDetails.availableLetters" readonly="true">
+                            <md-chip-template>{{$chip}}</md-chip-template>
+                        </md-chips>
+                    </md-card-content>
+                </md-card>
+            </md-content>
 
-        <p class="title">Resumo da sala</p>
-
-        <h6 class="nes-text is-warning" style="text-align: center;">Temas</h6>
-
-        <div class="row">
-            <div ng-repeat="theme in gameDetails.themes track by $index">
-                <a class="nes-btn is-error">{{ theme }}</a>
-            </div>
-        </div>
+        </md-card-content>
         
-        <br />
-
-        <h6 class="nes-text is-warning" style="text-align: center;">Letras</h6>
-        <div class="row">
-            <div ng-repeat="letter in gameDetails.availableLetters">
-                <a class="nes-btn is-error">{{ letter }}</a>              
-            </div>
+        <div layout="row" layout-fill layout-padding layout-align="center center">
+            <md-button class="md-primary md-raised" ng-click="newGame()"><i class="fa fa-plus"></i> Novo jogo</md-button>
+            <md-button ng-disabled="!showGameDetails" class="md-primary md-raised" ng-click="joinGame()"><i class="fa fa-sign-in"></i> Entrar</md-button>
         </div>
 
-        <br />
-        
-        <div class="row">            
-            <button class="nes-btn is-primary" ng-click="joinGame()"><i class="fa fa-sign-in"></i> Entrar</button>
-        </div>
-    </div>    
-
+    </md-card>
 </div>
