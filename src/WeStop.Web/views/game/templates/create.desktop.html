@@ -1,117 +1,114 @@
-<div flex="80">
-    <div layout="row" layout-align="start center">
-        <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Lobby</md-button>
-        <div layout="row" layout-align="end end" layout-fill>
-            <div ng-include="'/views/user/info.html'"></div>
-        </div>
+<div layout="row" layout-align="start center">
+    <md-button ng-click="goToLobby()"><i class="fa fa-arrow-left"></i> Lobby</md-button>
+    <div layout="row" layout-align="end end" layout-fill>
+        <div ng-include="'/views/user/info.html'"></div>
     </div>
-    <md-card layout="column" md-whiteframe="24">
-
-        <md-card-content layout-fill layout="column">
-
-
-            <span layout="row" layout-align="center center">Criação de partida</span>
-
-            <form name="frmCreateGame" autocomplete="off" novalidate>
-                <div layout="row" layout-fill>
-                    <div layout="column" flex="33" layout-fill layout-padding layout-margin>
-
-                        <md-content layout="column">
-                            <h3>Geral</h3>
-
-                            <div layout="row">
-                                <md-input-container layout-fill class="md-block">
-                                    <input autofocus maxlength="15" ng-required="true" type="text" ng-model="game.name"
-                                        placeholder="Nome da partida" />
-                                </md-input-container>
-                                <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
-                                    <div ng-message="md-max-chips">O número máximo de temas é 10</div>
-                                </div>
-                            </div>
-
-                            <div layout="row">
-                                <md-input-container layout-fill class="md-block">
-                                    <label>Senha</label>
-                                    <input maxlength="15" type="password" ng-model="game.password" />
-                                </md-input-container>
-                            </div>
-
-                            <md-input-container>
-                                <label>Número de rodadas</label>
-                                <md-select ng-required="true" ng-model="game.gameOptions.rounds">
-                                    <md-option ng-value="2">2</md-option>
-                                    <md-option ng-value="3">3</md-option>
-                                    <md-option ng-value="4">4</md-option>
-                                    <md-option ng-value="5">5</md-option>
-                                    <md-option ng-value="6">6</md-option>
-                                    <md-option ng-value="7">7</md-option>
-                                    <md-option ng-value="8">8</md-option>
-                                </md-select>
-                            </md-input-container>
-
-                            <md-input-container>
-                                <label>Tempo</label>
-                                <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
-                                    <md-option ng-value="30">30</md-option>
-                                    <md-option ng-value="45">45</md-option>
-                                    <md-option ng-value="60">60</md-option>
-                                </md-select>
-                            </md-input-container>
-
-                            <md-input-container>
-                                <label>Número de jogadores</label>
-                                <md-select ng-required="true" ng-model="game.gameOptions.numberOfPlayers">
-                                    <md-option ng-value="2">2</md-option>
-                                    <md-option ng-value="3">3</md-option>
-                                    <md-option ng-value="4">4</md-option>
-                                    <md-option ng-value="5">5</md-option>
-                                    <md-option ng-value="6">6</md-option>
-                                    <md-option ng-value="7">7</md-option>
-                                    <md-option ng-value="8">8</md-option>
-                                </md-select>
-                            </md-input-container>
-                        </md-content>
-                    </div>
-
-                    <div layout="column" flex="33" layout-fill layout-padding layout-margin>
-                        <md-content>
-                            <h3>Letras para sorteio</h3>
-                            <div layout-align="center center">
-                                <md-checkbox ng-model="letter.enabled" ng-repeat="letter in letters">
-                                    {{ letter.value }}
-                                </md-checkbox>
-                            </div>
-                        </md-content>
-                    </div>
-
-                    <div layout="column" flex="33" layout-fill layout-padding layout-margin>
-                        <md-content>
-                            <h3>Temas</h3>
-                            <form name="frmThemes">
-                                <md-chips name="themes" md-on-add="addTheme($chip)" ng-model="game.gameOptions.themes"
-                                    md-removable="true" md-max-chips="10" placeholder="Adicionar tema">
-                                    <md-chip-template>
-                                        <strong>{{$chip}}</strong>
-                                    </md-chip-template>
-                                </md-chips>
-                                <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
-                                    <div ng-message="md-max-chips">O número máximo de temas é 10</div>
-                                </div>
-                            </form>
-                            <md-button ng-click="drawnAnotherThemes()"> <i class="fa fa-refresh"></i> Sortear outros
-                                temas</md-button>
-                        </md-content>
-                    </div>
-
-                </div>
-
-                <div layout="row" flex="50" layout-fill layout-align="end center">
-                    <md-button ng-disabled="frmCreateGame.$invalid" ng-click="confirm()" layout-fill flex="20"
-                        class="md-primary md-raised"> <i class="fa fa-check"></i> Concluído</md-button>
-                </div>
-            </form>
-
-        </md-card-content>
-    </md-card>
-
 </div>
+<md-card layout="column" md-whiteframe="24">
+
+    <md-card-content layout-fill layout="column">
+
+
+        <span layout="row" layout-align="center center">Criação de partida</span>
+
+        <form name="frmCreateGame" autocomplete="off" novalidate>
+            <div layout="row" layout-fill>
+                <div layout="column" flex="33" layout-fill layout-padding layout-margin>
+
+                    <md-content layout="column">
+                        <h3>Geral</h3>
+
+                        <div layout="row">
+                            <md-input-container layout-fill class="md-block">
+                                <input autofocus maxlength="15" ng-required="true" type="text" ng-model="game.name"
+                                    placeholder="Nome da partida" />
+                            </md-input-container>
+                            <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
+                                <div ng-message="md-max-chips">O número máximo de temas é 10</div>
+                            </div>
+                        </div>
+
+                        <div layout="row">
+                            <md-input-container layout-fill class="md-block">
+                                <label>Senha</label>
+                                <input maxlength="15" type="password" ng-model="game.password" />
+                            </md-input-container>
+                        </div>
+
+                        <md-input-container>
+                            <label>Número de rodadas</label>
+                            <md-select ng-required="true" ng-model="game.gameOptions.rounds">
+                                <md-option ng-value="2">2</md-option>
+                                <md-option ng-value="3">3</md-option>
+                                <md-option ng-value="4">4</md-option>
+                                <md-option ng-value="5">5</md-option>
+                                <md-option ng-value="6">6</md-option>
+                                <md-option ng-value="7">7</md-option>
+                                <md-option ng-value="8">8</md-option>
+                            </md-select>
+                        </md-input-container>
+
+                        <md-input-container>
+                            <label>Tempo</label>
+                            <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
+                                <md-option ng-value="30">30</md-option>
+                                <md-option ng-value="45">45</md-option>
+                                <md-option ng-value="60">60</md-option>
+                            </md-select>
+                        </md-input-container>
+
+                        <md-input-container>
+                            <label>Número de jogadores</label>
+                            <md-select ng-required="true" ng-model="game.gameOptions.numberOfPlayers">
+                                <md-option ng-value="2">2</md-option>
+                                <md-option ng-value="3">3</md-option>
+                                <md-option ng-value="4">4</md-option>
+                                <md-option ng-value="5">5</md-option>
+                                <md-option ng-value="6">6</md-option>
+                                <md-option ng-value="7">7</md-option>
+                                <md-option ng-value="8">8</md-option>
+                            </md-select>
+                        </md-input-container>
+                    </md-content>
+                </div>
+
+                <div layout="column" flex="33" layout-fill layout-padding layout-margin>
+                    <md-content>
+                        <h3>Letras para sorteio</h3>
+                        <div layout-align="center center">
+                            <md-checkbox ng-model="letter.enabled" ng-repeat="letter in letters">
+                                {{ letter.value }}
+                            </md-checkbox>
+                        </div>
+                    </md-content>
+                </div>
+
+                <div layout="column" flex="33" layout-fill layout-padding layout-margin>
+                    <md-content>
+                        <h3>Temas</h3>
+                        <form name="frmThemes">
+                            <md-chips name="themes" md-on-add="addTheme($chip)" ng-model="game.gameOptions.themes"
+                                md-removable="true" md-max-chips="10" placeholder="Adicionar tema">
+                                <md-chip-template>
+                                    <strong>{{$chip}}</strong>
+                                </md-chip-template>
+                            </md-chips>
+                            <div ng-messages="frmThemes.themes.$error" ng-if="frmThemes.$dirty">
+                                <div ng-message="md-max-chips">O número máximo de temas é 10</div>
+                            </div>
+                        </form>
+                        <md-button ng-click="drawnAnotherThemes()"> <i class="fa fa-refresh"></i> Sortear outros
+                            temas</md-button>
+                    </md-content>
+                </div>
+
+            </div>
+
+            <div layout="row" flex="50" layout-fill layout-align="end center">
+                <md-button ng-disabled="frmCreateGame.$invalid" ng-click="confirm()" layout-fill flex="20"
+                    class="md-primary md-raised"> <i class="fa fa-check"></i> Concluído</md-button>
+            </div>
+        </form>
+
+    </md-card-content>
+</md-card>
