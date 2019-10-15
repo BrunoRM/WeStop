@@ -1,36 +1,40 @@
-<div flex="80" layout="row">
+<div ng-cloak flex="60" flex-xs="100" style="width: 700px;">
+    <md-card>
+        <md-card-header></md-card-header>
 
-    <md-card layout="column" md-whiteframe="10" flex="20">
-        <md-card-content layout="column" style="padding: 0px;">
-            <md-content style="max-height: 390px" layout-fill>
-                <div layout="column" layout-fill>
-                    <md-content layout-fill>
+        <md-content>
+    
+            <md-tabs class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content md-align-tabs="bottom">
+                <md-tab layout="column" layout-align="center center">
+                    <md-tab-label><i class="fa fa-users"></i> Jogadores</md-tab-label>
+                    <md-tab-body layout="column" layout-align="center center">
                         <div ng-include="'views/game/players.html'"></div>
-                    </md-content>
-                </div>
-            </md-content>
-        </md-card-content>
-    </md-card>
+                    </md-tab-body>
+                </md-tab>
 
-    <md-card layout="column" md-whiteframe="10" flex="80">
-        <md-card-content layout="column">
+                <md-tab md-active="true" layout="column" layout-align="center center">
+                    <md-tab-label><i class="fa fa-gamepad"></i> Partida</md-tab-label>
+                    <md-tab-body layout="column" layout-align="center center">
 
-            <ng-include layout="row" layout-align="space-between center" src="'views/game/info.html'"></ng-include>
+                        <ng-include layout="row" layout-padding layout-align="space-between center" src="'views/game/info.html'"></ng-include>
+                        
+                        <div ng-if="!roundStarted && !gameFinished" flex="100" ng-include="'views/game/main.html'"></div>
 
-            <div ng-if="!roundStarted && !gameFinished" flex="100" ng-include="'views/game/main.html'"></div>
-
-            <div ng-if="roundStarted && !roundStopped && !gameFinished">
-                <ng-include src="'views/game/answers.html'"></ng-include>
-            </div>
-
-            <div ng-if="roundStopped && validationStarted">
-                <ng-include src="'views/game/validations.html'"></ng-include>
-            </div>
-            
-            <div ng-if="gameFinished">
-                <ng-include src="'views/game/finished.html'"></ng-include>
-            </div>
-
-        </md-card-content>
+                        <div ng-if="roundStarted && !roundStopped && !gameFinished">
+                            <ng-include src="'views/game/answers.html'"></ng-include>
+                        </div>
+                        
+                        <div ng-if="roundStopped && validationStarted">
+                            <ng-include src="'views/game/validations.html'"></ng-include>
+                        </div>
+                        
+                        <div ng-if="gameFinished">
+                            <ng-include src="'views/game/finished.html'"></ng-include>
+                        </div>
+                    </md-tab-body>
+                </md-tab>
+                
+            </md-tabs>
+        </md-content>
     </md-card>
 </div>

@@ -140,7 +140,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('im_reconected_game', (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);
-        console.log(resp)
 
         switch (resp.game.state) {
             case 'InProgress':
