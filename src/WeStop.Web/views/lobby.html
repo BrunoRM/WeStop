@@ -17,6 +17,8 @@
                         <div layout="column" layout-align="center center" layout-padding>
                             <p>{{game.name}}</p>
                             <i ng-if="game.isPrivate" class="fa fa-lock">Privado</i>
+                            
+                            
                             <div layout="row" layout-fill layout-align="space-between center">
                                 <div layout="column" layout-fill layout-align="center center">
                                     <i class="fa fa-users"></i> {{game.playersInGame}}/{{game.numberOfPlayers}}
@@ -30,7 +32,6 @@
                             </div>
                         </div>
                     </md-card>
-
                 </div>
             </md-content>
 
