@@ -1,11 +1,11 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', function ($routeParams, $scope, $game, $rootScope) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', function ($routeParams, $scope, $game, $rootScope, $mdToast) {
 
     function init() {
         $scope.allPlayersReady = false;
         $scope.roundStarted = false;
         $scope.roundStopped = false;
         $scope.gameFinished = false;
-        $scope.validationsStarted = false;
+        $scope.validationStarted = false;
 
         $scope.sortedLetter = '?';
         $scope.answersTime = 0;
@@ -32,7 +32,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.roundStarted = true;
         $scope.roundStopped = false;
         $scope.gameFinished = false;
-        $scope.validationsStarted = false;
+        $scope.validationStarted = false;
 
         $scope.answers = [];
         for (let i = 0; i < $scope.game.themes.length; i++) {
@@ -145,6 +145,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             case 'InProgress':
                 setSortedLetter(resp.round.sortedLetter);
                 startRound();
+                break;
             case 'Validations':
                 setSortedLetter(resp.round.sortedLetter);
                 if (resp.validated) {
@@ -209,10 +210,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $game.invoke('stop_round', $routeParams.id, $scope.game.currentRoundNumber, $rootScope.user.id);
     };
 
+    $mdToast.show('Olá, mundo!');
     $game.on('round_stoped', (resp) => {
         
         if (resp.reason === 'player_call_stop') {
-            //alert(resp.userName + ' chamou STOP!');
+            $mdToast.show(resp.userName + ' chamou STOP!');
         }
         
         stop();
@@ -239,6 +241,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('game_finished', resp => {
+        init();
         finishGame();
         refreshGamescoreboard(resp.lastRoundScoreboard);
         setWinners(resp.winners);

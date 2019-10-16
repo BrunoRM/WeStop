@@ -48,7 +48,6 @@
                                     <md-input-container layout-fill class="md-block">
                                         <label>Tempo</label>
                                         <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
-                                            <md-option ng-value="100000">100000</md-option>
                                             <md-option ng-value="30">30</md-option>
                                             <md-option ng-value="45">45</md-option>
                                             <md-option ng-value="60">60</md-option>
@@ -110,7 +109,7 @@
                 </md-tab>
             </md-tabs>
 
-            <div layout="row" flex="100" layout-align="center center" layout-fill>
+            <div layout="row" flex="100" layout-align="center center" layout-fill layout-margin>
                 <md-button ng-disabled="frmCreateGame.$invalid" ng-click="confirm()" flex="50" flex-xs="100" class="md-primary md-raised"> <i class="fa fa-check"></i> Concluído</md-button>
             </div>
 

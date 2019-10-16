@@ -5,7 +5,7 @@
         <md-content>
     
             <md-tabs class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content md-align-tabs="bottom">
-                <md-tab layout="column" layout-align="center center">
+                <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
                     <md-tab-label><i class="fa fa-users"></i> Jogadores</md-tab-label>
                     <md-tab-body layout="column" layout-align="center center">
                         <div ng-include="'views/game/players.html'"></div>
