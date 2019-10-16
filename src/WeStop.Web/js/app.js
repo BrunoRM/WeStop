@@ -45,7 +45,7 @@ angular.module('WeStop', [
         
 
 }])
-.run(['$user', '$rootScope', '$location', ($user, $rootScope, $location) => {
+    .run(['$user', '$rootScope', '$location', '$window', ($user, $rootScope, $location, $window) => {
     
     $rootScope.user = $user.get();
 
@@ -54,5 +54,15 @@ angular.module('WeStop', [
             $location.path('/');
         }
     });
+
+    $window.fbAsyncInit = function () {
+        FB.init({
+            appId: '659220371267596',
+            status: true,
+            cookie: true,
+            xfbml: true,
+            version: 'v2.4'
+        });
+    };
 
 }]);
