@@ -9,66 +9,57 @@
         <md-content>
 
             <md-tabs class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content>
-                <md-tab layout="column" layout-align="center center">
+                <md-tab>
                     <md-tab-label><i class="fa fa-cogs"></i> Geral</md-tab-label>
-                    <md-tab-body layout="column" layout-align="center center">
-                        <md-content>
-                            <div layout="column" layout-padding layout-margin>
+                    <md-tab-body>
+                        <md-content layout-padding>
+
+                            <div layout="column" layout-margin>
+                                <md-input-container flex="50">
+                                    <input autofocus maxlength="15" ng-required="true" type="text" ng-model="game.name"
+                                        placeholder="Nome" />
+                                </md-input-container>
+
+                                <md-input-container flex="50">
+                                    <input placeholder="Senha" maxlength="15" type="password" ng-model="game.password" />
+                                </md-input-container>
+                            </div>
+
+                            <div layout="row" layout-margin>
+                                <md-input-container flex="33">
+                                    <label>Rodadas</label>
+                                    <md-select ng-required="true" ng-model="game.gameOptions.rounds">
+                                        <md-option ng-value="2">2</md-option>
+                                        <md-option ng-value="3">3</md-option>
+                                        <md-option ng-value="4">4</md-option>
+                                        <md-option ng-value="5">5</md-option>
+                                        <md-option ng-value="6">6</md-option>
+                                        <md-option ng-value="7">7</md-option>
+                                        <md-option ng-value="8">8</md-option>
+                                    </md-select>
+                                </md-input-container>
     
-                                <div layout="row">
-                                    <md-input-container layout-fill class="md-block">
-                                        <input autofocus maxlength="15" ng-required="true" type="text" ng-model="game.name"
-                                            placeholder="Nome" />
-                                    </md-input-container>
-                                </div>
-    
-                                <div layout="row">
-                                    <md-input-container layout-fill class="md-block">
-                                        <label>Senha</label>
-                                        <input maxlength="15" type="password" ng-model="game.password" />
-                                    </md-input-container>
-                                </div>
+                                <md-input-container flex="33">
+                                    <label>Tempo</label>
+                                    <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
+                                        <md-option ng-value="30">30</md-option>
+                                        <md-option ng-value="45">45</md-option>
+                                        <md-option ng-value="60">60</md-option>
+                                    </md-select>
+                                </md-input-container>
                             
-                                <div layout="row">
-                                    <md-input-container layout-fill class="md-block">
-                                        <label>Número de rodadas</label>
-                                        <md-select ng-required="true" ng-model="game.gameOptions.rounds">
-                                            <md-option ng-value="2">2</md-option>
-                                            <md-option ng-value="3">3</md-option>
-                                            <md-option ng-value="4">4</md-option>
-                                            <md-option ng-value="5">5</md-option>
-                                            <md-option ng-value="6">6</md-option>
-                                            <md-option ng-value="7">7</md-option>
-                                            <md-option ng-value="8">8</md-option>
-                                        </md-select>
-                                    </md-input-container>
-                                </div>
-    
-                                <div layout="row">
-                                    <md-input-container layout-fill class="md-block">
-                                        <label>Tempo</label>
-                                        <md-select ng-required="true" ng-model="game.gameOptions.roundTime">
-                                            <md-option ng-value="30">30</md-option>
-                                            <md-option ng-value="45">45</md-option>
-                                            <md-option ng-value="60">60</md-option>
-                                        </md-select>
-                                    </md-input-container>
-                                </div>
-                            
-                                <div layout="row">
-                                    <md-input-container layout-fill class="md-block">
-                                        <label>Número de jogadores</label>
-                                        <md-select ng-required="true" ng-model="game.gameOptions.numberOfPlayers">
-                                            <md-option ng-value="2">2</md-option>
-                                            <md-option ng-value="3">3</md-option>
-                                            <md-option ng-value="4">4</md-option>
-                                            <md-option ng-value="5">5</md-option>
-                                            <md-option ng-value="6">6</md-option>
-                                            <md-option ng-value="7">7</md-option>
-                                            <md-option ng-value="8">8</md-option>
-                                        </md-select>
-                                    </md-input-container>
-                                </div>
+                                <md-input-container flex="33">
+                                    <label>Jogadores</label>
+                                    <md-select ng-required="true" ng-model="game.gameOptions.numberOfPlayers">
+                                        <md-option ng-value="2">2</md-option>
+                                        <md-option ng-value="3">3</md-option>
+                                        <md-option ng-value="4">4</md-option>
+                                        <md-option ng-value="5">5</md-option>
+                                        <md-option ng-value="6">6</md-option>
+                                        <md-option ng-value="7">7</md-option>
+                                        <md-option ng-value="8">8</md-option>
+                                    </md-select>
+                                </md-input-container>
                             </div>
                         </md-content>
                     </md-tab-body>
