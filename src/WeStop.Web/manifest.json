@@ -1,0 +1,9 @@
+{
+    "name": "WeStop",
+    "short_name": "WeStop",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#3F51B5",
+    "orientation": "portrait",
+    "theme_color": "#3F51B5"
+}
