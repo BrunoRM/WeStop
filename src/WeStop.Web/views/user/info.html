@@ -1,6 +1,8 @@
 <div layout="row" layout-align="center center">
-    <img height="30" width="30" class="md-avatar" ng-src="{{user.image}}" />
-    {{ user.userName }}
+    <img height="30" width="30" class="md-avatar" ng-src="{{user.imageUri}}" />
+    <span layout-padding>
+        {{user.userName}}
+    </span>
     <md-menu>
         <md-button class="md-icon-button" ng-click="$mdMenu.open($event)">
             <i class="fa fa-ellipsis-v"></i>

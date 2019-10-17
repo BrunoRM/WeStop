@@ -6,6 +6,7 @@ namespace WeStop.Api.Dtos
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }
+        public string ImageUri { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsReady { get; set; }
         public bool IsOnline { get; set; }

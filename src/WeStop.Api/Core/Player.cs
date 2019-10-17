@@ -29,6 +29,7 @@ namespace WeStop.Api.Core
         public User User { get; set; }
         public Guid Id => User.Id;
         public string UserName => User.UserName;
+        public string ImageUri => User.ImageUri;
         public bool IsAdmin { get; private set; }
         public bool IsReady { get; set; }
         public bool IsOnline { get; private set; }

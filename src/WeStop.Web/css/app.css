@@ -54,3 +54,7 @@ body {
     border-color: red !important;
     border: solid;
 }
+
+.md-avatar {
+    border-radius: 50px;
+}

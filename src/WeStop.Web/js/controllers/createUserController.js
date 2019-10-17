@@ -3,20 +3,30 @@ angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '
     $scope.user = { name: '', image: '/images/default-user.jpg' };
 
     $scope.createUser = () => {
-        if ($scope.user.name) {
-            $user.create({
-                id: uuid.v4(),
-                userName: $scope.user.name,
-                image: $scope.user.image
-            });
-            
-            $location.path('/lobby');
-        }
+        createUserAndRedirectToLobby($scope.user.name, $scope.user.image);
     };
 
     $scope.createWithFacebook = () => {
-        facebookService.getUserNameAndImage().then(function(resp) {
-            console.log(resp);
-        }, (error) => console.log(error));
+        facebookService.connect().then(function(resp) {
+            facebookService.me('first_name').then(function(resp) {
+                $scope.user.name = resp.first_name;
+                facebookService.getProfilePic(resp.id).then(function(resp) {
+                    $scope.user.image = resp;
+                    createUserAndRedirectToLobby($scope.user.name, $scope.user.image);
+                });
+            }, function (error) {
+                console.log(error);
+            });
+        });
     };
+
+    function createUserAndRedirectToLobby(userName, imageUri) {
+        $user.create({
+            id: uuid.v4(),
+            userName: userName,
+            imageUri: imageUri
+        });
+
+        $location.path('/lobby');
+    }
 }]);
