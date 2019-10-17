@@ -30,7 +30,7 @@ namespace WeStop.Api
             services.AddCors(options => options.AddPolicy("WeStopCorsPolicy",
                 builder =>
                 {
-                    builder.WithOrigins("http://localhost:5001", "http://localhost:5002", "https://localhost:5002").AllowAnyMethod()
+                    builder.WithOrigins("http://localhost:5001", "https://localhost:5001", "http://localhost:5002", "https://localhost:5002").AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
                 }));
