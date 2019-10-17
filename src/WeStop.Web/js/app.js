@@ -42,10 +42,10 @@ angular.module('WeStop', [
         .otherwise({
             redirectTo: '/'
         });
-        
+
 
 }])
-    .run(['$user', '$rootScope', '$location', '$window', ($user, $rootScope, $location, $window) => {
+    .run(['$user', '$rootScope', '$location', '$window', 'googleService', ($user, $rootScope, $location, $window, googleService) => {
     
     $rootScope.user = $user.get();
 

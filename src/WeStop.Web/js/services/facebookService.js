@@ -2,23 +2,19 @@ angular.module('WeStop').factory('facebookService', ['$q', function($q) {
 
     return {
 
-        connect: function (successCallback, errorCallback) {
+        connect: function () {
             var deferred = $q.defer();
             FB.getLoginStatus(function(resp) {
                 if (resp.status !== 'connected') {
                     FB.login(function (resp) {
                         if (resp.status === 'connected') {
-                            //successCallback(resp);
                             deferred.resolve(resp);
-                            return;
                         } else {
                             deferred.reject(resp);
-                            //errorCallback(resp);
                         }
                     }, { scope: 'public_profile' });
                 } else {
                     deferred.resolve(resp);
-                    //successCallback(resp);
                 }
             });
 

@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '$rootScope', '$user', '$location', 'facebookService', function ($scope, uuid, $rootScope, $user, $location, facebookService) {
+angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '$rootScope', '$user', '$location', 'facebookService', 'googleService', function ($scope, uuid, $rootScope, $user, $location, facebookService, googleService) {
     
     $scope.user = { name: '', image: '/images/default-user.jpg' };
 
@@ -17,6 +17,14 @@ angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '
             }, function (error) {
                 console.log(error);
             });
+        });
+    };
+
+    $scope.createWithGoogle = () => {
+        googleService.getUserNameAndProfilePic().then((resp) => {
+            createUserAndRedirectToLobby(resp.userName, resp.imageUri);
+        }, function (error) {
+
         });
     };
 
