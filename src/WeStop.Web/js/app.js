@@ -65,4 +65,16 @@ angular.module('WeStop', [
         });
     };
 
+    let firebaseConfig = {
+        apiKey: "AIzaSyAMtxk9YGof82udlAC_LkkB4mgc-JxFmAI",
+        authDomain: "westop-1571110414274.firebaseapp.com",
+        databaseURL: "https://westop-1571110414274.firebaseio.com",
+        projectId: "westop-1571110414274",
+        storageBucket: "westop-1571110414274.appspot.com",
+        messagingSenderId: "418166283498",
+        appId: "1:418166283498:web:7ab90ab027f742f6b80b93"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+
 }]);
