@@ -22,7 +22,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
                 if (eCallback) {
                     eCallback(e);
                 }
-            })
+            });
         });
     }
 
@@ -48,6 +48,6 @@ angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
         onConnectionClose: onConnectionClose,
         on: on,
         invoke: invoke
-    }
+    };
 
 }]);

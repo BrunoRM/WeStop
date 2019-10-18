@@ -10,7 +10,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
             let raffledTheme = notDrawnThemes[randomNumber];
             $scope.game.gameOptions.themes.push(raffledTheme);
         }
-    };
+    }
     
     $http.get(API_SETTINGS.uri + '/themes.list').then((resp) => {
         resp.data.themes.forEach(theme => {
@@ -85,7 +85,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
         });
 
         return selectedLetters;
-    };
+    }
 
     $scope.confirm = function() {
         $scope.game.gameOptions.availableLetters = getSelectedLetters();

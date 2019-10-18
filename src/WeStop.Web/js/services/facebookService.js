@@ -43,6 +43,6 @@ angular.module('WeStop').factory('facebookService', ['$q', function($q) {
 
             return deferred.promise;
         }
-    }
+    };
 
 }]);
