@@ -58,27 +58,27 @@ angular.module('WeStop', [
         }
     });
 
-    $window.fbAsyncInit = function () {
-        FB.init({
-            appId: '659220371267596',
-            status: true,
-            cookie: true,
-            xfbml: true,
-            version: 'v2.6'
-        });
-    };
+    // $window.fbAsyncInit = function () {
+    //     FB.init({
+    //         appId: '659220371267596',
+    //         status: true,
+    //         cookie: true,
+    //         xfbml: true,
+    //         version: 'v2.6'
+    //     });
+    // };
 
-    let firebaseConfig = {
-        apiKey: "AIzaSyAMtxk9YGof82udlAC_LkkB4mgc-JxFmAI",
-        authDomain: "westop-1571110414274.firebaseapp.com",
-        databaseURL: "https://westop-1571110414274.firebaseio.com",
-        projectId: "westop-1571110414274",
-        storageBucket: "westop-1571110414274.appspot.com",
-        messagingSenderId: "418166283498",
-        appId: "1:418166283498:web:7ab90ab027f742f6b80b93"
-    };
+    // let firebaseConfig = {
+    //     apiKey: "AIzaSyAMtxk9YGof82udlAC_LkkB4mgc-JxFmAI",
+    //     authDomain: "westop-1571110414274.firebaseapp.com",
+    //     databaseURL: "https://westop-1571110414274.firebaseio.com",
+    //     projectId: "westop-1571110414274",
+    //     storageBucket: "westop-1571110414274.appspot.com",
+    //     messagingSenderId: "418166283498",
+    //     appId: "1:418166283498:web:7ab90ab027f742f6b80b93"
+    // };
     
-    firebase.initializeApp(firebaseConfig);
+    // firebase.initializeApp(firebaseConfig);
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js').then(function (registration) {
