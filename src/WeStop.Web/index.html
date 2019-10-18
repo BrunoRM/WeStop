@@ -38,6 +38,9 @@
         <script type="text/javascript" src="js/services/googleService.js"></script>
         <script type="text/javascript" src="js/services/twitterService.js"></script>
 
+        <!-- Interceptors -->
+        <script type="text/javascript" src="js/interceptors/httpInterceptor.js"></script>
+
         <script type="text/javascript" src="https://connect.facebook.net/en_US/sdk.js"></script>       
         <script type="text/javascript" src="https://apis.google.com/js/platform.js" async defer></script>
         
@@ -48,6 +51,11 @@
 
     </head>
     <body ng-controller="mainController">
+
+        <div ng-if="isLoading" class="loading" layout="row" layout-fill layout-align="center center" aria-label="wait">
+            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+        </div>
+
         <ng-view layout="row" layout-align="center center" layout-fill></ng-view>
     </body>
 </html>

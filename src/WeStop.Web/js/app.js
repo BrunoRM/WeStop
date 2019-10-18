@@ -9,7 +9,9 @@ angular.module('WeStop', [
 
 .value('API_SETTINGS', { uri: 'http://localhost:5000/api' })
 
-.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', function ($routeProvider, $locationProvider, $mdThemingProvider) {
+.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
+
+    $httpProvider.interceptors.push('httpInterceptor');
 
     $locationProvider.hashPrefix('');
 

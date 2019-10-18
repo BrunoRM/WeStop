@@ -63,3 +63,14 @@ table {
 th, tr, td {
     color: white !important;
 }
+
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0;
+    margin: 0;
+    z-index: 99999999;
+}
