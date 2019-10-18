@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="" ng-app="WeStop">
     <head>
+        <meta name="theme-color" content="#3F51B5">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>WeStop</title>
+
+        <link rel="manifest" href="manifest.json">
 
         <link href="node_modules/font-awesome/css/font-awesome.css" rel="stylesheet">
 
@@ -47,6 +50,53 @@
         <!-- Firebase sdks -->
         <script type="text/javascript" src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
         <script type="text/javascript" src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180.png">
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-icon-167.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-icon-120.png">
+        
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2048-2732.png"
+            media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2732-2048.png"
+            media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1668-2388.png"
+            media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2388-1668.png"
+            media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1668-2224.png"
+            media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2224-1668.png"
+            media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1536-2048.png"
+            media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2048-1536.png"
+            media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1242-2688.png"
+            media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2688-1242.png"
+            media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1125-2436.png"
+            media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2436-1125.png"
+            media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-828-1792.png"
+            media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1792-828.png"
+            media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1242-2208.png"
+            media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2208-1242.png"
+            media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-750-1334.png"
+            media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1334-750.png"
+            media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-640-1136.png"
+            media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1136-640.png"
+            media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
 
 
     </head>

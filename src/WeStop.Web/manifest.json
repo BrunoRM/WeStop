@@ -1,0 +1,21 @@
+{
+    "name": "WeStop",
+    "short_name": "WeStop",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#3F51B5",
+    "orientation": "portrait",
+    "theme_color": "#3F51B5",
+    "icons": [
+        {
+            "src": "/icons/manifest-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/manifest-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
