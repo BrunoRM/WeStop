@@ -208,12 +208,21 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.stop = () => {
         $game.invoke('stop_round', $routeParams.id, $scope.game.currentRoundNumber, $rootScope.user.id);
     };
-
-    $mdToast.show('Olá, mundo!');
+    
     $game.on('round_stoped', (resp) => {
         
         if (resp.reason === 'player_call_stop') {
-            $mdToast.show(resp.userName + ' chamou STOP!');
+            
+            if (resp.playerId !== $scope.player.id) {
+                let playerThatCallStop = getPlayer(resp.playerId);
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent(playerThatCallStop.userName + ' chamou STOP!')
+                        .position('bottom left')
+                        .hideDelay(3500)
+                );
+                
+            }
         }
         
         stop();

@@ -1,5 +1,4 @@
-angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '$rootScope', '$user', '$location', 'facebookService', 'googleService', 'twitterService', function ($scope, uuid, $rootScope, $user, $location, facebookService, googleService, twitterService) {
-    
+angular.module('WeStop').controller('createUserController', ['$scope', 'uuid', '$user', '$location', 'facebookService', 'googleService', 'twitterService', function ($scope, uuid, $user, $location, facebookService, googleService, twitterService) {
     $scope.user = { name: '', image: '/images/default-user.jpg' };
 
     $scope.createUser = () => {
