@@ -1,6 +1,6 @@
 angular.module('WeStop').controller('lobbyController', ['$scope', '$location',  '$http', 'API_SETTINGS', function ($scope, $location, $http, API_SETTINGS) {
 
-    $http.get(API_SETTINGS.uri + '/games.list').then((resp) => {
+    $http.get(API_SETTINGS.uri + '/api/games.list').then((resp) => {
         $scope.games = resp.data.games;
     }, (error) => {
         console.error(error);

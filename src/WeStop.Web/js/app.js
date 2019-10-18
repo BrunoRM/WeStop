@@ -7,7 +7,7 @@ angular.module('WeStop', [
     'md.data.table'
 ])
 
-.value('API_SETTINGS', { uri: 'http://localhost:5000/api' })
+.value('API_SETTINGS', { uri: 'http://localhost:5000' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
 
@@ -47,8 +47,9 @@ angular.module('WeStop', [
 
 
 }])
-    .run(['$user', '$rootScope', '$location', '$window', 'googleService', ($user, $rootScope, $location, $window, googleService) => {
-    
+
+.run(['$user', '$rootScope', '$location', '$window', 'googleService', ($user, $rootScope, $location, $window, googleService) => {
+
     $rootScope.user = $user.get();
 
     $rootScope.$on('$routeChangeStart', (e, next, current) => {

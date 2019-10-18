@@ -12,7 +12,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
         }
     }
     
-    $http.get(API_SETTINGS.uri + '/themes.list').then((resp) => {
+    $http.get(API_SETTINGS.uri + '/api/themes.list').then((resp) => {
         resp.data.themes.forEach(theme => {
             availableThemes.push(theme.name);
         });
@@ -89,7 +89,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
     $scope.confirm = function() {
         $scope.game.gameOptions.availableLetters = getSelectedLetters();
-        $http.post(API_SETTINGS.uri + '/games.create', $scope.game).then((resp) =>
+        $http.post(API_SETTINGS.uri + '/api/games.create', $scope.game).then((resp) =>
         {
             $location.path('/game/' + resp.data.id);
         });

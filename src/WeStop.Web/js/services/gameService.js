@@ -1,8 +1,8 @@
-angular.module('WeStop').factory('$game', ['$rootScope', function ($rootScope) {
+angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', function ($rootScope, API_SETTINGS) {
 
     let connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5000/game")
-            .build();
+        .withUrl(API_SETTINGS.uri + '/game')
+        .build();
 
     function onConnectionClose() {
         console.log('Connection has closed');
