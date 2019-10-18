@@ -53,4 +53,13 @@ body {
 
 .md-avatar {
     border-radius: 50px;
+    border-style: solid;
+}
+
+table {
+    border-style: solid;
+}
+
+th, tr, td {
+    color: white !important;
 }

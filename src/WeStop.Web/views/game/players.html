@@ -1,9 +1,8 @@
 <md-list layout-fill>
     <md-list-item class="md-2-line" ng-repeat="player in game.players">
-        <img class="md-avatar" ng-src="{{player.imageUri}}" />
+        <img md-colors="{ 'border-color': player.id === user.id ? 'warn' : 'primary' }" class="md-avatar" ng-src="{{player.imageUri}}" />
         <div class="md-list-item-text" layout="column">
-            <h3>{{ player.userName }} 
-                <i ng-if="player.id == user.id" class="fa fa-user"></i>
+            <h3>{{ player.userName }}
                 <i ng-if="player.isAdmin" class="fa fa-star"><md-tooltip>Administrador da partida</md-tooltip></i>
             </h3>            
             <h4>{{ player.totalPontuation }} pts</h4>

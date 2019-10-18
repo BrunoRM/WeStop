@@ -11,7 +11,7 @@
 
     <div layout-padding layout-align="end center" layout="column" ng-if="player.isAdmin">
         <md-button layout="row" class="md-raised" ng-class="{ 'md-primary': allPlayersReady, 'md-warn': !allPlayersReady }" ng-disabled="!allPlayersReady" ng-click="startRound()"><i class="fa fa-rocket"></i> Iniciar jogo</md-button>
-        <p ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</p>
+        <span ng-if="player.isAdmin && !allPlayersReady">Para iniciar o jogo, todos os jogadores devem estar prontos</span>
     </div>
 
 </div>
