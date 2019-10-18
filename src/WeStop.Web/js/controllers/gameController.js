@@ -175,9 +175,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $game.on('player_joined_game', data => {
-        
         let player = $scope.game.players.find((player) => {
-            return player.userName == data.player.userName;
+            return player.id === data.player.id;
         });
 
         if (!player)

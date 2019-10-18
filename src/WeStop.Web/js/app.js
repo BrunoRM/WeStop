@@ -13,8 +13,8 @@ angular.module('WeStop', [
 
     $locationProvider.hashPrefix('');
 
-    $mdThemingProvider.theme('default')
-        .dark();
+    // $mdThemingProvider.theme('default')
+    //     .dark();
 
     $routeProvider
         .when('/', {
