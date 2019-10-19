@@ -7,7 +7,7 @@ angular.module('WeStop', [
     'md.data.table'
 ])
 
-.value('API_SETTINGS', { uri: 'http://localhost:5000' })
+.value('API_SETTINGS', { uri: 'https://westopapi.azurewebsites.net' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
 

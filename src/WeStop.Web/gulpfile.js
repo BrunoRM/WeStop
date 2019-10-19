@@ -24,18 +24,20 @@ gulp.task('jshint', function () {
 
 gulp.task('uglifyAndConcatJs', function(){
     return es.merge([
-        gulp.src([
-            'node_modules/@aspnet/signalr/dist/browser/signalr.min.js',
-            'node_modules/angular/angular.min.js', 
-            'node_modules/angular-route/angular-route.min.js', 
-            'node_modules/angular-aria/angular-aria.min.js', 
-            'node_modules/angular-animate/angular-animate.min.js', 
-            'node_modules/angular-messages/angular-messages.min.js', 
-            'node_modules/angular-cookies/angular-cookies.min.js',
-            'node_modules/angular-uuid/angular-uuid.js',
-            'node_modules/angular-material/angular-material.min.js',
-            'node_modules/angular-material-data-table/dist/md-data-table.min.js'
-        ]),
+        gulp.src(
+            [
+                'node_modules/@aspnet/signalr/dist/browser/signalr.min.js',
+                'node_modules/angular/angular.min.js', 
+                'node_modules/angular-route/angular-route.min.js', 
+                'node_modules/angular-aria/angular-aria.min.js', 
+                'node_modules/angular-animate/angular-animate.min.js', 
+                'node_modules/angular-messages/angular-messages.min.js', 
+                'node_modules/angular-cookies/angular-cookies.min.js',
+                'node_modules/angular-material/angular-material.min.js',
+                'node_modules/angular-material-data-table/dist/md-data-table.min.js',
+                'node_modules/angular-uuid/angular-uuid.js'
+            ]
+        ),
         gulp.src('js/**/*.js').pipe(concat('scripts.js')).pipe(uglify().on('error', function (e) {
             console.log(e);
         }))
@@ -94,7 +96,7 @@ gulp.task('copy', function(){
 });
 
 gulp.task('copy-fonts', function() {
-    return gulp.src('fonts/*').pipe(gulp.dest('dist/fonts'));
+    return gulp.src(['node_modules/font-awesome/fonts/*', 'fonts/*']).pipe(gulp.dest('dist/fonts'));
 });
 
 gulp.task('copy-icons', function() {
