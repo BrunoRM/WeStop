@@ -104,5 +104,5 @@ gulp.task('copy-icons', function() {
 });
 
 gulp.task('default', function(cb){
-    return runSequence('clean', ['jshint', 'uglifyAndConcatJs', 'htmlmin', 'cssmin', 'copy', 'copy-fonts', 'copy-icons', 'imagesmin'], cb);
+    return runSequence('clean', ['jshint', 'uglifyAndConcatJs', 'htmlmin', 'cssmin', 'copy', 'copy-fonts', 'copy-icons', 'copy-images'], cb);
 });

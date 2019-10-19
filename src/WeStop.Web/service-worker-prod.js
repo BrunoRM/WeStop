@@ -30,3 +30,15 @@ self.addEventListener('activate', function (e) {
     );
     return self.clients.claim();
 });
+
+self.addEventListener('fetch', function (e) {
+    e.respondWith(
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.match(e.request).then(function (response) {
+                return response || fetch(e.request).then(function (response) {
+                    return response;
+                });
+            });
+        })
+    );
+});

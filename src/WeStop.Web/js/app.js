@@ -9,11 +9,13 @@ angular.module('WeStop', [
 
 .value('API_SETTINGS', { uri: 'https://westopapi.azurewebsites.net' })
 
-.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
+.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider) {
 
     $httpProvider.interceptors.push('httpInterceptor');
 
     $locationProvider.hashPrefix('');
+
+    $mdGestureProvider.skipClickHijack();
 
     $mdThemingProvider.theme('default')
         .dark();

@@ -30,7 +30,14 @@ namespace WeStop.Api
             services.AddCors(options => options.AddPolicy("WeStopCorsPolicy",
                 builder =>
                 {
-                    builder.WithOrigins("http://localhost:5001", "https://localhost:5001", "http://localhost:5002", "https://localhost:5002", "https://westopweb.azurewebsites.net").AllowAnyMethod()
+                    builder.WithOrigins(
+                        "http://localhost:5001", 
+                        "https://localhost:5001", 
+                        "http://localhost:5002", 
+                        "https://localhost:5002", 
+                        "http://westop.z15.web.core.windows.net", 
+                        "https://westop.z15.web.core.windows.net")
+                        .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
                 }));
