@@ -1,0 +1,5 @@
+{
+    "appService.defaultWebAppToDeploy": "None",
+    "appService.preDeployTask": "publish-release",
+    "appService.deploySubpath": "bin/Release/netcoreapp2.2/publish"
+}

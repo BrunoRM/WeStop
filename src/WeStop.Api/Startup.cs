@@ -20,13 +20,6 @@ namespace WeStop.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                });
-
             services.AddCors(options => options.AddPolicy("WeStopCorsPolicy",
                 builder =>
                 {
@@ -42,16 +35,22 @@ namespace WeStop.Api
                         .AllowCredentials();
                 }));
 
-            services.ConfigureDependencies();
-
             services.AddSignalR();
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
+                
+            services.ConfigureDependencies();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app)
         {
             app.UseCors("WeStopCorsPolicy");
-
+            app.UseWebSockets();
             app.UseSignalR(routeConfig =>
             {
                 routeConfig.MapHub<GameHub>("/game");

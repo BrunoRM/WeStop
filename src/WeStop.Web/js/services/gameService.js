@@ -2,6 +2,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
 
     let connection = new signalR.HubConnectionBuilder()
         .withUrl(API_SETTINGS.uri + '/game')
+        .withAutomaticReconnect()
         .build();
 
     function onConnectionClose() {
@@ -37,7 +38,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
     }
 
     function invoke(...args) {
-        if (connection.state === 0) {
+        if (connection.state === 'Disconnected') {
             connect(() => connection.invoke(...args));
         } else {
             connection.invoke(...args);

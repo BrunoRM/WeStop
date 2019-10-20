@@ -10,6 +10,7 @@ const runSequence = require('run-sequence');
 const rename = require('gulp-rename');
 const imagemin = require('gulp-imagemin');
 const merge2 = require('merge2');
+//const pwaAssetGenerator = require('pwa-asset-generator');
 
 gulp.task('clean', function () {
     return gulp.src('dist/')
@@ -26,7 +27,7 @@ gulp.task('uglifyAndConcatJs', function(){
     return es.merge([
         gulp.src(
             [
-                'node_modules/@aspnet/signalr/dist/browser/signalr.min.js',
+                'node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
                 'node_modules/angular/angular.min.js', 
                 'node_modules/angular-route/angular-route.min.js', 
                 'node_modules/angular-aria/angular-aria.min.js', 
@@ -101,6 +102,18 @@ gulp.task('copy-fonts', function() {
 
 gulp.task('copy-icons', function() {
     return gulp.src('icons/*').pipe(gulp.dest('dist/icons'))
+});
+
+gulp.task('generate-pwa-assets', function () {
+    (async () => {
+        const { savedImages, htmlContent, manifestJsonContent } = await pwaAssetGenerator.generateImages(
+            'E:/WeStop/WeStop/src/WeStop.Web/images/stop.png',
+            'E:/WeStop/WeStop/src/WeStop.Web/icons',
+            {
+                scrape: false,
+                log: true
+            });
+    })();
 });
 
 gulp.task('default', function(cb){

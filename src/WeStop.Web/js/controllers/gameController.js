@@ -21,6 +21,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     function setGame(game) {
         $scope.game = game;
+        $scope.game.players.sort(function (p, n) {
+            return p.id == $rootScope.user.id ? -1 : n.id == $rootScope.user.id ? 1 : 0;
+        });
     }
     
     function setPlayer(player) {

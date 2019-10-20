@@ -1,14 +1,21 @@
-<div ng-cloak flex="60" flex-xs="100" style="width: 700px;">
+<div ng-cloak flex="60" flex-sm="100" flex-xs="100" style="width: 700px;">
     <md-card>
+        
         <md-card-header></md-card-header>
 
-        <md-content>
-    
-            <md-tabs class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content md-align-tabs="bottom">
+        <md-content layout-align="center center">
+            
+            <div layout-fill layout="row" layout-align="center center">
+                <h3 ng-if="!game">Carregando...</h3>
+            </div>
+
+            <md-tabs ng-if="game" class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content md-align-tabs="bottom">
                 <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
                     <md-tab-label><i class="fa fa-users"></i> Jogadores</md-tab-label>
                     <md-tab-body layout="column" layout-align="center center">
-                        <div ng-include="'views/game/players.html'"></div>
+                        <md-content style="height: 300px;">
+                            <div ng-include="'views/game/players.html'"></div>
+                        </md-content>
                     </md-tab-body>
                 </md-tab>
 

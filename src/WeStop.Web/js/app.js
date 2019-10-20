@@ -9,7 +9,7 @@ angular.module('WeStop', [
 
 .value('API_SETTINGS', { uri: 'https://westopapi.azurewebsites.net' })
 
-.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider) {
+.config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', '$mdAriaProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider, $mdAriaProvider) {
 
     $httpProvider.interceptors.push('httpInterceptor');
 
@@ -19,6 +19,15 @@ angular.module('WeStop', [
 
     $mdThemingProvider.theme('default')
         .dark();
+
+    $mdThemingProvider
+        .theme('default')
+        .primaryPalette('blue')
+        .accentPalette('teal')
+        .warnPalette('red');
+        // .backgroundPalette('grey');
+
+    $mdAriaProvider.disableWarnings();
 
     $routeProvider
         .when('/', {
@@ -50,37 +59,27 @@ angular.module('WeStop', [
 
 }])
 
-.run(['$user', '$rootScope', '$location', '$window', 'googleService', ($user, $rootScope, $location, $window, googleService) => {
+.run(['$user', '$rootScope', '$location', '$window', ($user, $rootScope, $location, $window) => {
 
     $rootScope.user = $user.get();
 
     $rootScope.$on('$routeChangeStart', (e, next, current) => {
         if (next.$$route.secure && !$rootScope.user) {
             $location.path('/');
+        } else if (!next.$$route.secure && $rootScope.user) {
+            $location.path('/lobby');
         }
     });
 
-    // $window.fbAsyncInit = function () {
-    //     FB.init({
-    //         appId: '659220371267596',
-    //         status: true,
-    //         cookie: true,
-    //         xfbml: true,
-    //         version: 'v2.6'
-    //     });
-    // };
-
-    // let firebaseConfig = {
-    //     apiKey: "AIzaSyAMtxk9YGof82udlAC_LkkB4mgc-JxFmAI",
-    //     authDomain: "westop-1571110414274.firebaseapp.com",
-    //     databaseURL: "https://westop-1571110414274.firebaseio.com",
-    //     projectId: "westop-1571110414274",
-    //     storageBucket: "westop-1571110414274.appspot.com",
-    //     messagingSenderId: "418166283498",
-    //     appId: "1:418166283498:web:7ab90ab027f742f6b80b93"
-    // };
-    
-    // firebase.initializeApp(firebaseConfig);
+    $window.fbAsyncInit = function () {
+        FB.init({
+            appId: '659220371267596',
+            status: true,
+            cookie: true,
+            xfbml: true,
+            version: 'v2.6'
+        });
+    };
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js').then(function (registration) {
