@@ -55,8 +55,8 @@ namespace WeStop.UnitTest
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidations(dustinValidations);
-                GameManager.AddRoundValidations(lucasValidations);
+                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
+                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
                 RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
@@ -113,8 +113,8 @@ namespace WeStop.UnitTest
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidations(dustinValidations);
-                GameManager.AddRoundValidations(lucasValidations);
+                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
+                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
                 RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
@@ -208,8 +208,8 @@ namespace WeStop.UnitTest
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidations(dustinValidations);
-                GameManager.AddRoundValidations(lucasValidations);
+                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
+                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
                 RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
@@ -266,8 +266,8 @@ namespace WeStop.UnitTest
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidations(dustinValidations);
-                GameManager.AddRoundValidations(lucasValidations);
+                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
+                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
                 RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);

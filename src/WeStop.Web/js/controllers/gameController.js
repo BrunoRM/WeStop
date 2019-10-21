@@ -6,6 +6,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.roundStopped = false;
         $scope.gameFinished = false;
         $scope.validationStarted = false;
+        $scope.validationTimeOver = false;
 
         $scope.sortedLetter = '?';
         $scope.answersTime = 0;
@@ -36,6 +37,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.roundStopped = false;
         $scope.gameFinished = false;
         $scope.validationStarted = false;
+        $scope.validationTimeOver = false;
 
         $scope.answers = [];
         for (let i = 0; i < $scope.game.themes.length; i++) {
@@ -52,6 +54,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.roundStopped = true;
         $scope.gameFinished = false;
         $scope.validationStarted = true;
+        $scope.validationTimeOver = false;
 
         $scope.currentValidationTime = 0;
     }
@@ -62,6 +65,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.roundStopped = false;
         $scope.gameFinished = true;
         $scope.validationStarted = false;
+        $scope.validationTimeOver = true;
     }
 
     function getPlayerGamePontuation(playerId) {
@@ -286,22 +290,32 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });    
 
     $game.on('validation_time_elapsed', resp => {
-        $scope.currentValidationTimePercentage = calculateTimePercentage(15, resp.currentTime);
+        $scope.currentValidationTimePercentage = calculateTimePercentage(10, resp.currentTime);
         refreshCurrentValidationTime(resp.currentTime);
     });
 
-    $game.on('validation_time_over', () => $scope.finishValidation());
-
-    $scope.finishValidation = function () {
-        
-        let data = {
+    function buildValidationData() {
+        return {
             gameId: $routeParams.id,
             playerId: $rootScope.user.id,
             roundNumber: $scope.game.currentRoundNumber,
             theme: $scope.currentValidation.theme,
             validations: $scope.currentValidation.validations
         };
+    }
 
+    $game.on('validation_time_over', () => {
+        $scope.validationTimeOver = true;
+        sendValidationsAfterTimeOver()
+    });
+    
+    function sendValidationsAfterTimeOver() {
+        let data = buildValidationData();
+        $game.invoke('send_validations_after_time_over', data);
+    }
+
+    $scope.finishValidation = function () {
+        let data = buildValidationData();
         $game.invoke('send_validations', data);
     };
 

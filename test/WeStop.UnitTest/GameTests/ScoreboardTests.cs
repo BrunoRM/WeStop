@@ -55,8 +55,8 @@ namespace WeStop.UnitTest.GameTests
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidations(dustinValidations);
-                GameManager.AddRoundValidations(lucasValidations);
+                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
+                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
                 RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
 

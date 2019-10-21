@@ -139,7 +139,7 @@ namespace WeStop.Api.Infra.Hubs
                     playerId
                 });
 
-                _gameTimer.StopRoundTimer(gameId, roundNumber);
+                _gameTimer.StopRoundTimer(gameId);
             });
         }
 
@@ -151,26 +151,26 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("send_validations")]
-        public Task SendValidationsAsync(RoundValidations roundValidations)
+        public async Task SendValidationsAsync(RoundValidations roundValidations)
         {
-            return Task.Run(() =>
-            {
-                /// Precisamos utilizar o lock aqui pois quando o tempo de validação acaba, todos os clients irão enviar suas respostas de uma vez, ou seja,
-                /// vão estar concorrendo pelo GameManager e consequentemente pelos storages, o que pode resultar na validação abaixo ser true para um ou mais players
-                /// causando um erro para o client
-                lock (_gameManager)
-                {
-                    _gameManager.AddRoundValidations(roundValidations);
-                    Clients.Caller.SendAsync("im_send_validations");
+            await _gameManager.AddRoundValidationsAsync(roundValidations);
+            await Clients.Caller.SendAsync("im_send_validations");
 
-                    var gameId = roundValidations.GameId;
-                    if (_gameManager.CheckAllPlayersSendValidations(gameId, roundValidations.Theme))
-                    {
-                        Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", roundValidations.Theme);
-                        _gameTimer.StartValidationForNextTheme(gameId, roundValidations.RoundNumber);
-                    }
-                }
-            });
+            var gameId = roundValidations.GameId;
+            var theme = roundValidations.Theme;
+            if (await _gameManager.CheckAllPlayersSendValidationsAsync(gameId, roundValidations.RoundNumber, theme))
+            {
+                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", theme);
+                await _gameManager.FinishValidationsForThemeAsync(gameId, theme);
+                await _gameTimer.StartValidationForNextThemeAsync(gameId);
+            }
+        }
+
+        [HubMethodName("send_validations_after_time_over")]
+        public async Task SendValidationsAfterTimeOverAsync(RoundValidations roundValidations)
+        {
+            await _gameManager.AddRoundValidationsAsync(roundValidations);
+            await Clients.Caller.SendAsync("im_send_validations");
         }
 
         [HubMethodName("player_change_status")]

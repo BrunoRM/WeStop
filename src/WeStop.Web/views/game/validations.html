@@ -19,11 +19,11 @@
     </div>
 
     <div layout="column" layout-align="center center" layout-fill layout-padding>
-        <md-button class="md-primary md-raised" ng-click="finishValidation()"><i class="fa fa-check"></i> Validar respostas</md-button>
+        <md-button ng-disabled="currentValidationTimePercentage === 100" class="md-primary md-raised" ng-click="finishValidation()"><i class="fa fa-check"></i> Validar respostas</md-button>
         <span>{{currentValidation.number}} de {{currentValidation.total}}</span>
     </div>
 </div>
 
 <div layout="row" layout-align="center center">
-    <p ng-if="!currentValidation">Aguardando validação dos outros jogadores...</p>
+    <p ng-if="!currentValidation && !validationTimeOver">Aguardando validação dos outros jogadores...</p>
 </div>

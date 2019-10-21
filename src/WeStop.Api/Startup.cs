@@ -43,7 +43,7 @@ namespace WeStop.Api
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
                 
-            services.ConfigureDependencies();            
+            services.ConfigureDependencies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

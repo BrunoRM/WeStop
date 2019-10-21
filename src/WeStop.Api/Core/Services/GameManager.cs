@@ -94,11 +94,11 @@ namespace WeStop.Api.Core.Services
             await _playerStorage.EditAsync(player);
         }
 
-        public void AddRoundValidations(RoundValidations roundValidations)
+        public async Task AddRoundValidationsAsync(RoundValidations roundValidations)
         {
-            var player = _playerStorage.Get(roundValidations.GameId, roundValidations.PlayerId);
+            var player = await _playerStorage.GetAsync(roundValidations.GameId, roundValidations.PlayerId);
             player.Validations.Add(roundValidations);
-            _playerStorage.Edit(player);
+            await _playerStorage.EditAsync(player);
         }
 
         public async Task<ICollection<Guid>> GetInRoundPlayersIdsAsync(Guid gameId)
@@ -154,37 +154,41 @@ namespace WeStop.Api.Core.Services
             return playersValidations;
         }
 
-        public bool CheckAllPlayersSendValidations(Guid gameId, string theme)
+        public async Task<bool> CheckAllPlayersSendValidationsAsync(Guid gameId, int roundNumber, string theme)
         {
-            var game = _gameStorage.GetById(gameId);
+            var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
 
-            foreach (var player in game.Players)
+            foreach (var player in players)
             {
                 if (player.InRound)
                 {
-                    if (game.Players.IsValidationsRequiredForPlayer(player.Id, game.CurrentRoundNumber, theme) && !player.HasValidatedTheme(game.CurrentRoundNumber, theme))
+                    if (players.IsValidationsRequiredForPlayer(player.Id, roundNumber, theme) && !player.HasValidatedTheme(roundNumber, theme))
                     {
                         return false;
                     }
                 }
             }
 
-            game.CurrentRound.ValidatedThemes.Add(theme);
-            _gameStorage.Edit(game);
-
             return true;
         }
 
-        public string StartValidationForNextTheme(Guid gameId)
+        public async Task FinishValidationsForThemeAsync(Guid gameId, string theme)
         {
-            var game = _gameStorage.GetById(gameId);
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            game.CurrentRound.ValidatedThemes.Add(theme);
+            await _gameStorage.EditAsync(game);
+        }
+
+        public async Task<string> StartValidationForNextThemeAsync(Guid gameId)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
             {
                 if (game.Players.HasAnyAnswerForTheme(game.CurrentRoundNumber, theme) && !game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
                     game.StartValidations();
                     game.CurrentRound.ThemeBeingValidated = theme;
-                    _gameStorage.Edit(game);
+                    await _gameStorage.EditAsync(game);
                     return theme;
                 }                
             }
