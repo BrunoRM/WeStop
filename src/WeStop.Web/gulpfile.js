@@ -110,8 +110,9 @@ gulp.task('generate-pwa-assets', function () {
             'E:/WeStop/WeStop/src/WeStop.Web/images/stop.png',
             'E:/WeStop/WeStop/src/WeStop.Web/icons',
             {
-                opaque: false,
-                log: true
+                opaque: true,
+                log: true,
+                background: '#2194f3'
             });
     })();
 });
