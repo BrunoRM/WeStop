@@ -213,7 +213,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.stop = () => {
-        $game.invoke('stop_round', $routeParams.id, $scope.game.currentRoundNumber, $rootScope.user.id);
+        $game.invoke('stop_round', $routeParams.id, $rootScope.user.id);
     };
     
     $game.on('round_stoped', (resp) => {

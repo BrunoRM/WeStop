@@ -79,7 +79,7 @@ namespace WeStop.Api.Infra.Hubs
 
                         if (player.InRound)
                         {
-                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) defaultValidationsData = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated, game.CurrentRound.SortedLetter);
+                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated, game.CurrentRound.SortedLetter);
 
                             await Clients.Caller.SendAsync("im_reconected_game", new
                             {
@@ -87,9 +87,9 @@ namespace WeStop.Api.Infra.Hubs
                                 round = game.CurrentRound,
                                 player = _mapper.Map<Player, PlayerDto>(player),
                                 theme = game.CurrentRound.ThemeBeingValidated,
-                                validations = defaultValidationsData.Validations,
-                                totalValidations = defaultValidationsData.TotalValidations,
-                                validationsNumber = defaultValidationsData.ValidationNumber
+                                validations = Validations,
+                                totalValidations = TotalValidations,
+                                validationsNumber = ValidationNumber
                             });
                         }
 
@@ -124,12 +124,12 @@ namespace WeStop.Api.Infra.Hubs
                     sortedLetter = createdRound.SortedLetter
                 });
 
-                _gameTimer.StartRoundTimer(gameId, createdRound.Number);
+                _gameTimer.StartRoundTimer(gameId);
             });
         }
 
         [HubMethodName("stop_round")]
-        public async Task StopRoundAsync(Guid gameId, int roundNumber, Guid playerId)
+        public async Task StopRoundAsync(Guid gameId, Guid playerId)
         {
             await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
@@ -153,8 +153,7 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("send_validations")]
         public async Task SendValidationsAsync(RoundValidations roundValidations)
         {
-            await _gameManager.AddRoundValidationsAsync(roundValidations);
-            await Clients.Caller.SendAsync("im_send_validations");
+            await AddValidationsAndNotifyClientsAsync(roundValidations);
 
             var gameId = roundValidations.GameId;
             var theme = roundValidations.Theme;
@@ -168,6 +167,11 @@ namespace WeStop.Api.Infra.Hubs
 
         [HubMethodName("send_validations_after_time_over")]
         public async Task SendValidationsAfterTimeOverAsync(RoundValidations roundValidations)
+        {
+            await AddValidationsAndNotifyClientsAsync(roundValidations);
+        }
+
+        private async Task AddValidationsAndNotifyClientsAsync(RoundValidations roundValidations)
         {
             await _gameManager.AddRoundValidationsAsync(roundValidations);
             await Clients.Caller.SendAsync("im_send_validations");

@@ -137,7 +137,7 @@ namespace WeStop.Api.Infra.Timers
         public void Register(Guid gameId, int roundTime) =>
             _gamesRoundsTimes.Add(gameId, roundTime);
 
-        public void StartRoundTimer(Guid gameId, int roundNumber)
+        public void StartRoundTimer(Guid gameId)
         {
             TimerContext gameTimerContext = CreateGameTimerContext(gameId, _gamesRoundsTimes[gameId]);
             Timer roundTimer = new Timer((context) =>
