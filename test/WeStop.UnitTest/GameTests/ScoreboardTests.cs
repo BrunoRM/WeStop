@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
@@ -16,9 +17,9 @@ namespace WeStop.UnitTest.GameTests
         }
 
         [Test]
-        public void ShouldReturnPontuationsOnlyForPlayersInRound()
+        public async Task ShouldReturnPontuationsOnlyForPlayersInRound()
         {
-            GameManager.StartRoundAsync(Game.Id, r =>
+            await GameManager.StartRoundAsync(Game.Id, async r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -36,8 +37,8 @@ namespace WeStop.UnitTest.GameTests
                     .AddAnswer("FDS", "Ben 10")
                     .Build();
 
-                GameManager.AddRoundAnswersAsync(dustinAnwers).Wait();
-                GameManager.AddRoundAnswersAsync(lucasAnswers).Wait();
+                await GameManager.AddRoundAnswersAsync(dustinAnwers);
+                await GameManager.AddRoundAnswersAsync(lucasAnswers);
 
                 var roundValidationsBuilder = new PlayerValidationsBuilder(Game);
 
@@ -55,10 +56,10 @@ namespace WeStop.UnitTest.GameTests
                     .ForTheme("FDS").ValidateAnswers("Breaking bad")
                     .Build();
 
-                GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
-                GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
+                await GameManager.AddRoundValidationsAsync(dustinValidations);
+                await GameManager.AddRoundValidationsAsync(lucasValidations);
 
-                RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound).Wait();
+                await RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound);
 
                 var scoreBoard = Game.GetScoreboard(Game.CurrentRoundNumber);
 
@@ -66,8 +67,7 @@ namespace WeStop.UnitTest.GameTests
                 Assert.True(scoreBoard.Any(p => p.PlayerId == TestUsers.Lucas.Id));
                 Assert.False(scoreBoard.Any(p => p.PlayerId == TestUsers.Mike.Id));
                 Assert.False(scoreBoard.Any(p => p.PlayerId == TestUsers.Will.Id));
-
-            }).Wait();
+            });
         }
     }
 }
