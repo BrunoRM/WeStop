@@ -2,44 +2,14 @@
     "name": "WeStop",
     "short_name": "WeStop",
     "start_url": "/",
-    "display": "standalone",
-    "background_color": "#3F51B5",
+    "display": "fullscreen",
+    "background_color": "#2194f3",
     "orientation": "portrait",
-    "theme_color": "#3F51B5",
+    "theme_color": "#2194f3",
     "icons": [
-        {
-            "src": "/icons/manifest-icon-72.png",
-            "sizes": "72X72",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/manifest-icon-96.png",
-            "sizes": "96x96",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/manifest-icon-128.png",
-            "sizes": "128x128",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/manifest-icon-144.png",
-            "sizes": "144x144",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/manifest-icon-152.png",
-            "sizes": "152x152",
-            "type": "image/png"
-        },
         {
             "src": "/icons/manifest-icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/manifest-icon-384.png",
-            "sizes": "384x384",
             "type": "image/png"
         },
         {
