@@ -8,7 +8,7 @@ using WeStop.Api.Infra.Storages.Interfaces;
 namespace WeStop.Api.Core.Services
 {
     /// Observação sobre a decisão de design desta classe:
-    /// Como o GameManager precisou ser alterado para ser um Singleton, essa classe não pode guardar estado, portanto foi adicionado
+    /// Essa classe não pode guardar estado, portanto foi adicionado
     /// local functions (ou local methods) para podermos ter acesso ao mesmo escopo que o método principal.
     public sealed class RoundScorer
     {
@@ -21,7 +21,7 @@ namespace WeStop.Api.Core.Services
             _playerStorage = playerStorage;
         }
 
-        public void ProcessRoundPontuation(Round round)
+        public async Task ProcessRoundPontuationAsync(Round round)
         {
             if (round.Finished)
             {
@@ -31,12 +31,12 @@ namespace WeStop.Api.Core.Services
             var pontuations = new List<RoundPontuations>();
             var gameId = round.GameId;
 
-            var players = _playerStorage.GetPlayersInRound(gameId);
+            var players = await _playerStorage.GetPlayersInRoundAsync(gameId);
 
             var roundNumber = round.Number;
             var roundAnswers = players.GetAnswers(roundNumber).ToList();
             var validations = players.GetValidations(roundNumber).ToList();
-            var gameThemes = _gameStorage.GetThemes(round.GameId);
+            var gameThemes = await _gameStorage.GetThemesAsync(round.GameId);
 
             foreach (var theme in gameThemes)
             {
@@ -76,11 +76,11 @@ namespace WeStop.Api.Core.Services
                 GiveZeroPointsForEachPlayer(theme, playersWithBlankAnswers);
             }
 
-            SavePlayersPontuations(pontuations);
+            await SavePlayersPontuations(pontuations);
             round.Finish();
 
             #region Local Methods
-            void SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
+            async Task SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
             {
                 foreach (var playerPontuations in roundPontuations)
                 {
@@ -89,7 +89,7 @@ namespace WeStop.Api.Core.Services
                     if (player != null)
                     {
                         player.Pontuations.Add(playerPontuations);
-                        _playerStorage.Edit(player);
+                        await _playerStorage.EditAsync(player);
                     }
                 }
             }
@@ -133,14 +133,6 @@ namespace WeStop.Api.Core.Services
                 }
             }
             #endregion
-        }
-
-        public Task ProcessRoundPontuationAsync(Round round)
-        {
-            return Task.Run(() =>
-            {
-                ProcessRoundPontuation(round);
-            });
         }
     }
 }

@@ -17,8 +17,8 @@ namespace WeStop.UnitTest
 
         [Test]
         public void GivenDistinctsAnswersShouldGiveTenPointsForEach()
-        {            
-            GameManager.StartRoundAsync(Game.Id, r =>
+        {
+            GameManager.StartRoundAsync(Game.Id, (System.Action<Api.Core.Round>)(r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -58,7 +58,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
                 GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
-                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
+                RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -70,13 +70,13 @@ namespace WeStop.UnitTest
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(30, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
-            }).Wait();
+            })).Wait();
         }
 
         [Test]
         public void GivenSameAnswersShouldGiveFivePointsForEach()
         {
-            GameManager.StartRoundAsync(Game.Id, r =>
+            GameManager.StartRoundAsync(Game.Id, (System.Action<Api.Core.Round>)(r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -116,9 +116,9 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
                 GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
-                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
+                RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
-                
+
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
@@ -128,13 +128,13 @@ namespace WeStop.UnitTest
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(5, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(15, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
-            }).Wait();            
+            })).Wait();            
         }
 
         [Test]
         public void GivenBlankOrNullAnswersShouldGiveZeroPointsForEach()
         {
-            GameManager.StartRoundAsync(Game.Id, r =>
+            GameManager.StartRoundAsync(Game.Id, (System.Action<Api.Core.Round>)(r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -153,7 +153,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundAnswersAsync(dustinAnwers).Wait();
                 GameManager.AddRoundAnswersAsync(lucasAnswers).Wait();
 
-                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
+                RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -165,13 +165,13 @@ namespace WeStop.UnitTest
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
-            }).Wait();
+            })).Wait();
         }
 
         [Test]
         public void PontuationIsCorrectWhenAllAnswersDisctinct()
         {
-            GameManager.StartRoundAsync(Game.Id, r =>
+            GameManager.StartRoundAsync(Game.Id, (System.Action<Api.Core.Round>)(r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -211,9 +211,9 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
                 GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
-                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
+                RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
-            
+
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
@@ -223,13 +223,13 @@ namespace WeStop.UnitTest
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(30, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
-            }).Wait();
+            })).Wait();
         }
 
         [Test]
         public void GivenInvalidatedAnswersShouldGiveZeroPointsForEach()
         {
-            GameManager.StartRoundAsync(Game.Id, r =>
+            GameManager.StartRoundAsync(Game.Id, (System.Action<Api.Core.Round>)(r =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -269,7 +269,7 @@ namespace WeStop.UnitTest
                 GameManager.AddRoundValidationsAsync(dustinValidations).Wait();
                 GameManager.AddRoundValidationsAsync(lucasValidations).Wait();
 
-                RoundScorer.ProcessRoundPontuation(Game.CurrentRound);
+                RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
@@ -281,7 +281,7 @@ namespace WeStop.UnitTest
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));
-            }).Wait();
+            })).Wait();
         }
     }    
 }

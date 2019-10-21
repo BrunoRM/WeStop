@@ -135,9 +135,9 @@ namespace WeStop.Api.Core.Services
             return (new List<Validation>(), 0, 0);
         }
 
-        public ICollection<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)> GetPlayersDefaultValidations(Guid gameId, string theme)
+        public async Task<ICollection<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationsNumber)>> GetPlayersDefaultValidationsAsync(Guid gameId, string theme)
         {
-            var game = _gameStorage.GetById(gameId);
+            var game = await _gameStorage.GetByIdAsync(gameId);
             var answers = game.Players.GetAnswers(game.CurrentRoundNumber);
 
             var playersValidations = new List<(Guid PlayerId, ICollection<Validation> Validations, int TotalValidations, int ValidationNumber)>();
@@ -205,29 +205,29 @@ namespace WeStop.Api.Core.Services
             action?.Invoke(game);
         }
 
-        public void FinishCurrentRound(Guid gameId, Action<Game> finishedRoundAction)
+        public async Task FinishCurrentRoundAsync(Guid gameId, Action<Game> finishedRoundAction)
         {
-            var players = _playerStorage.GetAll(gameId);
+            var players = await _playerStorage.GetAllAsync(gameId);
 
-            var game = _gameStorage.GetById(gameId);
+            var game = await _gameStorage.GetByIdAsync(gameId);
             game.FinishRound();
 
-            _roundScorer.ProcessRoundPontuation(game.CurrentRound);
-            PutAllPlayersInWaiting();
+            await _roundScorer.ProcessRoundPontuationAsync(game.CurrentRound);
+            await PutAllPlayersInWaiting();
 
             if (game.IsFinalRound())
             {
                 game.Finish();
             }
 
-            _gameStorage.Edit(game);
+            await _gameStorage.EditAsync(game);
             finishedRoundAction?.Invoke(game);
 
-            void PutAllPlayersInWaiting()
+            async Task PutAllPlayersInWaiting()
             {
                 foreach (var player in players.PutAllPlayersInWaiting())
                 {
-                    _playerStorage.Edit(player);
+                    await _playerStorage.EditAsync(player);
                 }
             }
         }

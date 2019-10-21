@@ -13,11 +13,6 @@ namespace WeStop.Api.Infra.Storages.MongoDb
             await _database.GetCollection<Game>(GAMES_COLLECTION_NAME).InsertOneAsync(game);
         }
 
-        public void Edit(Game game)
-        {
-            //_database.GetCollection<Game>(GAMES_COLLECTION_NAME).UpdateOne(game);
-        }
-
         public Task EditAsync(Game game)
         {
             throw new NotImplementedException();
@@ -28,17 +23,12 @@ namespace WeStop.Api.Infra.Storages.MongoDb
             throw new NotImplementedException();
         }
 
-        public Game GetById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<Game> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public ICollection<string> GetThemes(Guid gameId)
+        public Task<ICollection<string>> GetThemesAsync(Guid gameId)
         {
             throw new NotImplementedException();
         }

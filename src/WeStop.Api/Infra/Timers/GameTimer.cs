@@ -81,7 +81,7 @@ namespace WeStop.Api.Infra.Timers
 
             if (!string.IsNullOrEmpty(themeToValidate))
             {
-                var playersValidations = _gameManager.GetPlayersDefaultValidations(gameId, themeToValidate);
+                var playersValidations = await _gameManager.GetPlayersDefaultValidationsAsync(gameId, themeToValidate);
 
                 foreach (var (playerId, validations, totalValidations, validationsNumber) in playersValidations)
                 {
@@ -100,13 +100,13 @@ namespace WeStop.Api.Infra.Timers
             }
             else
             {
-                _gameManager.FinishCurrentRound(gameId, (game) =>
+                await _gameManager.FinishCurrentRoundAsync(gameId, async (game) =>
                 {
                     var roundScoreboard = game.GetScoreboard(game.CurrentRoundNumber);
                     if (game.IsFinalRound())
                     {
                         var winners = game.GetWinners();
-                        _gameHub.Clients.Group(gameId.ToString()).SendAsync("game_finished", new
+                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("game_finished", new
                         {
                             lastRoundScoreboard = roundScoreboard,
                             winners
@@ -114,7 +114,7 @@ namespace WeStop.Api.Infra.Timers
                     }
                     else
                     {
-                        _gameHub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
+                        await _gameHub.Clients.Group(gameId.ToString()).SendAsync("round_finished", new
                         {
                             scoreboard = roundScoreboard
                         });
