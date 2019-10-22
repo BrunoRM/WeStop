@@ -23,7 +23,7 @@ namespace WeStop.Api.Extensions
             foreach (var answer in answers)
             {
                 if (answer.StartsWith(sortedLetter))
-                    yield return new Validation(answer);
+                    yield return new Validation(answer, true);
                 else
                     yield return new Validation(answer, false);
             }

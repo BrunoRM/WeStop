@@ -2,7 +2,7 @@ using System;
 
 namespace WeStop.Api.Core
 {
-    public struct Answer : IEquatable<Answer>
+    public class Answer : IEquatable<Answer>
     {
         public Answer(string theme, string value)
         {

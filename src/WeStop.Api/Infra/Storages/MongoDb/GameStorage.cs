@@ -36,13 +36,24 @@ namespace WeStop.Api.Infra.Storages.MongoDb
         public async Task<ICollection<Game>> GetAsync()
         {
             var filter = Builders<Game>.Filter.Empty;
-            return await _context.GamesCollection.Find(filter).ToListAsync();
+            return await _context.GamesCollection.Aggregate()
+                .Match(filter)
+                .Lookup<Game, Player, Game>(_context.PlayersCollection,
+                    g => g.Id,
+                    p => p.GameId,
+                    g => g.Players).ToListAsync();
         }
 
         public async Task<Game> GetByIdAsync(Guid id)
         {
             var filter = Builders<Game>.Filter.Eq(x => x.Id, id);
-            return await _context.GamesCollection.Find(filter).FirstOrDefaultAsync();
+
+            return await _context.GamesCollection.Aggregate()
+                .Match(filter)
+                .Lookup<Game, Player, Game>(_context.PlayersCollection,
+                    g => g.Id,
+                    p => p.GameId,
+                    g => g.Players).FirstOrDefaultAsync();
         }
 
         public async Task<ICollection<string>> GetThemesAsync(Guid gameId)

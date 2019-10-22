@@ -2,7 +2,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
 
     let connection = new signalR.HubConnectionBuilder()
         .withUrl(API_SETTINGS.uri + '/game')
-        .withAutomaticReconnect()
+        .withAutomaticReconnect([1000, 3000, 5000])
         .build();
 
     function onConnectionClose() {
