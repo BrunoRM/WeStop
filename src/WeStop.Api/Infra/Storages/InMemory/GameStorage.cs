@@ -28,5 +28,17 @@ namespace WeStop.Api.Infra.Storages.InMemory
             var game = await GetByIdAsync(gameId);
             return game.Options.Themes;
         }
+
+        public async Task<Game> GetByIdWithPlayersAsync(Guid id) =>
+            await GetByIdAsync(id);
+
+        public async Task<ICollection<Game>> GetWithPlayersAsync() =>
+            await GetAsync();
+
+        public Task DeleteAsync(Guid id)
+        {
+            _games.Remove(_games.First(x => x.Id == id));
+            return Task.CompletedTask;
+        }
     }
 }

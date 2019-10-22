@@ -1,36 +1,54 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 using WeStop.Api.Core;
 using WeStop.Api.Infra.Storages.Interfaces;
 
 namespace WeStop.Api.Infra.Storages.MongoDb
 {
-    public class GameStorage : BaseStorage, IGameStorage
+    public class GameStorage : IGameStorage
     {
+        private readonly MongoContext _context;
+
+        public GameStorage(MongoContext mongoContext)
+        {
+            _context = mongoContext;
+        }
+
         public async Task AddAsync(Game game)
         {
-            await _database.GetCollection<Game>(GAMES_COLLECTION_NAME).InsertOneAsync(game);
+            await _context.GamesCollection.InsertOneAsync(game);
         }
 
-        public Task EditAsync(Game game)
+        public async Task DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Game>.Filter.Eq(x => x.Id, id);
+            await _context.GamesCollection.DeleteOneAsync(filter);
         }
 
-        public Task<ICollection<Game>> GetAsync()
+        public async Task EditAsync(Game game)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Game>.Filter.Eq(x => x.Id, game.Id);
+            await _context.GamesCollection.ReplaceOneAsync(filter,  game);
         }
 
-        public Task<Game> GetByIdAsync(Guid id)
+        public async Task<ICollection<Game>> GetAsync()
         {
-            throw new NotImplementedException();
+            var filter = Builders<Game>.Filter.Empty;
+            return await _context.GamesCollection.Find(filter).ToListAsync();
         }
 
-        public Task<ICollection<string>> GetThemesAsync(Guid gameId)
+        public async Task<Game> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Game>.Filter.Eq(x => x.Id, id);
+            return await _context.GamesCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task<ICollection<string>> GetThemesAsync(Guid gameId)
+        {
+            var game = await GetByIdAsync(gameId);
+            return game.Options.Themes;
         }
     }
 }
