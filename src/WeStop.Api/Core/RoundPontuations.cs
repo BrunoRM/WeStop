@@ -4,17 +4,14 @@ using System.Linq;
 
 namespace WeStop.Api.Core
 {
-    public sealed class RoundPontuations
+    public class RoundPontuations
     {
-        public RoundPontuations(Guid gameId, int roundNumber, Guid playerId, ThemePontuation themePontuation)
+        public RoundPontuations(Guid gameId, int roundNumber, Guid playerId)
         {
             PlayerId = playerId;
             GameId = gameId;
             RoundNumber = roundNumber;
-            ThemesPontuations = new List<ThemePontuation>
-            {
-                themePontuation
-            };
+            ThemesPontuations = new List<ThemePontuation>();
         }
 
         public Guid PlayerId { get; set; }

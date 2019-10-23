@@ -124,7 +124,8 @@ namespace WeStop.Api.Core.Services
 
                 if (playerPontuations is null)
                 {
-                    var roundPontuations = new RoundPontuations(gameId, roundNumber, playerId, new ThemePontuation(theme, pontuation));
+                    var roundPontuations = new RoundPontuations(gameId, roundNumber, playerId);
+                    roundPontuations.AddPontuationForTheme(theme, pontuation);
                     pontuations.Add(roundPontuations);
                 }
                 else

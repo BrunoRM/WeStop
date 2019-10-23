@@ -207,12 +207,13 @@ namespace WeStop.Api.Core.Services
 
         public async Task FinishCurrentRoundAsync(Guid gameId, Action<Game> finishedRoundAction)
         {
-            var players = await _playerStorage.GetAllAsync(gameId);
-
             var game = await _gameStorage.GetByIdAsync(gameId);
             game.FinishRound();
 
             await _roundScorer.ProcessRoundPontuationAsync(game.CurrentRound);
+
+            // Precisa atualizar os jogadores da partida com suas pontuações já processadas
+            game.Players = await _playerStorage.GetAllAsync(gameId);
             await PutAllPlayersInWaiting();
 
             if (game.IsFinalRound())
@@ -225,7 +226,7 @@ namespace WeStop.Api.Core.Services
 
             async Task PutAllPlayersInWaiting()
             {
-                foreach (var player in players.PutAllPlayersInWaiting())
+                foreach (var player in game.Players.PutAllPlayersInWaiting())
                 {
                     await _playerStorage.EditAsync(player);
                 }
