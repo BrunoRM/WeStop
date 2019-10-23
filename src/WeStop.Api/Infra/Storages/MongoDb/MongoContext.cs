@@ -32,7 +32,7 @@ namespace WeStop.Api.Infra.Storages.MongoDb
                     .SetElementName("rounds");
 
                 cm.MapMember(x => x.Players)
-                    .SetShouldSerializeMethod(x => ((Game)x).Players.Any()) // Para ignorar a propriedade no insert e update
+                    .SetShouldSerializeMethod(x => false) // Para ignorar a propriedade no insert e update
                     .SetIsRequired(false);
             });
 

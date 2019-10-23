@@ -75,14 +75,14 @@ namespace WeStop.Api.Core.Services
                 var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
                 GiveZeroPointsForEachPlayer(theme, playersWithBlankAnswers);
             }
-
-            await SavePlayersPontuations(pontuations);
+            
+            await SavePlayersPontuations();
             round.Finish();
 
             #region Local Methods
-            async Task SavePlayersPontuations(ICollection<RoundPontuations> roundPontuations)
+            async Task SavePlayersPontuations()
             {
-                foreach (var playerPontuations in roundPontuations)
+                foreach (var playerPontuations in pontuations)
                 {
                     var player = players.FirstOrDefault(p => p.Id == playerPontuations.PlayerId);
 
