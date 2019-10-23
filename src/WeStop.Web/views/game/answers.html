@@ -1,7 +1,7 @@
 <div layout="column">
     <md-content layout-padding>
         <div layout="row" layout-wrap>
-            <md-input-container md-no-float="true" flex="33" ng-repeat="answer in answers track by $index">
+            <md-input-container md-no-float="true" flex="33" flex-xs="50" layout-padding ng-repeat="answer in answers track by $index">
                 <label for="{{answer.theme}}">{{answer.theme}}</label>
                 <input style="text-transform: uppercase;" maxlength="15" ng-disabled="roundStopped" type="text" name="{{answer.theme}}" ng-model="answer.value" />
             </md-input-container>

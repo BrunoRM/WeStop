@@ -2,7 +2,7 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
 
     let connection = new signalR.HubConnectionBuilder()
         .withUrl(API_SETTINGS.uri + '/game')
-        .withAutomaticReconnect([1000, 3000, 5000])
+        .withAutomaticReconnect()
         .build();
 
     function onConnectionClose() {
@@ -11,9 +11,17 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
 
     function connect (sCallback, eCallback) {
         
-        connection.serverTimeoutInMilliseconds = 1000*30;
+        connection.serverTimeoutInMilliseconds = 1000 * 30;
         connection.onclose(function () {
             onConnectionClose();
+        });
+
+        connection.onreconnecting(function () {
+            alert('Client reconectando');
+        });
+
+        connection.onreconnected(() => {
+            alert('Client reconectado');
         });
 
         connection.start().then(function () { 

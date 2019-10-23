@@ -1,7 +1,11 @@
 <div ng-cloak flex="60" flex-sm="100" flex-xs="100" style="width: 700px;">
-    <md-card>
-        
-        <md-card-header></md-card-header>
+    <div layout="row" layout-align="end center">
+        <img md-colors="{ 'border-color': 'primary' }" height="30" width="30" class="md-avatar" ng-src="{{user.imageUri}}" />
+        <span layout-padding>
+            {{user.userName}}
+        </span>
+    </div>
+    <md-card md-whiteframe="10">
 
         <md-content layout-align="center center">
             
@@ -9,9 +13,19 @@
                 <h3 ng-if="!game">Carregando...</h3>
             </div>
 
-            <md-tabs ng-if="game" class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content md-align-tabs="bottom">
+            <md-tabs ng-if="game" class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content>
+
+                <!-- <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
+                    <md-tab-label><i class="fa fa-cogs"></i> <span hide-xs>Configurações</span></md-tab-label>
+                    <md-tab-body layout="column" layout-align="center center">
+                        <md-content style="height: 300px;">
+                            <md-button><i class="fa fa-sign-out"></i> Deixar a partida</md-button>
+                        </md-content>
+                    </md-tab-body>
+                </md-tab> -->
+
                 <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
-                    <md-tab-label><i class="fa fa-users"></i> Jogadores</md-tab-label>
+                    <md-tab-label><i class="fa fa-users"></i> <span hide-xs>Jogadores</span></md-tab-label>
                     <md-tab-body layout="column" layout-align="center center">
                         <md-content style="height: 300px;">
                             <div ng-include="'views/game/players.html'"></div>
@@ -20,7 +34,7 @@
                 </md-tab>
 
                 <md-tab md-active="true" layout="column" layout-align="center center">
-                    <md-tab-label><i class="fa fa-gamepad"></i> Partida</md-tab-label>
+                    <md-tab-label><i class="fa fa-gamepad"></i> <span hide-xs>Partida</span></md-tab-label>
                     <md-tab-body layout="column" layout-align="center center">
 
                         <ng-include layout="row" layout-padding layout-align="space-between center" src="'views/game/info.html'"></ng-include>
@@ -40,6 +54,14 @@
                         </div>
                     </md-tab-body>
                 </md-tab>
+
+                <!-- <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
+                    <md-tab-label><i class="fa fa-history"></i> <span hide-xs>Rodadas</span></md-tab-label>
+                    <md-tab-body layout="column" layout-align="center center">
+                        <md-content style="height: 300px;">
+                        </md-content>
+                    </md-tab-body>
+                </md-tab> -->
                 
             </md-tabs>
         </md-content>
