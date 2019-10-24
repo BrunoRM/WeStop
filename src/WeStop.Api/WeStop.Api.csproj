@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WeStop.Core\WeStop.Core.csproj" />
-    <ProjectReference Include="..\..\WeStop.Storage\WeStop.Storage.csproj" />
+    <ProjectReference Include="..\..\src\WeStop.Core\WeStop.Core.csproj" />
+    <ProjectReference Include="..\..\src\WeStop.Storage\WeStop.Storage.csproj" />
   </ItemGroup>
 
 </Project>

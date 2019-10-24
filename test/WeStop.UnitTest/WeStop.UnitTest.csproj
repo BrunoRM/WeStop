@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WeStop.Api\WeStop.Api.csproj" />
+    <ProjectReference Include="..\..\src\WeStop.Core\WeStop.Core.csproj" />
+    <ProjectReference Include="..\..\src\WeStop.Storage\WeStop.Storage.csproj" />
   </ItemGroup>
 
 </Project>
