@@ -6,6 +6,7 @@ namespace WeStop.Api.Dtos
     {
         public User User { get; set; }
         public string Name { get; set; }
+        public string Password { get; set; }
         public GameOptions GameOptions { get; set; }
     }
 

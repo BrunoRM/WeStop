@@ -47,20 +47,6 @@ namespace WeStop.Core.Services
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);
 
-            if (game.IsPrivate())
-            {
-                if (string.IsNullOrEmpty(password))
-                {
-                    failureAction?.Invoke("PASSWORD_REQUIRED");
-                    return;
-                }
-                else if (!MD5HashGenerator.GenerateHash(password).Equals(game.Password))
-                {
-                    failureAction?.Invoke("PASSWORD_INCORRECT");
-                    return;
-                }
-            }
-
             var player = game.Players.FirstOrDefault(p => p.Id == user.Id);
             if (player is null)
             {

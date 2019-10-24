@@ -22,7 +22,7 @@
                                     <div layout="column" layout-align="center center" layout-padding>
                                         <span>{{game.name}}</span>
     
-                                        <i ng-if="game.isPrivate" class="fa fa-lock"> <span>Privado</span></i>
+                                        <i ng-if="game.isPrivate" class="fa fa-lock"></i>
                                 
                                         <div layout="row" layout-fill layout-align="space-between center">
                                             <div layout="column" layout-fill layout-align="center center">
@@ -67,7 +67,7 @@
 
             <div layout="row" layout-fill layout-padding layout-align="center center">
                 <md-button class="md-primary md-raised" ng-click="newGame()"><i class="fa fa-plus"></i> Novo jogo</md-button>
-                <md-button ng-if="showGameDetails" class="md-primary md-raised" ng-click="joinGame()"><i
+                <md-button ng-if="showGameDetails" class="md-primary md-raised" ng-click="checkGame()"><i
                         class="fa fa-sign-in"></i> Entrar</md-button>
             </div>
 

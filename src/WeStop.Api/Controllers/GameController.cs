@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Timers;
+using WeStop.Core.Helpers;
 using WeStop.Core.Services;
 using WeStop.Core.Storages;
 
@@ -26,7 +28,7 @@ namespace WeStop.Api.Controllers
         [Route("api/games.create"), HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody]CreateGameDto dto)
         {
-            var createdGame = await _gameManager.CreateAsync(dto.User, dto.Name, "", dto.GameOptions);
+            var createdGame = await _gameManager.CreateAsync(dto.User, dto.Name, dto.Password, dto.GameOptions);
 
             _gamesTimers.Register(createdGame.Id, createdGame.Options.RoundTime);
 
@@ -37,7 +39,7 @@ namespace WeStop.Api.Controllers
         }
         
         [Route("api/games.list"), HttpGet]
-        public async Task<IActionResult> GetThemesAsync()
+        public async Task<IActionResult> GetAsync()
         {
             var games = await _gameStorage.GetAsync();
 
@@ -55,6 +57,60 @@ namespace WeStop.Api.Controllers
                     playersInGame = g.Players.Count,
                     currentRound = g.CurrentRound?.Number ?? 1
                 })
+            });
+        }
+
+        [Route("api/games.check")]
+        public async Task<IActionResult> CheckAsync([FromQuery]Guid gameId, [FromQuery]string password)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+
+            if (game.IsPrivate())
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    return Ok(new
+                    {
+                        ok = false,
+                        error = "PASSWORD_REQUIRED"
+                    });
+                }
+                else
+                {
+                    var providedPasswordHash = MD5HashGenerator.GenerateHash(password);
+                    if (!game.Password.Equals(providedPasswordHash))
+                    {
+                        return Ok(new
+                        {
+                            ok = false,
+                            error = "PASSWORD_INCORRECT"
+                        });
+                    }
+                }
+            }
+
+            if (game.Players.Count == game.Options.NumberOfPlayers)
+            {
+                return Ok(new
+                {
+                    ok = false,
+                    error = "GAME_FULL"
+                });
+            }
+
+            if (game.IsFinalRound())
+            {
+                return Ok(new
+                {
+                    ok = false,
+                    error = "GAME_IN_FINAL_ROUND"
+                });
+            }
+
+            return Ok(new
+            {
+                ok = true,
+                gameId
             });
         }
     }

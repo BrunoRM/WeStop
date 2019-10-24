@@ -25,7 +25,6 @@ angular.module('WeStop', [
         .primaryPalette('blue')
         .accentPalette('teal')
         .warnPalette('red');
-        // .backgroundPalette('grey');
 
     $mdAriaProvider.disableWarnings();
 
