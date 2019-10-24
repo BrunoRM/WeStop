@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
 using NUnit.Framework;
-using WeStop.Api.Core.Services;
+using System.Threading.Tasks;
 using WeStop.UnitTest.Extensions;
 using WeStop.UnitTest.Helpers;
 
@@ -59,7 +58,7 @@ namespace WeStop.UnitTest
                 await GameManager.AddRoundValidationsAsync(dustinValidations);
                 await GameManager.AddRoundValidationsAsync(lucasValidations);
 
-                await RoundScorer.ProcessRoundPontuationAsync((Api.Core.Round)Game.CurrentRound);
+                await RoundScorer.ProcessRoundPontuationAsync(Game.CurrentRound);
                 var roundPontuations = Game.GetScoreboard(Game.CurrentRoundNumber);
 
                 Assert.AreEqual(10, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));

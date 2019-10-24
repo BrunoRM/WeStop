@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using WeStop.Api.Core;
-using WeStop.Api.Extensions;
+using WeStop.Core;
+using WeStop.Core.Extensions;
 using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest

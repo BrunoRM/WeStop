@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WeStop.Api.Core;
+using WeStop.Core;
 
 namespace WeStop.UnitTest.Helpers
 {

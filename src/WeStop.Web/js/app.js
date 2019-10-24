@@ -7,7 +7,7 @@ angular.module('WeStop', [
     'md.data.table'
 ])
 
-.value('API_SETTINGS', { uri: 'http://localhost:5000' })
+    .value('API_SETTINGS', { uri: 'http://localhost:5000' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', '$mdAriaProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider, $mdAriaProvider) {
 

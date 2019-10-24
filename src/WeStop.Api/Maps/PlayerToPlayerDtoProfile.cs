@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using WeStop.Api.Core;
 using WeStop.Api.Dtos;
+using WeStop.Core;
 
 namespace WeStop.Api.Maps
 {

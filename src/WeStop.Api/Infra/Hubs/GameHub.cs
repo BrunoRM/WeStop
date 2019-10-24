@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Api.Core;
-using WeStop.Api.Core.Services;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Timers;
+using WeStop.Core;
+using WeStop.Core.Services;
 
 namespace WeStop.Api.Infra.Hubs
 {

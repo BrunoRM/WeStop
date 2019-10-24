@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Core.Storages;
 
 namespace WeStop.Api.Controllers
 {

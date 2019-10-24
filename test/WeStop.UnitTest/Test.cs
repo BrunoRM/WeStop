@@ -1,7 +1,7 @@
-using WeStop.Api.Core;
-using WeStop.Api.Core.Services;
-using WeStop.Api.Infra.Storages.InMemory;
-using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Core;
+using WeStop.Core.Services;
+using WeStop.Core.Storages;
+using WeStop.Storage.InMemory;
 using WeStop.UnitTest.Helpers;
 
 namespace WeStop.UnitTest

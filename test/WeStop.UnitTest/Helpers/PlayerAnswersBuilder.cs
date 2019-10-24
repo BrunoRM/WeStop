@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using WeStop.Api.Core;
+using WeStop.Core;
 
 namespace WeStop.UnitTest.Helpers
 {
     public class PlayerAnswersBuilder
     {
         private Guid _playerId;
-        private int _roundNumber;
+        private readonly int _roundNumber;
         private readonly Guid _gameId;
         private ICollection<Answer> _answers;
         

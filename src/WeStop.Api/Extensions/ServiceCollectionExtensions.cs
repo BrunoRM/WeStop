@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using WeStop.Api.Core.Services;
 using WeStop.Api.Infra.Timers;
+using WeStop.Core.Services;
 
 namespace WeStop.Api.Extensions
 {

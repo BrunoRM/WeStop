@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-using WeStop.Api.Core.Services;
 using WeStop.Api.Dtos;
-using WeStop.Api.Infra.Storages.Interfaces;
 using WeStop.Api.Infra.Timers;
+using WeStop.Core.Services;
+using WeStop.Core.Storages;
 
 namespace WeStop.Api.Controllers
 {

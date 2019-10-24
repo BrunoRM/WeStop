@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using WeStop.Api.Infra.Storages.InMemory;
-using WeStop.Api.Infra.Storages.Interfaces;
+using WeStop.Core.Storages;
+using WeStop.Storage.InMemory;
 
 namespace WeStop.Api.Extensions
 {

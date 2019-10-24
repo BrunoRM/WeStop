@@ -4,8 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using WeStop.Api.Core.Services;
 using WeStop.Api.Infra.Hubs;
+using WeStop.Core.Services;
 
 namespace WeStop.Api.Infra.Timers
 {

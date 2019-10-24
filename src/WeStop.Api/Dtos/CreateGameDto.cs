@@ -1,5 +1,4 @@
-using System;
-using WeStop.Api.Core;
+using WeStop.Core;
 
 namespace WeStop.Api.Dtos
 {

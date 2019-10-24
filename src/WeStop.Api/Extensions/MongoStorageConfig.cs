@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using WeStop.Api.Infra.Storages.Interfaces;
-using WeStop.Api.Infra.Storages.MongoDb;
+using WeStop.Core.Storages;
+using WeStop.Storage.MongoDb;
 
 namespace WeStop.Api.Extensions
 {
