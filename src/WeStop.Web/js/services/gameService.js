@@ -53,17 +53,17 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
         }
     }
 
-    function close() {
-        if (connection && connection.state === 'Disconnected') {
-            connection.close();
-        }
-    }
+    // function close() {
+    //     if (connection && connection.state !== 'Disconnected') {
+    //         connection.close();
+    //     }
+    // }
 
     return {
         onConnectionClose: onConnectionClose,
         on: on,
-        invoke: invoke,
-        leave: close
+        invoke: invoke
+        //leave: close
     };
 
 }]);
