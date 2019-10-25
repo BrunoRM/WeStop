@@ -15,14 +15,14 @@
 
             <md-tabs ng-if="game" class="md-primary" md-center-tabs md-dynamic-height="true" md-border-bottom md-swipe-content>
 
-                <!-- <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
+                <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
                     <md-tab-label><i class="fa fa-cogs"></i> <span hide-xs>Configurações</span></md-tab-label>
                     <md-tab-body layout="column" layout-align="center center">
                         <md-content style="height: 300px;">
-                            <md-button><i class="fa fa-sign-out"></i> Deixar a partida</md-button>
+                            <md-button ng-click="leave()"><i class="fa fa-sign-out"></i> Deixar a partida</md-button>
                         </md-content>
                     </md-tab-body>
-                </md-tab> -->
+                </md-tab>
 
                 <md-tab ng-disabled="roundStarted" layout="column" layout-align="center center">
                     <md-tab-label><i class="fa fa-users"></i> <span hide-xs>Jogadores</span></md-tab-label>

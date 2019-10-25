@@ -14,6 +14,7 @@ namespace WeStop.Core
             IsAdmin = isAdmin;
             IsOnline = true;
             InRound = false;
+            JoinedDate = DateTime.Now;
             Answers = new List<RoundAnswers>();
             Validations = new List<RoundValidations>();
             Pontuations = new List<RoundPontuations>();
@@ -34,6 +35,7 @@ namespace WeStop.Core
         public bool IsReady { get; set; }
         public bool IsOnline { get; private set; }
         public bool InRound { get; set; }
+        public DateTime JoinedDate { get; set; }
         public ICollection<RoundAnswers> Answers { get; set; }
         public ICollection<RoundValidations> Validations { get; set; }
         public ICollection<RoundPontuations> Pontuations { get; set; }
@@ -53,5 +55,8 @@ namespace WeStop.Core
 
         public int GetTotalValidationsInRound(int roundNumber) =>
             Validations.Where(v => v.RoundNumber == roundNumber).Count();
+
+        public void GiveAdmin() =>
+            IsAdmin = true;
     }
 }

@@ -16,13 +16,13 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
             onConnectionClose();
         });
 
-        connection.onreconnecting(function () {
-            alert('Client reconectando');
-        });
+        // connection.onreconnecting(function () {
+        //     alert('Client reconectando');
+        // });
 
-        connection.onreconnected(() => {
-            alert('Client reconectado');
-        });
+        // connection.onreconnected(() => {
+        //     alert('Client reconectado');
+        // });
 
         connection.start().then(function () { 
             $rootScope.$apply(() => sCallback());
@@ -53,10 +53,17 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
         }
     }
 
+    function close() {
+        if (connection && connection.state === 'Disconnected') {
+            connection.close();
+        }
+    }
+
     return {
         onConnectionClose: onConnectionClose,
         on: on,
-        invoke: invoke
+        invoke: invoke,
+        leave: close
     };
 
 }]);

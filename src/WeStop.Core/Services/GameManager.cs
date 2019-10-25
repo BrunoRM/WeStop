@@ -232,5 +232,39 @@ namespace WeStop.Core.Services
                 }
             }
         }
+
+        public async Task<bool> ChangeAdminAsync(Guid gameId, Guid newAdminPlayerId)
+        {
+            var player = await _playerStorage.GetAsync(gameId, newAdminPlayerId);
+            if (player != null)
+            {
+                player.GiveAdmin();
+                await _playerStorage.EditAsync(player);
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task LeaveAsync(Guid gameId, Guid playerId, Action<bool, Player> onLeaveAction)
+        {
+            await _playerStorage.DeleteAsync(gameId, playerId);
+            
+            var game = await _gameStorage.GetByIdAsync(gameId);
+
+            if (!game.Players.Any())
+            {
+                await _gameStorage.DeleteAsync(gameId);
+                onLeaveAction?.Invoke(true, null);
+                return;
+            }
+            else
+            {
+                var newAdmin = game.Players.GetOldestPlayerInGame();
+                await ChangeAdminAsync(gameId, newAdmin.Id);
+                onLeaveAction?.Invoke(false, newAdmin);
+                return;
+            }
+        }
     }
 }

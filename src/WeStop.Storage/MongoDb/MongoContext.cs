@@ -103,6 +103,9 @@ namespace WeStop.Storage.MongoDb
                 cm.MapMember(x => x.IsOnline)
                     .SetElementName("is_online");
 
+                cm.MapMember(x => x.JoinedDate)
+                    .SetElementName("joined_date");
+
                 cm.MapMember(x => x.Answers)
                     .SetElementName("answers");
 

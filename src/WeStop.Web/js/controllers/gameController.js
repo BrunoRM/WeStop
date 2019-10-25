@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', function ($routeParams, $scope, $game, $rootScope, $mdToast) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', '$location', function ($routeParams, $scope, $game, $rootScope, $mdToast, $location) {
 
     function init() {
         $scope.allPlayersReady = false;
@@ -186,8 +186,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             return player.id === data.player.id;
         });
 
-        if (!player)
+        if (!player) {
             $scope.game.players.push(data.player);
+        }
 
         checkAllPlayersReady();
     });
@@ -227,8 +228,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                         .textContent(playerThatCallStop.userName + ' chamou STOP!')
                         .position('bottom left')
                         .hideDelay(3500)
-                );
-                
+                );                
             }
         }
         
@@ -317,6 +317,51 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.finishValidation = function () {
         let data = buildValidationData();
         $game.invoke('send_validations', data);
+    };
+
+    $game.on('player_left', (data) => {
+        console.log('caiu no left');
+        let player = getPlayer(data);
+        removePlayer(player);
+    });
+
+    function removePlayer(player) {
+        let indexOfPlayer = getIndexOfPlayer(player);
+        if (indexOfPlayer > -1) {
+            $scope.game.players.splice(indexOfPlayer, 1);
+        }
+    }
+
+    $game.on('new_admin_setted', (data) => {
+        console.log('caiu no new admin');
+        let player = getPlayer(data);
+        setAdminTo(player);
+    });
+
+    function setAdminTo(player) {
+        let indexOfPlayer = getIndexOfPlayer(player);
+        if (indexOfPlayer > -1) {
+            $scope.game.players[indexOfPlayer].isAdmin = true;
+            if (player.id === $scope.player.id) {
+                $scope.player.isAdmin = true;
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent('Você é o administrador da partida')
+                        .position('bottom left')
+                        .hideDelay(2500)
+                );
+            }
+        }
+    }
+
+    function getIndexOfPlayer(player) {
+        return $scope.game.players.indexOf(player);
+    }
+
+    $scope.leave = () => {
+        $game.invoke('leave');
+        $game.leave();
+        $location.path('/lobby');
     };
 
     init();

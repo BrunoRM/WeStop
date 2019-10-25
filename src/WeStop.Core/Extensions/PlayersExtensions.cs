@@ -53,5 +53,8 @@ namespace WeStop.Core.Extensions
 
         public static bool HasAnyAnswerForTheme(this ICollection<Player> players, int roundNumber, string theme) =>
             players.Any(p => p.Answers.Where(ra => ra.RoundNumber == roundNumber).Any(ra => ra.Answers.Any(a => a.Theme.Equals(theme) && !a.IsEmpty())));
+
+        public static Player GetOldestPlayerInGame(this ICollection<Player> players) =>
+            players.OrderBy(x => x.JoinedDate).First();
     }
 }

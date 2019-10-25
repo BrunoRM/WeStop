@@ -29,8 +29,9 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out _, out _))
+            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out var gameId, out _))
             {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
                 await base.OnDisconnectedAsync(exception);
             }
         }
@@ -194,6 +195,23 @@ namespace WeStop.Api.Infra.Hubs
             {
                 isReady
             });
+        }
+
+        [HubMethodName("leave")]
+        public async Task LeaveAsync()
+        {
+            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out var gameId, out var playerId))
+            {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
+                await _gameManager.LeaveAsync(gameId, playerId, async (isGameFinished, newAdmin) =>
+                {
+                    if (!isGameFinished)
+                    {
+                        await Clients.GroupExcept(gameId.ToString(), Context.ConnectionId).SendAsync("player_left", playerId);
+                        await Clients.GroupExcept(gameId.ToString(), Context.ConnectionId).SendAsync("new_admin_setted", newAdmin.Id);
+                    }
+                });
+            }
         }
     }
 }
