@@ -29,11 +29,16 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out var gameId, out _))
+            System.Console.WriteLine($"{Context.ConnectionId} saiu");
+            var removedData = ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId);
+            if (removedData.playerId != null)
             {
+                System.Console.WriteLine("Encontrou e removeu o player");
+                var gameId = removedData.gameId;
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
-                await base.OnDisconnectedAsync(exception);
             }
+
+            await base.OnDisconnectedAsync(exception);
         }
 
         [HubMethodName("join")]
@@ -198,23 +203,20 @@ namespace WeStop.Api.Infra.Hubs
         }
 
         [HubMethodName("leave")]
-        public async Task LeaveAsync()
+        public async Task LeaveAsync(Guid gameId, Guid playerId)
         {
-            if (ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId, out var gameId, out var playerId))
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
+            await _gameManager.LeaveAsync(gameId, playerId, async (isGameFinished, newAdmin) =>
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
-                await _gameManager.LeaveAsync(gameId, playerId, async (isGameFinished, newAdmin) =>
+                if (!isGameFinished)
                 {
-                    if (!isGameFinished)
+                    await Clients.Group(gameId.ToString()).SendAsync("player_left", playerId);
+                    if (newAdmin != null)
                     {
-                        await Clients.Group(gameId.ToString()).SendAsync("player_left", playerId);
-                        if (newAdmin != null)
-                        {
-                            await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
-                        }
+                        await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
                     }
-                });
-            }
+                }
+            });
         }
     }
 }

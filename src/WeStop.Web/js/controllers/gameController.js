@@ -188,6 +188,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         if (!player) {
             $scope.game.players.push(data.player);
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent(data.player.userName + ' entrou na partida')
+                    .position('bottom left')
+                    .hideDelay(1500)
+            );
         }
 
         checkAllPlayersReady();
@@ -306,7 +312,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('validation_time_over', () => {
         $scope.validationTimeOver = true;
-        sendValidationsAfterTimeOver()
+        sendValidationsAfterTimeOver();
     });
     
     function sendValidationsAfterTimeOver() {
@@ -320,9 +326,19 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     };
 
     $game.on('player_left', (data) => {
-        console.log('caiu no left');
         let player = getPlayer(data);
-        removePlayer(player);
+        if (player) {
+            let userName = player.userName;
+            removePlayer(player);
+            if (data !== $scope.player.id) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent(userName + ' deixou a partida')
+                        .position('bottom left')
+                        .hideDelay(1500)
+                );
+            }
+        }
     });
 
     function removePlayer(player) {
@@ -333,7 +349,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $game.on('new_admin_setted', (data) => {
-        console.log('caiu no new admin');
         let player = getPlayer(data);
         setAdminTo(player);
     });
@@ -359,9 +374,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $scope.leave = () => {
-        $game.invoke('leave');
-        //$game.leave();
-        $location.path('/lobby');
+        $rootScope.isLoading = true;
+        $game.invoke('leave', $routeParams.id, $rootScope.user.id).then(function () {
+            $game.leave();
+            $rootScope.isLoading = false;
+            $location.path('/lobby');            
+        });
     };
 
     init();
