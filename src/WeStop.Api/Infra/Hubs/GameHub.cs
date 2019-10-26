@@ -208,7 +208,10 @@ namespace WeStop.Api.Infra.Hubs
                     if (!isGameFinished)
                     {
                         await Clients.Group(gameId.ToString()).SendAsync("player_left", playerId);
-                        await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
+                        if (newAdmin != null)
+                        {
+                            await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
+                        }
                     }
                 });
             }

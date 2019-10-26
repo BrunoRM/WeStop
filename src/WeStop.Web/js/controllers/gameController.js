@@ -360,7 +360,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.leave = () => {
         $game.invoke('leave');
-        $game.leave();
+        //$game.leave();
         $location.path('/lobby');
     };
 

@@ -248,6 +248,7 @@ namespace WeStop.Core.Services
 
         public async Task LeaveAsync(Guid gameId, Guid playerId, Action<bool, Player> onLeaveAction)
         {
+            var player =  await _playerStorage.GetAsync(gameId, playerId);
             await _playerStorage.DeleteAsync(gameId, playerId);
             
             var game = await _gameStorage.GetByIdAsync(gameId);
@@ -258,12 +259,16 @@ namespace WeStop.Core.Services
                 onLeaveAction?.Invoke(true, null);
                 return;
             }
-            else
+            else if (player.IsAdmin)
             {
                 var newAdmin = game.Players.GetOldestPlayerInGame();
                 await ChangeAdminAsync(gameId, newAdmin.Id);
                 onLeaveAction?.Invoke(false, newAdmin);
                 return;
+            }
+            else
+            {
+                onLeaveAction?.Invoke(false, null);
             }
         }
     }
