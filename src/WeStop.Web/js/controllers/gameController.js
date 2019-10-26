@@ -139,7 +139,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on("im_joined_game", (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);
-        addRoundNumber();
         refreshGamescoreboard(resp.lastRoundScoreboard);
         checkAllPlayersReady();   
     });
@@ -178,6 +177,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('round_started', data => {
         setSortedLetter(data.sortedLetter);
+        $scope.game.sortedLetters.push(data.sortedLetter);
         startRound();
     });
 
@@ -378,7 +378,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             $game.leave();
             $rootScope.isLoading = false;
             $location.path('/lobby');            
-        });
+        }, () => $rootScope.isLoading = false);
     };
 
     init();

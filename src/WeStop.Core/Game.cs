@@ -119,5 +119,11 @@ namespace WeStop.Core
                 yield return Players.First(p => p.Id == player.Id).UserName;
             }
         }
+
+        public string[] GetAvailableLetters() =>
+            Options.AvailableLetters.Select(x => x.Key).ToArray();
+
+        public string[] GetSortedLetters() =>
+            Options.AvailableLetters.Where(x => x.Value).Select(x => x.Key).ToArray();
     }
 }

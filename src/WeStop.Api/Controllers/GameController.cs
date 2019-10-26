@@ -1,8 +1,10 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Timers;
+using WeStop.Core;
 using WeStop.Core.Services;
 using WeStop.Core.Storages;
 
@@ -14,13 +16,15 @@ namespace WeStop.Api.Controllers
         private readonly IGameStorage _gameStorage;
         private readonly GameManager _gameManager;
         private readonly GameTimer _gamesTimers;
+        private readonly IMapper _mapper;
 
         public GameController(IGameStorage gameStorage, GameManager gameManager,
-            GameTimer gamesTimers)
+            GameTimer gamesTimers, IMapper mapper)
         {
             _gameStorage = gameStorage;
             _gameManager = gameManager;
             _gamesTimers = gamesTimers;
+            _mapper = mapper;
         }
 
         [Route("api/games.create"), HttpPost]
@@ -43,18 +47,8 @@ namespace WeStop.Api.Controllers
 
             return Ok(new
             {
-                games = games.Select(g => new 
-                {
-                    g.Id,
-                    g.Name,
-                    isPrivate = g.IsPrivate(),
-                    g.Options.Themes,
-                    g.Options.Rounds,
-                    availableLetters = g.Options.AvailableLetters.Keys,
-                    g.Options.NumberOfPlayers,
-                    playersInGame = g.Players.Count,
-                    currentRound = g.CurrentRound?.Number ?? 1
-                })
+                games = games.Select(g => 
+                    _mapper.Map<Game, GameDto>(g))
             });
         }
     }

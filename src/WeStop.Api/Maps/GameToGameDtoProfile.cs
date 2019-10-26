@@ -44,6 +44,27 @@ namespace WeStop.Api.Maps
                         return src.Options.Themes;
                     });
                 })
+                .ForMember(dst => dst.AvailableLetters, config =>
+                {
+                    config.MapFrom((src, dst) =>
+                    {
+                        return src.GetAvailableLetters();
+                    });
+                })
+                .ForMember(dst => dst.SortedLetters, config =>
+                {
+                    config.MapFrom((src, dst) =>
+                    {
+                        return src.GetSortedLetters();
+                    });
+                })
+                .ForMember(dst => dst.IsPrivate, config =>
+                {
+                    config.MapFrom((src, dst) =>
+                    {
+                        return string.IsNullOrEmpty(src.Password) ? false : true;
+                    });
+                })
                 .ForMember(dst => dst.CurrentRoundNumber, config =>
                 {
                     config.MapFrom((src, dst) =>
