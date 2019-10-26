@@ -328,12 +328,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('player_left', (data) => {
         let player = getPlayer(data);
         if (player) {
-            let userName = player.userName;
             removePlayer(player);
-            if (data !== $scope.player.id) {
+            if (player.id !== $scope.player.id) {
                 $mdToast.show(
                     $mdToast.simple()
-                        .textContent(userName + ' deixou a partida')
+                        .textContent(player.userName + ' deixou a partida')
                         .position('bottom left')
                         .hideDelay(1500)
                 );

@@ -29,11 +29,9 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            System.Console.WriteLine($"{Context.ConnectionId} saiu");
             var removedData = ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId);
             if (removedData.playerId != null)
             {
-                System.Console.WriteLine("Encontrou e removeu o player");
                 var gameId = removedData.gameId;
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
             }
