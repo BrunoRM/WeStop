@@ -18,7 +18,7 @@
                         
                         <md-content style="max-height: 255px;">
                             <div ng-if="games && games.length > 0" layout="row" layout-wrap>
-                                <md-card ng-repeat="game in games" flex="30" flex-xs="45" ng-click="details(game)">
+                                <md-card ng-repeat="game in games" flex="30" flex-xs="45" ng-click="details(game)" style="cursor: pointer;">
                                     <div layout="column" layout-align="center center" layout-padding ng-include="'views/game/summary.html'"></div>
                                 </md-card>
                             </div>

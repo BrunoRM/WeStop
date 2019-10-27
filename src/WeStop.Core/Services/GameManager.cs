@@ -181,19 +181,21 @@ namespace WeStop.Core.Services
 
         public async Task<string> StartValidationForNextThemeAsync(Guid gameId)
         {
+            var themeToValidate = string.Empty;
             var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
             {
                 if (game.Players.HasAnyAnswerForTheme(game.CurrentRoundNumber, theme) && !game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
-                    game.StartValidations();
-                    game.CurrentRound.ThemeBeingValidated = theme;
-                    await _gameStorage.EditAsync(game);
-                    return theme;
+                    game.StartValidations();        
+                    themeToValidate = theme;
+                    break;
                 }                
             }
 
-            return string.Empty;
+            game.CurrentRound.ThemeBeingValidated = themeToValidate;
+            await _gameStorage.EditAsync(game);
+            return themeToValidate;
         }
 
         public async Task StopCurrentRoundAsync(Guid gameId, Action<Game> action)
@@ -218,10 +220,13 @@ namespace WeStop.Core.Services
 
             if (game.IsFinalRound())
             {
-                game.Finish();
+                await _gameStorage.DeleteAsync(game.Id);
+            }
+            else
+            {
+                await _gameStorage.EditAsync(game);
             }
 
-            await _gameStorage.EditAsync(game);
             finishedRoundAction?.Invoke(game);
 
             async Task PutAllPlayersInWaiting()

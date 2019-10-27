@@ -119,6 +119,17 @@ namespace WeStop.Api.Infra.Timers
                             scoreboard = roundScoreboard
                         });
                     }
+
+                    foreach (var player in game.Players)
+                    {
+                        var playerPontuationInRound = player.GetPontuationsInRound(game.CurrentRoundNumber);
+                        var playerConnectionId = ConnectionBinding.GetPlayerConnectionId(game.Id, player.Id);
+                        await _gameHub.Clients.Client(playerConnectionId).SendAsync("receive_my_pontuations_in_round", new
+                        {
+                            roundNumber = game.CurrentRoundNumber,
+                            pontuations = playerPontuationInRound
+                        });
+                    }
                 });
             }
         }

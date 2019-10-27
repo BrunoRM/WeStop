@@ -58,5 +58,12 @@ namespace WeStop.Core
 
         public void GiveAdmin() =>
             IsAdmin = true;
+
+        public IReadOnlyCollection<ThemePontuation> GetPontuationsInRound(int roundNumber)
+        {
+            return Pontuations.Where(x => x.RoundNumber == roundNumber)
+                .SelectMany(x => x.ThemesPontuations)
+                .ToList();
+        }
     }
 }

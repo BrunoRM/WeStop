@@ -270,7 +270,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshGamescoreboard(resp.lastRoundScoreboard);
         setWinners(resp.winners);
         updateGamePontuation();
-    });    
+    });
+
+    $scope.roundPontuations = [];
+    $game.on('receive_my_pontuations_in_round', resp => {
+        $scope.roundPontuations.push(resp);
+    });
 
     function calculateTimePercentage(limitTime, time) {
         return (time * 100) / limitTime;
@@ -376,12 +381,20 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     }
 
     $scope.leave = () => {
-        $rootScope.isLoading = true;
-        $game.invoke('leave', $routeParams.id, $rootScope.user.id).then(function () {
-            $game.leave();
-            $rootScope.isLoading = false;
-            $location.path('/lobby');            
-        }, () => $rootScope.isLoading = false);
+        if ($scope.gameFinished) {
+            $scope.goToLobby();
+        } else {
+            $rootScope.isLoading = true;
+            $game.invoke('leave', $routeParams.id, $rootScope.user.id).then(function () {
+                $rootScope.isLoading = false;
+                $scope.goToLobby();
+            }, () => $rootScope.isLoading = false);
+        }
+    };
+
+    $scope.goToLobby = () => {
+        $game.leave();
+        $location.path('/lobby');
     };
 
     init();

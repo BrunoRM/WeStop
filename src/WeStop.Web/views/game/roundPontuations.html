@@ -1,0 +1,9 @@
+<div ng-repeat="roundPontuation in roundPontuations">
+    Rodada {{roundPontuation.roundNumber}}
+    <md-chips ng-model="roundPontuation.pontuations" name="fruitName" readonly="true">
+        <md-chip-template>
+            <strong>{{$chip.theme}}</strong>
+            <em>({{$chip.pontuation}} pts)</em>
+        </md-chip-template>
+    </md-chips>
+</div>
