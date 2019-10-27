@@ -121,7 +121,7 @@ namespace WeStop.Core
         }
 
         public string[] GetAvailableLetters() =>
-            Options.AvailableLetters.Select(x => x.Key).ToArray();
+            Options.AvailableLetters.Where(x => !x.Value).Select(x => x.Key).ToArray();
 
         public string[] GetSortedLetters() =>
             Options.AvailableLetters.Where(x => x.Value).Select(x => x.Key).ToArray();

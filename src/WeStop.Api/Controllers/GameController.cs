@@ -48,7 +48,7 @@ namespace WeStop.Api.Controllers
             return Ok(new
             {
                 games = games.Select(g => 
-                    _mapper.Map<Game, GameDto>(g))
+                    _mapper.Map<Game, GameSummary>(g))
             });
         }
     }

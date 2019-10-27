@@ -4,7 +4,7 @@
 
 <div layout="row" layout-fill layout-align="space-between center">
     <div layout="column" layout-fill layout-align="center center">
-        <i class="fa fa-users"></i> {{game.players.length}}/{{game.maxNumberOfPlayers}}
+        <i class="fa fa-users"></i> {{game.numberOfPlayers}}/{{game.maxNumberOfPlayers}}
     </div>
     <div layout="column" layout-fill layout-align="center center">
         <i class="fa fa-edit"></i> {{game.themes.length}}
@@ -13,6 +13,6 @@
         <i class="fa fa-clock-o"></i> {{game.time}}
     </div>
     <div layout="column" layout-fill layout-align="center center">
-        <i class="fa fa-undo"></i> {{game.currentRoundNumber + 1}}/{{game.numberOfRounds}}
+        <i class="fa fa-undo"></i> {{game.currentRoundNumber}}/{{game.numberOfRounds}}
     </div>
 </div>

@@ -139,6 +139,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on("im_joined_game", (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);
+        addRoundNumber();
         refreshGamescoreboard(resp.lastRoundScoreboard);
         checkAllPlayersReady();   
     });
@@ -177,6 +178,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('round_started', data => {
         setSortedLetter(data.sortedLetter);
+        let indexOfLetter = $scope.game.availableLetters.indexOf(data.sortedLetter);
+        $scope.game.availableLetters.splice(indexOfLetter, 1);
         $scope.game.sortedLetters.push(data.sortedLetter);
         startRound();
     });
