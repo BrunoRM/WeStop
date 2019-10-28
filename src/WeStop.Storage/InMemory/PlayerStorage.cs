@@ -32,5 +32,17 @@ namespace WeStop.Storage.InMemory
 
         public Task<ICollection<Player>> GetAllAsync(Guid gameId) =>
             Task.FromResult<ICollection<Player>>(_players.Where(p => p.GameId == gameId).ToList());
+
+        public Task DeleteAsync(Guid gameId, Guid playerId)
+        {
+            var player = _players.FirstOrDefault(x => x.GameId == gameId && x.Id == playerId);
+
+            if (player != null)
+            {
+                _players.Remove(player);
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

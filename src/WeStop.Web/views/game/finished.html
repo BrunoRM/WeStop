@@ -20,4 +20,8 @@
     <div ng-if="winners.length === 1">
         <h2>{{ winners[0] }} foi o vencedor da partida!! <i class="fa fa-trophy"></i></h2>
     </div>
+
+    <div layout="column" layout-align="center center" layout-padding>
+        <md-button ng-click="goToLobby()" class="md-primary md-raised"><i class="fa fa-sign-out"></i> Voltar para o lobby</md-button>
+    </div>
 </div>

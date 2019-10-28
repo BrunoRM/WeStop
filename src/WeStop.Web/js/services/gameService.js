@@ -1,30 +1,26 @@
 angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', function ($rootScope, API_SETTINGS) {
 
-    let connection = new signalR.HubConnectionBuilder()
-        .withUrl(API_SETTINGS.uri + '/game')
-        .withAutomaticReconnect()
-        .build();
+    let hubConnection = createNewHubConnection();
 
     function onConnectionClose() {
-        console.log('Connection has closed');
+        console.log('hubConnection has closed');
     }
 
     function connect (sCallback, eCallback) {
-        
-        connection.serverTimeoutInMilliseconds = 1000 * 30;
-        connection.onclose(function () {
+        hubConnection.serverTimeoutInMilliseconds = 1000 * 30;
+        hubConnection.onclose(function () {
             onConnectionClose();
         });
 
-        connection.onreconnecting(function () {
-            alert('Client reconectando');
-        });
+        // hubConnection.onreconnecting(function () {
+        //     alert('Client reconectando');
+        // });
 
-        connection.onreconnected(() => {
-            alert('Client reconectado');
-        });
+        // hubConnection.onreconnected(() => {
+        //     alert('Client reconectado');
+        // });
 
-        connection.start().then(function () { 
+        hubConnection.start().then(function () {
             $rootScope.$apply(() => sCallback());
         }, (e) => { 
             $rootScope.$apply(function () {
@@ -35,8 +31,15 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
         });
     }
 
+    function createNewHubConnection() {
+        return new signalR.HubConnectionBuilder()
+            .withUrl(API_SETTINGS.uri + '/game')
+            .build();
+    }
+
     function on(eventName, sCallback) {
-        connection.on(eventName, data => {
+        createHubConnectionIfNotExists();
+        hubConnection.on(eventName, data => {
             $rootScope.$apply(() => {
                 if (sCallback) {
                     sCallback(data);
@@ -46,17 +49,34 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
     }
 
     function invoke(...args) {
-        if (connection.state === 'Disconnected') {
-            connect(() => connection.invoke(...args));
+        createHubConnectionIfNotExists();
+        if (!hubConnection || hubConnection.connectionState === 'Disconnected') {
+            return connect(() => {
+                return hubConnection.invoke(...args);
+            });
         } else {
-            connection.invoke(...args);
+            return hubConnection.invoke(...args);
+        }
+    }
+
+    function createHubConnectionIfNotExists() {
+        if (!hubConnection) {
+            hubConnection = createNewHubConnection();
+        }
+    }
+
+    function close() {
+        if (hubConnection) {
+            hubConnection.connection.stop();
+            hubConnection = null;
         }
     }
 
     return {
         onConnectionClose: onConnectionClose,
         on: on,
-        invoke: invoke
+        invoke: invoke,
+        leave: close
     };
 
 }]);

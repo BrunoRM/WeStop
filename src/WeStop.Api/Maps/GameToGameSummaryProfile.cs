@@ -1,14 +1,14 @@
-﻿using AutoMapper;
+using AutoMapper;
 using WeStop.Api.Dtos;
 using WeStop.Core;
 
 namespace WeStop.Api.Maps
 {
-    public class GameToGameDtoProfile : Profile
+    public class GameToGameSummaryProfile : Profile
     {
-        public GameToGameDtoProfile()
+        public GameToGameSummaryProfile()
         {
-            CreateMap<Game, GameDto>()
+            CreateMap<Game, GameSummary>()
                 .ForMember(dst => dst.State, config =>
                 {
                     config.MapFrom((src, dst) =>
@@ -76,7 +76,7 @@ namespace WeStop.Api.Maps
                 {
                     config.MapFrom((src, dst) =>
                     {
-                        return src.CurrentRoundNumber;
+                        return src.CurrentRoundNumber + 1;
                     });
                 });
         }

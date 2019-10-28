@@ -1,5 +1,5 @@
 <md-list layout-fill>
-    <md-list-item class="md-2-line" ng-repeat="player in game.players">
+    <md-list-item class="md-2-line" ng-repeat="player in game.players track by $index">
         <img md-colors="{ 'border-color': player.id === user.id ? 'primary' : 'accent' }" class="md-avatar" ng-src="{{player.imageUri}}" />
         <div class="md-list-item-text" layout="column">
             <h3>{{ player.userName }} <span ng-if="player.id === user.id">(você)</span>

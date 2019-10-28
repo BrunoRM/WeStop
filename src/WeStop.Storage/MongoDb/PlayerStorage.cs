@@ -21,6 +21,13 @@ namespace WeStop.Storage.MongoDb
             await _context.PlayersCollection.InsertOneAsync(player);
         }
 
+        public async Task DeleteAsync(Guid gameId, Guid playerId)
+        {
+            var filter = Builders<Player>.Filter.Eq(x => x.GameId, gameId);
+            filter &= Builders<Player>.Filter.Eq(x => x.Id, playerId);
+            await _context.PlayersCollection.DeleteOneAsync(filter);
+        }
+
         public async Task EditAsync(Player player)
         {
             var filter = Builders<Player>.Filter.Eq(x => x.Id, player.Id);

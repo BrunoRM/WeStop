@@ -11,5 +11,6 @@ namespace WeStop.Core.Storages
         Task<Player> GetAsync(Guid gameId, Guid playerId);
         Task<ICollection<Player>> GetPlayersInRoundAsync(Guid gameId);
         Task<ICollection<Player>> GetAllAsync(Guid gameId);
+        Task DeleteAsync(Guid gameId, Guid playerId);
     }
 }

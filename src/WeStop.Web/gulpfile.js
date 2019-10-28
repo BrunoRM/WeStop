@@ -10,7 +10,7 @@ const runSequence = require('run-sequence');
 const rename = require('gulp-rename');
 const imagemin = require('gulp-imagemin');
 const merge2 = require('merge2');
-const pwaAssetGenerator = require('pwa-asset-generator');
+//const pwaAssetGenerator = require('pwa-asset-generator');
 
 gulp.task('clean', function () {
     return gulp.src('dist/')

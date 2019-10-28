@@ -167,19 +167,21 @@ namespace WeStop.Core.Services
 
         public async Task<string> StartValidationForNextThemeAsync(Guid gameId)
         {
+            var themeToValidate = string.Empty;
             var game = await _gameStorage.GetByIdAsync(gameId);
             foreach (var theme in game.Options.Themes)
             {
                 if (game.Players.HasAnyAnswerForTheme(game.CurrentRoundNumber, theme) && !game.CurrentRound.ValidatedThemes.Contains(theme))
                 {
-                    game.StartValidations();
-                    game.CurrentRound.ThemeBeingValidated = theme;
-                    await _gameStorage.EditAsync(game);
-                    return theme;
+                    game.StartValidations();        
+                    themeToValidate = theme;
+                    break;
                 }                
             }
 
-            return string.Empty;
+            game.CurrentRound.ThemeBeingValidated = themeToValidate;
+            await _gameStorage.EditAsync(game);
+            return themeToValidate;
         }
 
         public async Task StopCurrentRoundAsync(Guid gameId, Action<Game> action)
@@ -204,10 +206,13 @@ namespace WeStop.Core.Services
 
             if (game.IsFinalRound())
             {
-                game.Finish();
+                await _gameStorage.DeleteAsync(game.Id);
+            }
+            else
+            {
+                await _gameStorage.EditAsync(game);
             }
 
-            await _gameStorage.EditAsync(game);
             finishedRoundAction?.Invoke(game);
 
             async Task PutAllPlayersInWaiting()
@@ -216,6 +221,45 @@ namespace WeStop.Core.Services
                 {
                     await _playerStorage.EditAsync(player);
                 }
+            }
+        }
+
+        public async Task<bool> ChangeAdminAsync(Guid gameId, Guid newAdminPlayerId)
+        {
+            var player = await _playerStorage.GetAsync(gameId, newAdminPlayerId);
+            if (player != null)
+            {
+                player.GiveAdmin();
+                await _playerStorage.EditAsync(player);
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task LeaveAsync(Guid gameId, Guid playerId, Action<bool, Player> onLeaveAction)
+        {
+            var player =  await _playerStorage.GetAsync(gameId, playerId);
+            await _playerStorage.DeleteAsync(gameId, playerId);
+            
+            var game = await _gameStorage.GetByIdAsync(gameId);
+
+            if (!game.Players.Any())
+            {
+                await _gameStorage.DeleteAsync(gameId);
+                onLeaveAction?.Invoke(true, null);
+                return;
+            }
+            else if (player.IsAdmin)
+            {
+                var newAdmin = game.Players.GetOldestPlayerInGame();
+                await ChangeAdminAsync(gameId, newAdmin.Id);
+                onLeaveAction?.Invoke(false, newAdmin);
+                return;
+            }
+            else
+            {
+                onLeaveAction?.Invoke(false, null);
             }
         }
     }

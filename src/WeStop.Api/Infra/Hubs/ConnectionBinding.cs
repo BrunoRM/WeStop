@@ -26,22 +26,16 @@ namespace WeStop.Api.Infra.Hubs
                 _gameConnectionsIds[gameId].Add((connectionId, playerId));
         }
 
-        public static bool RemoveConnectionIdBinding(string connectionId, out Guid? gameId, out Guid? playerId)
+        public static (Guid? playerId, Guid? gameId) RemoveConnectionIdBinding(string connectionId)
         {
-            try
+            if (_playersConnectionsIds.ContainsKey(connectionId))
             {
                 _playersConnectionsIds.TryRemove(connectionId, out (Guid PlayerId, Guid GameId) removedBinding);
                 _gameConnectionsIds[removedBinding.GameId].Remove((connectionId, removedBinding.PlayerId));
-                gameId = removedBinding.GameId;
-                playerId = removedBinding.PlayerId;
-                return true;
+                return (removedBinding.PlayerId, removedBinding.GameId);
             }
-            catch (Exception)
-            {
-                gameId = null;
-                playerId = null;
-                return false;
-            }
+
+            return (null, null);
         }
 
         public static ICollection<(string ConnectionId, Guid PlayerId)> GetGameConnections(Guid gameId) =>

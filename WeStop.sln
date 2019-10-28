@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2855A0F0-4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeStop.UnitTest", "test\WeStop.UnitTest\WeStop.UnitTest.csproj", "{93AF9357-4FD9-45D0-8136-2B4745F71E30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Storage", "WeStop.Storage\WeStop.Storage.csproj", "{D5A336BF-5D3E-4FF8-A452-BD86CA738090}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Storage", "src\WeStop.Storage\WeStop.Storage.csproj", "{D5A336BF-5D3E-4FF8-A452-BD86CA738090}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Core", "WeStop.Core\WeStop.Core.csproj", "{37BE3112-C60E-4CEE-882C-C6DB74668DB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeStop.Core", "src\WeStop.Core\WeStop.Core.csproj", "{37BE3112-C60E-4CEE-882C-C6DB74668DB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

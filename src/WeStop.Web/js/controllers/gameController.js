@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', function ($routeParams, $scope, $game, $rootScope, $mdToast) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', '$location', function ($routeParams, $scope, $game, $rootScope, $mdToast, $location) {
 
     function init() {
         $scope.allPlayersReady = false;
@@ -178,6 +178,9 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('round_started', data => {
         setSortedLetter(data.sortedLetter);
+        let indexOfLetter = $scope.game.availableLetters.indexOf(data.sortedLetter);
+        $scope.game.availableLetters.splice(indexOfLetter, 1);
+        $scope.game.sortedLetters.push(data.sortedLetter);
         startRound();
     });
 
@@ -186,8 +189,15 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             return player.id === data.player.id;
         });
 
-        if (!player)
+        if (!player) {
             $scope.game.players.push(data.player);
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent(data.player.userName + ' entrou na partida')
+                    .position('bottom left')
+                    .hideDelay(1500)
+            );
+        }
 
         checkAllPlayersReady();
     });
@@ -227,8 +237,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                         .textContent(playerThatCallStop.userName + ' chamou STOP!')
                         .position('bottom left')
                         .hideDelay(3500)
-                );
-                
+                );                
             }
         }
         
@@ -261,7 +270,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         refreshGamescoreboard(resp.lastRoundScoreboard);
         setWinners(resp.winners);
         updateGamePontuation();
-    });    
+    });
+
+    $scope.roundPontuations = [];
+    $game.on('receive_my_pontuations_in_round', resp => {
+        $scope.roundPontuations.push(resp);
+    });
 
     function calculateTimePercentage(limitTime, time) {
         return (time * 100) / limitTime;
@@ -306,7 +320,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on('validation_time_over', () => {
         $scope.validationTimeOver = true;
-        sendValidationsAfterTimeOver()
+        sendValidationsAfterTimeOver();
     });
     
     function sendValidationsAfterTimeOver() {
@@ -317,6 +331,70 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $scope.finishValidation = function () {
         let data = buildValidationData();
         $game.invoke('send_validations', data);
+    };
+
+    $game.on('player_left', (data) => {
+        let player = getPlayer(data);
+        if (player) {
+            removePlayer(player);
+            if (player.id !== $scope.player.id) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent(player.userName + ' deixou a partida')
+                        .position('bottom left')
+                        .hideDelay(1500)
+                );
+            }
+        }
+    });
+
+    function removePlayer(player) {
+        let indexOfPlayer = getIndexOfPlayer(player);
+        if (indexOfPlayer > -1) {
+            $scope.game.players.splice(indexOfPlayer, 1);
+        }
+    }
+
+    $game.on('new_admin_setted', (data) => {
+        let player = getPlayer(data);
+        setAdminTo(player);
+    });
+
+    function setAdminTo(player) {
+        let indexOfPlayer = getIndexOfPlayer(player);
+        if (indexOfPlayer > -1) {
+            $scope.game.players[indexOfPlayer].isAdmin = true;
+            if (player.id === $scope.player.id) {
+                $scope.player.isAdmin = true;
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent('Você é o administrador da partida')
+                        .position('bottom left')
+                        .hideDelay(2500)
+                );
+            }
+        }
+    }
+
+    function getIndexOfPlayer(player) {
+        return $scope.game.players.indexOf(player);
+    }
+
+    $scope.leave = () => {
+        if ($scope.gameFinished) {
+            $scope.goToLobby();
+        } else {
+            $rootScope.isLoading = true;
+            $game.invoke('leave', $routeParams.id, $rootScope.user.id).then(function () {
+                $rootScope.isLoading = false;
+                $scope.goToLobby();
+            }, () => $rootScope.isLoading = false);
+        }
+    };
+
+    $scope.goToLobby = () => {
+        $game.leave();
+        $location.path('/lobby');
     };
 
     init();

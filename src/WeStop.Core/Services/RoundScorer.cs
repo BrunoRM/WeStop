@@ -72,7 +72,7 @@ namespace WeStop.Core.Services
                     }
                 }
 
-                var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswers();
+                var playersWithBlankAnswers = roundAnswers.GetPlayersIdsWithBlankAnswersForTheme(theme);
                 GiveZeroPointsForEachPlayer(theme, playersWithBlankAnswers);
             }
             

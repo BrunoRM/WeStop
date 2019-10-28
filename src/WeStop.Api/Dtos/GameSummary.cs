@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 
 namespace WeStop.Api.Dtos
 {
-    public class GameDto
+    public class GameSummary
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -17,7 +16,5 @@ namespace WeStop.Api.Dtos
         public int CurrentRoundNumber { get; set; }
         public string[] AvailableLetters { get; set; }
         public string[] SortedLetters { get; set; }
-        public ICollection<PlayerDto> Players { get; set; }
-        public ICollection<PlayerScoreDto> ScoreBoard { get; set; }
     }
 }
