@@ -43,9 +43,21 @@ namespace WeStop.Core.Services
             return game;
         }
 
-        public async Task JoinAsync(Guid gameId, string password, User user, Action<Game, Player> successAction, Action<string> failureAction)
+        public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> successAction, Action<string> failureAction)
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);
+
+            if (game is null)
+            {
+                failureAction?.Invoke("GAME_NOT_FOUND");
+                return;
+            }
+
+            if (game.IsFull())
+            {
+                failureAction?.Invoke("GAME_FULL");
+                return;
+            }
 
             var player = game.Players.FirstOrDefault(p => p.Id == user.Id);
             if (player is null)

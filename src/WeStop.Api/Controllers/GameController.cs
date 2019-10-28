@@ -83,7 +83,7 @@ namespace WeStop.Api.Controllers
                 }
             }
 
-            if (game.Players.Count == game.Options.NumberOfPlayers)
+            if (game.IsFull())
             {
                 return Ok(new
                 {

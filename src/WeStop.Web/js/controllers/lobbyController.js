@@ -25,20 +25,45 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
             $mdDialog.show({
                 templateUrl: './views/game-password.html',
                 escapeToClose: true,
-                preserveScope: true
-            }).then(function (result) {
-                console.log('Confirmado')
-                $scope.status = 'You decided to name your dog ' + result + '.';
-            }, function () {
-            });
+                preserveScope: true,
+                fullscreen: true,
+                controller: ['$scope', '$http', 'API_SETTINGS', function ($scope, $http, API_SETTINGS) {
 
-            $scope.confirmPassword = () => {
-                console.log('caiu')
-                $mdDialog.hide();
-            }
+                    $scope.password = '';
+
+                    $scope.confirm = (password) => {
+                        $mdDialog.hide(password);
+                    };
+
+                    $scope.cancel = () => {
+                        $mdDialog.cancel();
+                    };
+                }]
+            }).then(function (password) {
+                $http.post(API_SETTINGS.uri + '/api/games.check?gameid=' + $scope.gameDetails.id + '&password=' + password).then((result) => {
+                    if (!result.data.ok) {
+                        switch (result.data.error) {
+                            case 'PASSWORD_INCORRECT':
+                                alert('Senha incorreta');
+                                break;
+                            case 'GAME_FULL':
+                                alert('Partida cheia');
+                                break;
+                            case 'GAME_IN_FINAL_ROUND':
+                                alert('Partida não encontrada');
+                                break;
+                            default:
+                                break;
+                        }
+                    } else {
+                        $scope.joinGame();
+                    }
+                }, () => { });
+            }, () => { });
+        } else {
+            $scope.joinGame();        
         }
     };
-
 
     $scope.joinGame = () => 
         $location.path('/game/' + $scope.gameDetails.id);

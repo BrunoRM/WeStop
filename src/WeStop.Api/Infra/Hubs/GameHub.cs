@@ -29,91 +29,38 @@ namespace WeStop.Api.Infra.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var removedData = ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId);
-            if (removedData.playerId != null)
+            var (playerId, gameId) = ConnectionBinding.RemoveConnectionIdBinding(Context.ConnectionId);
+            if (playerId != null)
             {
-                var gameId = removedData.gameId;
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
+                await LeaveAsync(gameId.Value, playerId.Value);
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
         [HubMethodName("join")]
-        public async Task JoinAsync(Guid gameId, string password, User user)
+        public async Task JoinAsync(Guid gameId, User user)
         {
-            await _gameManager.JoinAsync(gameId, password, user, async (game, player) =>
+            await _gameManager.JoinAsync(gameId, user, async (game, player) =>
             {
                 ConnectionBinding.BindConnectionId(Context.ConnectionId, user.Id, gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id.ToString());
 
-                switch (game.State)
+                await Clients.Caller.SendAsync("im_joined_game", new
                 {
-                    case GameState.Waiting:
+                    game = _mapper.Map<Game, GameDto>(game),
+                    lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
+                    player = _mapper.Map<Player, PlayerDto>(player)
+                });
 
-                        await Clients.Caller.SendAsync("im_joined_game", new
-                        {
-                            game = _mapper.Map<Game, GameDto>(game),
-                            lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
-                            player = _mapper.Map<Player, PlayerDto>(player)
-                        });
-
-                        await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
-                        {
-                            player = _mapper.Map<Player, PlayerDto>(player)
-                        });
-
-                        break;
-
-                    case GameState.InProgress:
-
-                        if (player.InRound)
-                        {
-                            await Clients.Caller.SendAsync("im_reconected_game", new
-                            {
-                                game = _mapper.Map<Game, GameDto>(game),
-                                player = _mapper.Map<Player, PlayerDto>(player),
-                                round = game.CurrentRound
-                            });
-                        }
-
-                        break;
-
-                    case GameState.Validations:
-
-                        if (player.InRound)
-                        {
-                            (ICollection<Validation> Validations, int TotalValidations, int ValidationNumber) = await _gameManager.GetPlayerDefaultValidationsAsync(game.Id, game.CurrentRound.Number, player.Id, game.CurrentRound.ThemeBeingValidated, game.CurrentRound.SortedLetter);
-
-                            await Clients.Caller.SendAsync("im_reconected_game", new
-                            {
-                                game = _mapper.Map<Game, GameDto>(game),
-                                round = game.CurrentRound,
-                                player = _mapper.Map<Player, PlayerDto>(player),
-                                theme = game.CurrentRound.ThemeBeingValidated,
-                                validations = Validations,
-                                totalValidations = TotalValidations,
-                                validationsNumber = ValidationNumber
-                            });
-                        }
-
-                        break;
-
-                    case GameState.Finished:
-
-                        var winners = game.GetWinners().ToList();
-
-                        await Clients.Caller.SendAsync("im_reconected_game", new
-                        {
-                            game = _mapper.Map<Game, GameDto>(game),
-                            player = _mapper.Map<Player, PlayerDto>(player),
-                            lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
-                            winners
-                        });
-
-                        break;
-                }
-            }, async (error) => await Clients.Caller.SendAsync("game_join_error", error));
+                await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new
+                {
+                    player = _mapper.Map<Player, PlayerDto>(player)
+                });
+            }, async (error) =>
+            {
+                await Clients.Caller.SendAsync("game_join_error", error);
+            });
         }
 
         [HubMethodName("start_round")]
@@ -203,7 +150,6 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("leave")]
         public async Task LeaveAsync(Guid gameId, Guid playerId)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
             await _gameManager.LeaveAsync(gameId, playerId, async (isGameFinished, newAdmin) =>
             {
                 if (!isGameFinished)
@@ -214,6 +160,9 @@ namespace WeStop.Api.Infra.Hubs
                         await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
                     }
                 }
+
+                await Clients.Caller.SendAsync("im_left");
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
             });
         }
     }

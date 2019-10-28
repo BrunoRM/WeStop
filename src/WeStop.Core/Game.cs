@@ -125,5 +125,14 @@ namespace WeStop.Core
 
         public string[] GetSortedLetters() =>
             Options.AvailableLetters.Where(x => x.Value).Select(x => x.Key).ToArray();
+
+        public bool IsFull() =>
+            Players.Count == Options.NumberOfPlayers;
+
+        public bool HasPlayer(Guid playerId) =>
+            Players.Any(p => p.Id == playerId);
+
+        public Player GetPlayer(Guid playerId) =>
+            Players.FirstOrDefault(p => p.Id == playerId);
     }
 }

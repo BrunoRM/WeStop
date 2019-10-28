@@ -19,23 +19,7 @@
                         <md-content style="max-height: 255px;">
                             <div ng-if="games && games.length > 0" layout="row" layout-wrap>
                                 <md-card ng-repeat="game in games" flex="30" flex-xs="45" ng-click="details(game)">
-                                    <div layout="column" layout-align="center center" layout-padding>
-                                        <span>{{game.name}}</span>
-    
-                                        <i ng-if="game.isPrivate" class="fa fa-lock"></i>
-                                
-                                        <div layout="row" layout-fill layout-align="space-between center">
-                                            <div layout="column" layout-fill layout-align="center center">
-                                                <i class="fa fa-users"></i> {{game.playersInGame}}/{{game.numberOfPlayers}}
-                                            </div>
-                                            <div layout="column" layout-fill layout-align="center center">
-                                                <i class="fa fa-edit"></i> {{game.themes.length}}
-                                            </div>
-                                            <div layout="column" layout-fill layout-align="center center">
-                                                <i class="fa fa-undo"></i> {{game.currentRound}}/{{game.rounds}}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <div layout="column" layout-align="center center" layout-padding ng-include="'views/game/summary.html'"></div>
                                 </md-card>
                             </div>
                         </md-content>
