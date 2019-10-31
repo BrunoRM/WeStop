@@ -43,6 +43,23 @@ namespace WeStop.Core.Services
             return game;
         }
 
+        public async Task<string> AuthorizePlayerAsync(Guid gameId, string password, User user)
+        {
+            var game = await _gameStorage.GetByIdAsync(gameId);
+            if (game is null)
+            {
+                return "GAME_NOT_FOUND";
+            }
+
+            if (game.IsValidForJoin(password, out var status))
+            {
+                game.AuthorizePlayer(user.Id);
+                await _gameStorage.EditAsync(game);
+            }
+
+            return status;
+        }
+
         public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> successAction, Action<string> failureAction)
         {
             Game game = await _gameStorage.GetByIdAsync(gameId);
@@ -53,21 +70,26 @@ namespace WeStop.Core.Services
                 return;
             }
 
-            if (game.IsFull())
+            if (game.IsPlayerAuthorized(user.Id))
             {
-                failureAction?.Invoke("GAME_FULL");
-                return;
-            }
+                Player player;
+                if (!game.HasPlayer(user.Id))
+                {
+                    player = Player.Create(gameId, user);
+                    game.Players.Add(player);
+                    await _playerStorage.AddAsync(player);
+                }
+                else
+                {
+                    player = game.GetPlayer(user.Id);
+                }
 
-            var player = game.Players.FirstOrDefault(p => p.Id == user.Id);
-            if (player is null)
+                successAction?.Invoke(game, player);
+            }
+            else
             {
-                player = Player.Create(gameId, user);
-                game.Players.Add(player);
-                await _playerStorage.AddAsync(player);
+                failureAction?.Invoke("PLAYER_NOT_AUTHORIZED");
             }
-
-            successAction?.Invoke(game, player);
         }
 
         public async Task StartRoundAsync(Guid gameId, Action<Round> action)

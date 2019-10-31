@@ -54,58 +54,25 @@ namespace WeStop.Api.Controllers
             });
         }
 
-        [Route("api/games.check")]
-        public async Task<IActionResult> CheckAsync([FromQuery]Guid gameId, [FromQuery]string password)
+        [Route("api/games.authorize")]
+        public async Task<IActionResult> CheckAsync([FromQuery]Guid gameId, [FromQuery]string password, [FromBody] User user)
         {
-            var game = await _gameStorage.GetByIdAsync(gameId);
+            var status = await _gameManager.AuthorizePlayerAsync(gameId, password, user);
 
-            if (game.IsPrivate())
-            {
-                if (string.IsNullOrEmpty(password))
-                {
-                    return Ok(new
-                    {
-                        ok = false,
-                        error = "PASSWORD_REQUIRED"
-                    });
-                }
-                else
-                {
-                    var providedPasswordHash = MD5HashGenerator.GenerateHash(password);
-                    if (!game.Password.Equals(providedPasswordHash))
-                    {
-                        return Ok(new
-                        {
-                            ok = false,
-                            error = "PASSWORD_INCORRECT"
-                        });
-                    }
-                }
-            }
-
-            if (game.IsFull())
+            if (status.Equals("OK"))
             {
                 return Ok(new
                 {
-                    ok = false,
-                    error = "GAME_FULL"
+                    gameId
                 });
             }
-
-            if (game.IsFinalRound())
+            else
             {
                 return Ok(new
                 {
-                    ok = false,
-                    error = "GAME_IN_FINAL_ROUND"
+                    error = status
                 });
             }
-
-            return Ok(new
-            {
-                ok = true,
-                gameId
-            });
         }
     }
 }

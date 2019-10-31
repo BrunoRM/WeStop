@@ -31,6 +31,7 @@ namespace WeStop.Core
         public int CurrentRoundNumber => CurrentRound?.Number ?? 0;
         public ICollection<Round> Rounds { get; private set; }
         public ICollection<Player> Players { get; set; }
+        public ICollection<Guid> AuthorizedPlayersIds { get; set; }
 
         public bool IsPrivate() =>
             !string.IsNullOrEmpty(Password);
@@ -134,5 +135,57 @@ namespace WeStop.Core
 
         public Player GetPlayer(Guid playerId) =>
             Players.FirstOrDefault(p => p.Id == playerId);
+
+        public void AuthorizePlayer(Guid playerId)
+        {
+            if (!IsPlayerAuthorized(playerId))
+            {
+                AuthorizedPlayersIds.Add(playerId);
+            }
+        }
+
+        public void UnauthorizePlayer(Guid playerId)
+        {
+            if (IsPlayerAuthorized(playerId))
+            {
+                AuthorizedPlayersIds.Remove(playerId);
+            }
+        }
+
+        public bool IsValidForJoin(string passsword, out string status)
+        {
+            if (IsFinalRound())
+            {
+                status = "GAME_IN_FINAL_ROUND";
+                return false;
+            }
+
+            if (IsFull())
+            {
+                status = "GAME_FULL";
+                return false;
+            }
+
+            if (IsPrivate())
+            {
+                if (string.IsNullOrEmpty(passsword))
+                {
+                    status = "PASSWORD_REQUIRED";
+                    return false;
+                }
+
+                if (!Password.Equals(passsword))
+                {
+                    status = "INCORRECT_PASSWORD";
+                    return false;
+                }
+            }
+
+            status = "OK";
+            return true;
+        }
+
+        public bool IsPlayerAuthorized(Guid playerId) =>
+            AuthorizedPlayersIds.Contains(playerId);
     }
 }
