@@ -27,7 +27,7 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
                 escapeToClose: true,
                 preserveScope: true,
                 fullscreen: true,
-                controller: ['$scope', '$http', 'API_SETTINGS', function ($scope, $http, API_SETTINGS) {
+                controller: ['$scope', function ($scope) {
 
                     $scope.password = '';
 
@@ -40,24 +40,27 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
                     };
                 }]
             }).then(function (password) {
-                $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, {
-                    user: $rootScope.user
-                }).then((result) => {
-                    if (!result.data.ok) {
-                        switch (result.data.error) {
-                            case 'PASSWORD_INCORRECT':
-                                alert('Senha incorreta');
-                                break;
-                        }
-                    } else {
-                        $scope.joinGame();
-                    }
-                }, () => { });
+                authorize(password);
             }, () => { });
         } else {
-            $scope.joinGame();        
+            authorize('');
         }
     };
+
+    function authorize(password) {
+        $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, $rootScope.user).then((result) => {
+            console.log(result);
+            if (!result.data.ok) {
+                switch (result.data.error) {
+                    case 'PASSWORD_INCORRECT':
+                        alert('Senha incorreta');
+                        break;
+                }
+            } else {
+                $scope.joinGame();
+            }
+        }, () => { });
+    }
 
     $scope.joinGame = () => 
         $location.path('/game/' + $scope.gameDetails.id);
