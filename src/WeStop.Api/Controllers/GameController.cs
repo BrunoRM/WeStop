@@ -63,6 +63,7 @@ namespace WeStop.Api.Controllers
             {
                 return Ok(new
                 {
+                    ok = true,
                     gameId
                 });
             }
@@ -70,6 +71,7 @@ namespace WeStop.Api.Controllers
             {
                 return Ok(new
                 {
+                    ok = false,
                     error = status
                 });
             }

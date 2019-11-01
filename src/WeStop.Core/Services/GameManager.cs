@@ -34,6 +34,7 @@ namespace WeStop.Core.Services
             }
 
             var game = new Game(name, password, options);
+            game.AuthorizeUser(user.Id);
             await _gameStorage.AddAsync(game);
 
             var player = Player.CreateAsAdmin(game.Id, user);
@@ -50,14 +51,25 @@ namespace WeStop.Core.Services
             {
                 return "GAME_NOT_FOUND";
             }
-
-            if (game.IsValidForJoin(password, out var status))
+            
+            if (game.IsPrivate())
             {
-                game.AuthorizePlayer(user.Id);
-                await _gameStorage.EditAsync(game);
+                if (string.IsNullOrEmpty(password))
+                {
+                    return "PASSWORD_REQUIRED";
+                }
+
+                var passwordHash = MD5HashGenerator.GenerateHash(password);
+                if (!game.Password.Equals(passwordHash))
+                {
+                    return "INCORRECT_PASSWORD";
+                }
             }
 
-            return status;
+            game.AuthorizeUser(user.Id);
+            await _gameStorage.EditAsync(game);
+
+            return "OK";
         }
 
         public async Task JoinAsync(Guid gameId, User user, Action<Game, Player> successAction, Action<string> failureAction)
@@ -70,25 +82,32 @@ namespace WeStop.Core.Services
                 return;
             }
 
-            if (game.IsPlayerAuthorized(user.Id))
+            if (game.IsValidForJoin(out var status))
             {
-                Player player;
-                if (!game.HasPlayer(user.Id))
+                if (game.IsUserAuthorized(user.Id))
                 {
-                    player = Player.Create(gameId, user);
-                    game.Players.Add(player);
-                    await _playerStorage.AddAsync(player);
+                    Player player;
+                    if (!game.HasPlayer(user.Id))
+                    {
+                        player = Player.Create(gameId, user);
+                        game.Players.Add(player);
+                        await _playerStorage.AddAsync(player);
+                    }
+                    else
+                    {
+                        player = game.GetPlayer(user.Id);
+                    }
+
+                    successAction?.Invoke(game, player);
                 }
                 else
                 {
-                    player = game.GetPlayer(user.Id);
+                    failureAction?.Invoke("PLAYER_NOT_AUTHORIZED");
                 }
-
-                successAction?.Invoke(game, player);
             }
             else
             {
-                failureAction?.Invoke("PLAYER_NOT_AUTHORIZED");
+                failureAction?.Invoke(status);
             }
         }
 

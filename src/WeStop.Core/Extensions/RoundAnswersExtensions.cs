@@ -10,7 +10,7 @@ namespace WeStop.Core.Extensions
             roundAnswers.SelectMany(ra => ra.Answers.Where(a => a == answer).Select(a => ra.PlayerId)).ToList();
 
         public static IEnumerable<Guid> GetPlayersIdsWithBlankAnswersForTheme(this IEnumerable<RoundAnswers> roundAnswers, string theme) =>
-            roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && a.IsEmpty()).Select(a => ra.PlayerId)).ToList();
+            roundAnswers.SelectMany(ra => ra.Answers.Where(a => !a.Theme.Equals(theme) || (a.Theme.Equals(theme) && a.IsEmpty())).Select(a => ra.PlayerId)).ToList();
 
         public static Answer[] GetAnswersOfTheme(this IEnumerable<RoundAnswers> roundAnswers, string theme) =>
             roundAnswers.SelectMany(ra => ra.Answers.Where(a => a.Theme.Equals(theme) && !a.IsEmpty())).Distinct().ToArray();

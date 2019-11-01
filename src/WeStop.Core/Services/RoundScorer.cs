@@ -7,9 +7,6 @@ using WeStop.Core.Storages;
 
 namespace WeStop.Core.Services
 {
-    /// Observação sobre a decisão de design desta classe:
-    /// Essa classe não pode guardar estado, portanto foi adicionado
-    /// local functions (ou local methods) para podermos ter acesso ao mesmo escopo que o método principal.
     public sealed class RoundScorer
     {
         private readonly IGameStorage _gameStorage;

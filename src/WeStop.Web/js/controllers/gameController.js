@@ -151,32 +151,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         addRoundNumber();
         refreshGamescoreboard(resp.lastRoundScoreboard);
         checkAllPlayersReady();   
-    });
 
-    $game.on('im_reconected_game', (resp) => {
-        setGame(resp.game);
-        setPlayer(resp.player);
-
-        switch (resp.game.state) {
-            case 'InProgress':
-                setSortedLetter(resp.round.sortedLetter);
-                startRound();
-                break;
-            case 'Validations':
-                setSortedLetter(resp.round.sortedLetter);
-                if (resp.validated) {
-                    cleanThemeValidations();
-                } else {
-                    setCurrentValidation(resp);
-                    startValidation();
-                }
-                break;
-            case 'Finished':
-                setWinners(resp.winners);
-                refreshGamescoreboard(resp.lastRoundScoreboard);
-                finishGame();
-                updateGamePontuation();
-                break;
+        if (resp.game.state === 'InProgress') {
+            setSortedLetter(resp.round.sortedLetter);
+            startRound();
         }
     });
 

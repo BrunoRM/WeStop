@@ -33,6 +33,9 @@ namespace WeStop.Storage.MongoDb
                 cm.MapMember(x => x.Players)
                     .SetShouldSerializeMethod(x => false) // Para ignorar a propriedade no insert e update
                     .SetIsRequired(false);
+
+                cm.MapMember(x => x.AuthorizedUsersIds)
+                    .SetElementName("authorized_users_ids");
             });
 
             BsonClassMap.RegisterClassMap<GameOptions>(cm =>

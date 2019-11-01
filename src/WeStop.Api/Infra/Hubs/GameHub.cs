@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
 using WeStop.Api.Infra.Timers;
@@ -50,7 +48,8 @@ namespace WeStop.Api.Infra.Hubs
                 {
                     game = _mapper.Map<Game, GameDto>(game),
                     lastRoundScoreboard = game.GetScoreboard(game.PreviousRoundNumber),
-                    player = _mapper.Map<Player, PlayerDto>(player)
+                    player = _mapper.Map<Player, PlayerDto>(player),
+                    round = game.CurrentRound
                 });
 
                 await Clients.GroupExcept(game.Id.ToString(), Context.ConnectionId).SendAsync("player_joined_game", new

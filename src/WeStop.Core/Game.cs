@@ -17,6 +17,7 @@ namespace WeStop.Core
             State = GameState.Waiting;
             Rounds = new List<Round>();
             Players = new List<Player>();
+            AuthorizedUsersIds = new List<Guid>();
         }
 
         public Guid Id { get; private set; }
@@ -31,7 +32,7 @@ namespace WeStop.Core
         public int CurrentRoundNumber => CurrentRound?.Number ?? 0;
         public ICollection<Round> Rounds { get; private set; }
         public ICollection<Player> Players { get; set; }
-        public ICollection<Guid> AuthorizedPlayersIds { get; set; }
+        public ICollection<Guid> AuthorizedUsersIds { get; set; }
 
         public bool IsPrivate() =>
             !string.IsNullOrEmpty(Password);
@@ -136,23 +137,15 @@ namespace WeStop.Core
         public Player GetPlayer(Guid playerId) =>
             Players.FirstOrDefault(p => p.Id == playerId);
 
-        public void AuthorizePlayer(Guid playerId)
+        public void AuthorizeUser(Guid playerId)
         {
-            if (!IsPlayerAuthorized(playerId))
+            if (!IsUserAuthorized(playerId))
             {
-                AuthorizedPlayersIds.Add(playerId);
+                AuthorizedUsersIds.Add(playerId);
             }
         }
 
-        public void UnauthorizePlayer(Guid playerId)
-        {
-            if (IsPlayerAuthorized(playerId))
-            {
-                AuthorizedPlayersIds.Remove(playerId);
-            }
-        }
-
-        public bool IsValidForJoin(string passsword, out string status)
+        public bool IsValidForJoin(out string status)
         {
             if (IsFinalRound())
             {
@@ -166,26 +159,11 @@ namespace WeStop.Core
                 return false;
             }
 
-            if (IsPrivate())
-            {
-                if (string.IsNullOrEmpty(passsword))
-                {
-                    status = "PASSWORD_REQUIRED";
-                    return false;
-                }
-
-                if (!Password.Equals(passsword))
-                {
-                    status = "INCORRECT_PASSWORD";
-                    return false;
-                }
-            }
-
             status = "OK";
             return true;
         }
 
-        public bool IsPlayerAuthorized(Guid playerId) =>
-            AuthorizedPlayersIds.Contains(playerId);
+        public bool IsUserAuthorized(Guid playerId) =>
+            AuthorizedUsersIds.Contains(playerId);
     }
 }
