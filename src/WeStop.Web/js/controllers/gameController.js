@@ -147,14 +147,15 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $game.on("im_joined_game", (resp) => {
         setGame(resp.game);
-        setPlayer(resp.player);
-        addRoundNumber();
+        setPlayer(resp.player);        
         refreshGamescoreboard(resp.lastRoundScoreboard);
         checkAllPlayersReady();   
 
         if (resp.game.state === 'InProgress') {
             setSortedLetter(resp.round.sortedLetter);
             startRound();
+        } else {
+            addRoundNumber();
         }
     });
 
@@ -188,16 +189,16 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         switch (reason) {
             case 'GAME_NOT_FOUND':
                 showToast('Essa partida não existe mais');
-                $scope.goToLobby();
                 break;
             case 'GAME_FULL':
                 showToast('Essa partida está cheia');
-                $scope.goToLobby();
                 break;
-            default:
-                $scope.goToLobby();
+            case 'PLAYER_NOT_AUTHORIZED':
+                showToast('Você não está autorizado para entrar nessa partida');
                 break;
-        }
+
+            }
+        $scope.goToLobby();
     });
 
     $scope.changeStatus = () => {

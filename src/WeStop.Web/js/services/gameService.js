@@ -12,14 +12,6 @@ angular.module('WeStop').factory('$game', ['$rootScope', 'API_SETTINGS', functio
             onConnectionClose();
         });
 
-        // hubConnection.onreconnecting(function () {
-        //     alert('Client reconectando');
-        // });
-
-        // hubConnection.onreconnected(() => {
-        //     alert('Client reconectado');
-        // });
-
         hubConnection.start().then(function () {
             $rootScope.$apply(() => sCallback());
         }, (e) => { 

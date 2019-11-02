@@ -90,12 +90,21 @@ namespace WeStop.Core.Services
                     if (!game.HasPlayer(user.Id))
                     {
                         player = Player.Create(gameId, user);
+                        if (game.State == GameState.InProgress)
+                        {
+                            player.InRound = true;   
+                        } 
                         game.Players.Add(player);
                         await _playerStorage.AddAsync(player);
                     }
                     else
                     {
                         player = game.GetPlayer(user.Id);
+                        if (game.State == GameState.InProgress)
+                        {
+                            player.InRound = true;
+                            await _playerStorage.EditAsync(player);
+                        }
                     }
 
                     successAction?.Invoke(game, player);
@@ -293,9 +302,13 @@ namespace WeStop.Core.Services
         public async Task LeaveAsync(Guid gameId, Guid playerId, Action<bool, Player> onLeaveAction)
         {
             var player =  await _playerStorage.GetAsync(gameId, playerId);
+
+            if (player is null)
+                return;
+
             await _playerStorage.DeleteAsync(gameId, playerId);
             
-            var game = await _gameStorage.GetByIdAsync(gameId);
+            var game = await _gameStorage.GetByIdAsync(gameId);            
 
             if (!game.Players.Any())
             {
@@ -305,6 +318,7 @@ namespace WeStop.Core.Services
             }
             else if (player.IsAdmin)
             {
+                await UnauthorizePlayer(game, player);
                 var newAdmin = game.Players.GetOldestPlayerInGame();
                 await ChangeAdminAsync(gameId, newAdmin.Id);
                 onLeaveAction?.Invoke(false, newAdmin);
@@ -312,8 +326,15 @@ namespace WeStop.Core.Services
             }
             else
             {
+                await UnauthorizePlayer(game, player);
                 onLeaveAction?.Invoke(false, null);
             }
+        }
+
+        private async Task UnauthorizePlayer(Game game, Player player)
+        {
+            game.UnauthorizeUser(player.Id);
+            await _gameStorage.EditAsync(game);
         }
     }
 }

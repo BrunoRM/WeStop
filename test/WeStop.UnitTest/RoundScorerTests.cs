@@ -158,10 +158,8 @@ namespace WeStop.UnitTest
 
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "Nome"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "CEP"));
-                Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Dustin, "FDS"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuation(TestUsers.Dustin));
-
-                Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "Nome"));
+                
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "CEP"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuationForTheme(TestUsers.Lucas, "FDS"));
                 Assert.AreEqual(0, roundPontuations.GetPlayerPontuation(TestUsers.Lucas));

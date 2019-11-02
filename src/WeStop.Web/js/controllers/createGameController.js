@@ -59,7 +59,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
         user: $rootScope.user,
         gameOptions: {
             themes: [],
-            availableLetters: [],
+            availableLetters: getSelectedLetters(),
             rounds: "4",
             numberOfPlayers: "6",
             roundTime: "30"
@@ -72,7 +72,7 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
             availableThemes.push(theme);
         }
 
-        if ($scope.game.gameOptions.availableThemes.includes(theme))
+        if ($scope.game.gameOptions.themes.includes(theme))
             return;
     };
 
@@ -86,6 +86,10 @@ angular.module('WeStop').controller('createGameController', ['$game', '$scope', 
 
         return selectedLetters;
     }
+
+    $scope.rebuildSelectedLetters = function () {
+        $scope.game.gameOptions.availableLetters = getSelectedLetters();
+    };
 
     $scope.confirm = function() {
         $scope.game.gameOptions.availableLetters = getSelectedLetters();

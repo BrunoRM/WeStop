@@ -27,7 +27,9 @@ namespace WeStop.Api
                         "http://localhost:5001", 
                         "https://localhost:5001", 
                         "http://localhost:5002", 
-                        "https://localhost:5002", 
+                        "https://localhost:5002",
+                        "http://localhost:5003", 
+                        "https://localhost:5003", 
                         "http://westop.z15.web.core.windows.net", 
                         "https://westop.z15.web.core.windows.net")
                         .AllowAnyMethod()

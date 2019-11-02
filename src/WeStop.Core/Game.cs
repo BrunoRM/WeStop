@@ -145,6 +145,14 @@ namespace WeStop.Core
             }
         }
 
+        public void UnauthorizeUser(Guid playerId)
+        {
+            if (IsUserAuthorized(playerId))
+            {
+                AuthorizedUsersIds.Remove(playerId);
+            }
+        }
+
         public bool IsValidForJoin(out string status)
         {
             if (IsFinalRound())
