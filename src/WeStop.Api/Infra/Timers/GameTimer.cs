@@ -15,11 +15,14 @@ namespace WeStop.Api.Infra.Timers
         private static readonly ConcurrentDictionary<Guid, Timer> _timers = new ConcurrentDictionary<Guid, Timer>();
         private readonly IHubContext<GameHub> _gameHub;
         private readonly GameManager _gameManager;
+        private readonly IHubContext<LobbyHub> _lobbyHubContext;
 
-        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager)
+        public GameTimer(IHubContext<GameHub> gameHub, GameManager gameManager,
+            IHubContext<LobbyHub> lobbyHubContext)
         {
             _gameHub = gameHub;
             _gameManager = gameManager;
+            _lobbyHubContext = lobbyHubContext;
 
             OnRoundTimeElapsed += async (gameId, currentTime, hub) =>
             {
@@ -111,6 +114,8 @@ namespace WeStop.Api.Infra.Timers
                             lastRoundScoreboard = roundScoreboard,
                             winners
                         });
+
+                        await _lobbyHubContext.Clients.All.SendAsync("game_finished", gameId);
                     }
                     else
                     {

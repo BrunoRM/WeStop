@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$mdToast', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $mdToast) {
+ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$mdToast', '$lobby', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $mdToast, $lobby) {
 
     $http.get(API_SETTINGS.uri + '/api/games.list').then((resp) => {
         $scope.games = resp.data.games;
@@ -80,4 +80,23 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     $scope.newGame = () =>
         $location.path('/game/create');
 
+    $lobby.on('game_created', (resp) => {
+        console.log(resp);
+    });
+
+    $lobby.on('player_joined_game', (resp) => {
+        console.log(resp);
+    });
+
+    $lobby.on('round_started', (resp) => {
+        console.log(resp);
+    });
+    
+    $lobby.on('player_left_game', (resp) => {
+        console.log(resp);
+    });
+
+    $lobby.on('game_finished', (resp) => {
+        console.log(resp);
+    });
 }]);

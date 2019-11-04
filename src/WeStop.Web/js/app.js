@@ -7,10 +7,10 @@ angular.module('WeStop', [
     'md.data.table'
 ])
 
-    .value('API_SETTINGS', { uri: 'https://westopapi.azurewebsites.net' })
+    .value('API_SETTINGS', { uri: 'http://localhost:5000' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', '$mdAriaProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider, $mdAriaProvider) {
-
+    // https://westopapi.azurewebsites.net
     $httpProvider.interceptors.push('httpInterceptor');
 
     $locationProvider.hashPrefix('');
@@ -58,10 +58,11 @@ angular.module('WeStop', [
 
 }])
 
-.run(['$user', '$rootScope', '$location', '$window', '$game', ($user, $rootScope, $location, $window, $game) => {    
+.run(['$user', '$rootScope', '$location', '$window', '$game', '$lobby', ($user, $rootScope, $location, $window, $game, $lobby) => {
     $rootScope.user = $user.get();
 
     $rootScope.$on('$routeChangeStart', (e, next, current) => {
+        $lobby.leave();
         $game.leave();
         if (next.$$route.secure && !$rootScope.user) {
             $location.path('/');

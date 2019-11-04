@@ -1,12 +1,13 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
+using WeStop.Api.Infra.Hubs;
 using WeStop.Api.Infra.Timers;
 using WeStop.Core;
-using WeStop.Core.Helpers;
 using WeStop.Core.Services;
 using WeStop.Core.Storages;
 
@@ -19,14 +20,17 @@ namespace WeStop.Api.Controllers
         private readonly GameManager _gameManager;
         private readonly GameTimer _gamesTimers;
         private readonly IMapper _mapper;
+        private readonly IHubContext<LobbyHub> _lobbyHubContext;
 
         public GameController(IGameStorage gameStorage, GameManager gameManager,
-            GameTimer gamesTimers, IMapper mapper)
+            GameTimer gamesTimers, IMapper mapper,
+            IHubContext<LobbyHub> lobbyHubContext)
         {
             _gameStorage = gameStorage;
             _gameManager = gameManager;
             _gamesTimers = gamesTimers;
             _mapper = mapper;
+            _lobbyHubContext = lobbyHubContext;
         }
 
         [Route("api/games.create"), HttpPost]
@@ -36,6 +40,8 @@ namespace WeStop.Api.Controllers
 
             _gamesTimers.Register(createdGame.Id, createdGame.Options.RoundTime);
 
+            await _lobbyHubContext.Clients.All.SendAsync("game_created", _mapper.Map<Game, GameSummary>(createdGame));
+            
             return Ok(new
             {
                 id = createdGame.Id

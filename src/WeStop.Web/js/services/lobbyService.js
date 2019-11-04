@@ -1,6 +1,6 @@
-angular.module('WeStop').factory('$game', ['$hub', function ($hub) {
+angular.module('WeStop').factory('$lobby', ['$hub', function ($hub) {
 
-    $hub.withUri('/game');
+    $hub.withUri('/lobby');
 
     function leave () {
         $hub.close();

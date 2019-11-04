@@ -15,14 +15,17 @@ namespace WeStop.Api.Infra.Hubs
         private readonly PlayerManager _playerManager;
         private readonly GameTimer _gameTimer;
         private readonly IMapper _mapper;
+        private readonly IHubContext<LobbyHub> _lobbyHubContext;
 
         public GameHub(GameTimer gameTimer, IMapper mapper, 
-            GameManager gameManager, PlayerManager playerManager)
+            GameManager gameManager, PlayerManager playerManager,
+            IHubContext<LobbyHub> lobbyHubContext)
         {
             _gameManager = gameManager;
             _playerManager = playerManager;
             _gameTimer = gameTimer;
             _mapper = mapper;
+            _lobbyHubContext = lobbyHubContext;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -56,6 +59,8 @@ namespace WeStop.Api.Infra.Hubs
                 {
                     player = _mapper.Map<Player, PlayerDto>(player)
                 });
+
+                await _lobbyHubContext.Clients.All.SendAsync("player_joined_game", gameId);
             }, async (error) =>
             {
                 await Clients.Caller.SendAsync("game_join_error", error);
@@ -75,6 +80,7 @@ namespace WeStop.Api.Infra.Hubs
                 });
 
                 _gameTimer.StartRoundTimer(gameId);
+                await _lobbyHubContext.Clients.All.SendAsync("round_started", gameId);
             });
         }
 
@@ -154,10 +160,17 @@ namespace WeStop.Api.Infra.Hubs
                 if (!isGameFinished)
                 {
                     await Clients.Group(gameId.ToString()).SendAsync("player_left", playerId);
+                    
                     if (newAdmin != null)
                     {
                         await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
                     }
+
+                    await _lobbyHubContext.Clients.All.SendAsync("player_left_game", gameId);
+                }
+                else
+                {
+                    await _lobbyHubContext.Clients.All.SendAsync("game_finished", gameId);
                 }
 
                 await Clients.Caller.SendAsync("im_left");

@@ -56,6 +56,7 @@ namespace WeStop.Api
             app.UseSignalR(routeConfig =>
             {
                 routeConfig.MapHub<GameHub>("/game");
+                routeConfig.MapHub<LobbyHub>("/lobby");
             });
 
             app.UseMvc();
