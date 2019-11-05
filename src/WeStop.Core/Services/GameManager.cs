@@ -8,10 +8,6 @@ using WeStop.Core.Storages;
 
 namespace WeStop.Core.Services
 {
-    /// Observa��o sobre a decis�o de design desta classe:
-    /// Os m�todos que envolvem envio de valida��es e verifica��o para validar se todos os players j� enviaram
-    /// suas valida��es precisam ser sincronos, para o servi�o poder enviar uma por vez aos storages, evitando
-    /// a concorr�ncia, que levaria a dados inconsistentes.
     public class GameManager
     {
         private readonly IGameStorage _gameStorage;
@@ -120,19 +116,21 @@ namespace WeStop.Core.Services
             }
         }
 
-        public async Task StartRoundAsync(Guid gameId, Action<Round> action)
+        public async Task StartRoundAsync(Guid gameId, Action<Round, List<Guid>> action)
         {
             var game = await _gameStorage.GetByIdAsync(gameId);
 
+            var playersIdsInRound = new List<Guid>();
             foreach (var player in game.Players.PutReadyPlayersInRound())
             {
+                playersIdsInRound.Add(player.Id);
                 await _playerStorage.EditAsync(player);
             }
 
             var createdRound = game.StartNextRound();
             await _gameStorage.EditAsync(game);
 
-            action?.Invoke(createdRound);
+            action?.Invoke(createdRound, playersIdsInRound);
         }
 
         public async Task AddRoundAnswersAsync(RoundAnswers roundAnswers)
