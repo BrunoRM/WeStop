@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WeStop.Core.Exceptions;
 using WeStop.Core.Extensions;
 
 namespace WeStop.Core
@@ -39,9 +38,6 @@ namespace WeStop.Core
 
         public Round StartNextRound()
         {
-            if (IsFinalRound())
-                throw new WeStopException("O jogo já chegou ao fim. Não é possível iniciar a rodada");
-            
             var newRound = CreateNewRound();
             Rounds.Add(newRound);
             State = GameState.InProgress;
@@ -102,17 +98,11 @@ namespace WeStop.Core
 
         public void Finish()
         {
-            if (!IsFinalRound())
-                throw new WeStopException("O jogo só poderá ser finalizado se a rodada atual for a última");
-
             State = GameState.Finished;
         }
 
         public IEnumerable<string> GetWinners()
         {
-            if (!IsFinalRound())
-                throw new WeStopException("O jogo ainda não chegou ao fim");
-
             var highPontuation = Players.GetHighPontuation();
             var gameWinners = Players.GetPlayersWithPontuation(highPontuation);
 
