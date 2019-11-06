@@ -18,7 +18,7 @@ namespace WeStop.UnitTest
         [Test]
         public async Task GivenDistinctsAnswersShouldGiveTenPointsForEach()
         {
-            await GameManager.StartRoundAsync(Game.Id, (async r =>
+            await GameManager.StartRoundAsync(Game.Id, (async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -76,7 +76,7 @@ namespace WeStop.UnitTest
         [Test]
         public async Task GivenSameAnswersShouldGiveFivePointsForEach()
         {
-            await GameManager.StartRoundAsync(Game.Id, (async r =>
+            await GameManager.StartRoundAsync(Game.Id, (async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -134,7 +134,7 @@ namespace WeStop.UnitTest
         [Test]
         public async Task GivenBlankOrNullAnswersShouldGiveZeroPointsForEach()
         {
-            await GameManager.StartRoundAsync(Game.Id, (async r =>
+            await GameManager.StartRoundAsync(Game.Id, (async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -169,7 +169,7 @@ namespace WeStop.UnitTest
         [Test]
         public async Task PontuationIsCorrectWhenAllAnswersDisctinct()
         {
-            await GameManager.StartRoundAsync(Game.Id, (async r =>
+            await GameManager.StartRoundAsync(Game.Id, (async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 
@@ -227,7 +227,7 @@ namespace WeStop.UnitTest
         [Test]
         public async Task GivenInvalidatedAnswersShouldGiveZeroPointsForEach()
         {
-            await GameManager.StartRoundAsync(Game.Id, (async r =>
+            await GameManager.StartRoundAsync(Game.Id, (async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 

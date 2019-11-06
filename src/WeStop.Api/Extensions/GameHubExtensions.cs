@@ -12,6 +12,12 @@ namespace WeStop.Api.Extensions
             return $"{gameId}_{roundNumber}";
         }
 
+        public static async Task AddConnectionToGameRoundGroupAsync(this IGroupManager groups, Guid gameId, int roundNumber, string connectionId)
+        {
+            string gameRoundGroupName = GetGroupName(gameId, roundNumber);
+            await groups.AddToGroupAsync(connectionId, gameRoundGroupName);
+        }
+
         public static async Task AddConnectionsToGameRoundGroupAsync(this IGroupManager groups, Guid gameId, int roundNumber, ICollection<string> connectionsIds)
         {
             string gameRoundGroupName = GetGroupName(gameId, roundNumber);

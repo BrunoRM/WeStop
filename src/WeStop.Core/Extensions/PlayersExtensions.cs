@@ -18,15 +18,6 @@ namespace WeStop.Core.Extensions
             }
         }
 
-        public static IEnumerable<Player> PutAllPlayersInWaiting(this ICollection<Player> players)
-        {
-            foreach (var player in players)
-            {
-                player.InRound = false;
-                yield return player;
-            }
-        }
-
         public static IEnumerable<RoundAnswers> GetAnswers(this ICollection<Player> players, int roundNumber) =>
             players.SelectMany(p => p.Answers.Where(v => v.RoundNumber == roundNumber));
 

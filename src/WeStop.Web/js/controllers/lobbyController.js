@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$mdToast', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $mdToast) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$toast', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $toast) {
 
     $http.get(API_SETTINGS.uri + '/api/games.list').then((resp) => {
         $scope.games = resp.data.games;
@@ -52,20 +52,10 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
             if (!result.data.ok) {
                 switch (result.data.error) {
                     case 'INCORRECT_PASSWORD':
-                        $mdToast.show(
-                            $mdToast.simple()
-                                .textContent('Senha incorreta')
-                                .position('bottom left')
-                                .hideDelay(3500)
-                        );
+                        $toast.show('Senha incorreta');
                         break;
                     case 'GAME_NOT_FOUND':
-                        $mdToast.show(
-                            $mdToast.simple()
-                                .textContent('Essa partida não existe mais')
-                                .position('bottom left')
-                                .hideDelay(3500)
-                        );
+                        $toast.show('Essa partida não existe mais');
                         break;
                 }
             } else {

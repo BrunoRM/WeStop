@@ -262,7 +262,6 @@ namespace WeStop.Core.Services
 
             // Precisa atualizar os jogadores da partida com suas pontuações já processadas
             game.Players = await _playerStorage.GetAllAsync(gameId);
-            await PutAllPlayersInWaiting();
 
             if (game.IsFinalRound())
             {
@@ -274,14 +273,6 @@ namespace WeStop.Core.Services
             }
 
             finishedRoundAction?.Invoke(game);
-
-            async Task PutAllPlayersInWaiting()
-            {
-                foreach (var player in game.Players.PutAllPlayersInWaiting())
-                {
-                    await _playerStorage.EditAsync(player);
-                }
-            }
         }
 
         public async Task<bool> ChangeAdminAsync(Guid gameId, Guid newAdminPlayerId)

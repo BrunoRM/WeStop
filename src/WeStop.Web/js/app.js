@@ -10,7 +10,7 @@ angular.module('WeStop', [
     .value('API_SETTINGS', { uri: 'https://westopapi.azurewebsites.net' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', '$mdAriaProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider, $mdAriaProvider) {
-
+    
     $httpProvider.interceptors.push('httpInterceptor');
 
     $locationProvider.hashPrefix('');

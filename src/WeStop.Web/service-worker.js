@@ -1,4 +1,4 @@
-const CACHE_NAME = 'swCache171020192009';
+const CACHE_NAME = 'swCache061120190023';
 
 let filesToCache = [
     '/node_modules/font-awesome/css/font-awesome.css',
@@ -53,13 +53,18 @@ self.addEventListener('activate', function (e) {
 });
 
 self.addEventListener('fetch', function (e) {
-        e.respondWith(
-            caches.open(CACHE_NAME).then(function (cache) {
-                return cache.match(e.request).then(function (response) {
-                    return response || fetch(e.request).then(function (response) {
-                        return response;
-                    });
+    // Workaround for this: https://stackoverflow.com/questions/48463483/what-causes-a-failed-to-execute-fetch-on-serviceworkerglobalscope-only-if
+    if (e.request.cache === 'only-if-cached' && e.request.mode !== 'same-origin') {
+        return;
+    }
+
+    e.respondWith(
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.match(e.request).then(function (response) {
+                return response || fetch(e.request).then(function (response) {
+                    return response;
                 });
-            })
-        );
+            });
+        })
+    );
 });

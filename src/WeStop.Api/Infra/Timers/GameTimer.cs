@@ -243,7 +243,7 @@ namespace WeStop.Api.Infra.Timers
             _timers[gameId] = timer;
         }
 
-        private void RemoveGameTimer(Guid gameId)
+        public void RemoveGameTimer(Guid gameId)
         {
             if (_timers.ContainsKey(gameId))
             {

@@ -58,6 +58,11 @@ namespace WeStop.Api.Infra.Hubs
                 {
                     player = _mapper.Map<Player, PlayerDto>(player)
                 });
+
+                if (game.State == GameState.InProgress)
+                {
+                    await Groups.AddConnectionToGameRoundGroupAsync(gameId, game.CurrentRoundNumber, Context.ConnectionId);
+                }
             }, async (error) =>
             {
                 await Clients.Caller.SendAsync("game_join_error", error);
@@ -127,7 +132,7 @@ namespace WeStop.Api.Infra.Hubs
             var theme = roundValidations.Theme;
             if (await _gameManager.CheckAllPlayersSendValidationsAsync(gameId, roundValidations.RoundNumber, theme))
             {
-                await Clients.GameRoundGroup(gameId, game.CurrentRoundNumber).SendAsync("all_validations_sended", theme);
+                await Clients.GameRoundGroup(gameId, roundValidations.RoundNumber).SendAsync("all_validations_sended", theme);
                 await _gameManager.FinishValidationsForThemeAsync(gameId, theme);
                 await _gameTimer.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber);
             }
@@ -176,6 +181,10 @@ namespace WeStop.Api.Infra.Hubs
                     {
                         await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
                     }
+                }
+                else
+                {
+                    _gameTimer.RemoveGameTimer(gameId);
                 }
 
                 await Clients.Caller.SendAsync("im_left");
