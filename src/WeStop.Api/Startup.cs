@@ -20,18 +20,11 @@ namespace WeStop.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var allowedCORSOrigins = Configuration.GetSection("AllowedCORS").Get<string[]>();
             services.AddCors(options => options.AddPolicy("WeStopCorsPolicy",
                 builder =>
                 {
-                    builder.WithOrigins(
-                        "http://localhost:5001", 
-                        "https://localhost:5001", 
-                        "http://localhost:5002", 
-                        "https://localhost:5002",
-                        "http://localhost:5003", 
-                        "https://localhost:5003", 
-                        "http://westop.z15.web.core.windows.net", 
-                        "https://westop.z15.web.core.windows.net")
+                    builder.WithOrigins(allowedCORSOrigins)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
@@ -45,7 +38,7 @@ namespace WeStop.Api
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
                 
-            services.ConfigureDependencies();
+            services.ConfigureDependencies(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

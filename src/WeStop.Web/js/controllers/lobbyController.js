@@ -1,4 +1,4 @@
- angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$mdToast', '$lobby', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $mdToast, $lobby) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$toast', '$lobby', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $toast, $lobby) {
 
     $http.get(API_SETTINGS.uri + '/api/games.list').then((resp) => {
         $scope.games = resp.data.games;
@@ -26,7 +26,6 @@
                 templateUrl: './views/game-password.html',
                 escapeToClose: true,
                 preserveScope: true,
-                fullscreen: true,
                 controller: ['$scope', function ($scope) {
 
                     $scope.password = '';
@@ -48,29 +47,20 @@
     };
 
     function authorize(password) {
-        $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, $rootScope.user).then((result) => {
-            if (!result.data.ok) {
-                switch (result.data.error) {
-                    case 'INCORRECT_PASSWORD':
-                        $mdToast.show(
-                            $mdToast.simple()
-                                .textContent('Senha incorreta')
-                                .position('bottom left')
-                                .hideDelay(3500)
-                        );
-                        break;
-                    case 'GAME_NOT_FOUND':
-                        $mdToast.show(
-                            $mdToast.simple()
-                                .textContent('Essa partida não existe mais')
-                                .position('bottom left')
-                                .hideDelay(3500)
-                        );
-                        break;
+        $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, $rootScope.user)
+            .then((result) => {
+                if (!result.data.ok) {
+                    switch (result.data.error) {
+                        case 'INCORRECT_PASSWORD':
+                            $toast.show('Senha incorreta');
+                            break;
+                        case 'GAME_NOT_FOUND':
+                            $toast.show('Essa partida não existe mais');
+                            break;
+                    }
+                } else {
+                    $scope.joinGame();
                 }
-            } else {
-                $scope.joinGame();
-            }
         }, () => { });
     }
 

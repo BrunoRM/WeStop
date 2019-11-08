@@ -13,7 +13,9 @@ const merge2 = require('merge2');
 //const pwaAssetGenerator = require('pwa-asset-generator');
 
 gulp.task('clean', function () {
-    return gulp.src('dist/')
+    return gulp.src('dist/', {
+        allowEmpty: true
+    })
         .pipe(clean());
 });
 
@@ -32,8 +34,7 @@ gulp.task('uglifyAndConcatJs', function(){
                 'node_modules/angular-route/angular-route.min.js', 
                 'node_modules/angular-aria/angular-aria.min.js', 
                 'node_modules/angular-animate/angular-animate.min.js', 
-                'node_modules/angular-messages/angular-messages.min.js', 
-                'node_modules/angular-cookies/angular-cookies.min.js',
+                'node_modules/angular-messages/angular-messages.min.js',
                 'node_modules/angular-material/angular-material.min.js',
                 'node_modules/angular-material-data-table/dist/md-data-table.min.js',
                 'node_modules/angular-uuid/angular-uuid.js'
@@ -117,6 +118,12 @@ gulp.task('generate-pwa-assets', function () {
     })();
 });
 
-gulp.task('default', function(cb){
-    return runSequence('clean', ['jshint', 'uglifyAndConcatJs', 'htmlmin', 'cssmin', 'copy', 'copy-fonts', 'copy-icons', 'copy-images'], cb);
-});
+gulp.task('default', gulp.series('clean', 
+    gulp.parallel('jshint', 
+                  'uglifyAndConcatJs', 
+                  'htmlmin', 
+                  'cssmin', 
+                  'copy', 
+                  'copy-fonts', 
+                  'copy-icons', 
+                  'copy-images')));

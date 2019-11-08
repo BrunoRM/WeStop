@@ -1,9 +1,10 @@
-const CACHE_NAME = 'swCache201020191221';
+const CACHE_NAME = 'swCache081120191341';
 
 let filesToCache = [
     '/css/styles.min.css',
     '/js/all.min.js',
-    '/index.html'
+    '/index.html',
+    '/views/user/create.html'
 ];
 
 self.addEventListener('install', function (event) {
@@ -32,6 +33,11 @@ self.addEventListener('activate', function (e) {
 });
 
 self.addEventListener('fetch', function (e) {
+    // Workaround for this: https://stackoverflow.com/questions/48463483/what-causes-a-failed-to-execute-fetch-on-serviceworkerglobalscope-only-if
+    if (e.request.cache === 'only-if-cached' && e.request.mode !== 'same-origin') {
+        return;
+    }
+
     e.respondWith(
         caches.open(CACHE_NAME).then(function (cache) {
             return cache.match(e.request).then(function (response) {

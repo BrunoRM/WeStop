@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WeStop.Api.Dtos;
+using WeStop.Api.Extensions;
 using WeStop.Api.Infra.Timers;
 using WeStop.Core;
 using WeStop.Core.Services;
@@ -60,6 +62,11 @@ namespace WeStop.Api.Infra.Hubs
                     player = _mapper.Map<Player, PlayerDto>(player)
                 });
 
+                if (game.State == GameState.InProgress)
+                {
+                    await Groups.AddConnectionToGameRoundGroupAsync(gameId, game.CurrentRoundNumber, Context.ConnectionId);
+                }
+
                 await _lobbyHubContext.Clients.All.SendAsync("player_joined_game", gameId);
             }, async (error) =>
             {
@@ -70,18 +77,34 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("start_round")]
         public async Task StartNextRoundAsync(Guid gameId)
         {
-            await _gameManager.StartRoundAsync(gameId, async (createdRound) =>
+            await _gameManager.StartRoundAsync(gameId, async (createdRound, playersIdsInRound) =>
             {
-                IClientProxy connectionGroup = Clients.Group(gameId.ToString());
-                await connectionGroup.SendAsync("round_started", new
+                var connectionsIds = GetPlayersConnectionsIds(gameId, playersIdsInRound);
+                await Groups.AddConnectionsToGameRoundGroupAsync(gameId, createdRound.Number, connectionsIds);
+                await Clients.GameRoundGroup(gameId, createdRound.Number).SendAsync("round_started", new
                 {
                     roundNumber = createdRound.Number,
                     sortedLetter = createdRound.SortedLetter
                 });
 
-                _gameTimer.StartRoundTimer(gameId);
+                _gameTimer.StartRoundTimer(gameId, createdRound.Number);
                 await _lobbyHubContext.Clients.All.SendAsync("round_started", gameId);
             });
+        }
+
+        private ICollection<string> GetPlayersConnectionsIds(Guid gameId, List<Guid> playersIdsInRound)
+        {
+            var connectionsIds = new List<string>();
+            foreach (var id in playersIdsInRound)
+            {
+                var connectionId = ConnectionBinding.GetPlayerConnectionId(gameId, id);
+                if (!string.IsNullOrEmpty(connectionId))
+                {
+                    connectionsIds.Add(connectionId);
+                }
+            }
+
+            return connectionsIds;
         }
 
         [HubMethodName("stop_round")]
@@ -89,13 +112,13 @@ namespace WeStop.Api.Infra.Hubs
         {
             await _gameManager.StopCurrentRoundAsync(gameId, async (game) =>
             {
-                await Clients.Group(gameId.ToString()).SendAsync("round_stoped", new
+                await Clients.GameRoundGroup(gameId, game.CurrentRoundNumber).SendAsync("round_stoped", new
                 {
                     reason = "player_call_stop",
                     playerId
                 });
 
-                _gameTimer.StopRoundTimer(gameId);
+                _gameTimer.StopRoundTimer(gameId, game.CurrentRoundNumber);
             });
         }
 
@@ -109,25 +132,25 @@ namespace WeStop.Api.Infra.Hubs
         [HubMethodName("send_validations")]
         public async Task SendValidationsAsync(RoundValidations roundValidations)
         {
-            await AddValidationsAndNotifyClientsAsync(roundValidations);
+            await AddValidationsAndNotifyClientAsync(roundValidations);
 
             var gameId = roundValidations.GameId;
             var theme = roundValidations.Theme;
             if (await _gameManager.CheckAllPlayersSendValidationsAsync(gameId, roundValidations.RoundNumber, theme))
             {
-                await Clients.Group(gameId.ToString()).SendAsync("all_validations_sended", theme);
+                await Clients.GameRoundGroup(gameId, roundValidations.RoundNumber).SendAsync("all_validations_sended", theme);
                 await _gameManager.FinishValidationsForThemeAsync(gameId, theme);
-                await _gameTimer.StartValidationForNextThemeAsync(gameId);
+                await _gameTimer.StartValidationForNextThemeAsync(gameId, roundValidations.RoundNumber);
             }
         }
 
         [HubMethodName("send_validations_after_time_over")]
         public async Task SendValidationsAfterTimeOverAsync(RoundValidations roundValidations)
         {
-            await AddValidationsAndNotifyClientsAsync(roundValidations);
+            await AddValidationsAndNotifyClientAsync(roundValidations);
         }
 
-        private async Task AddValidationsAndNotifyClientsAsync(RoundValidations roundValidations)
+        private async Task AddValidationsAndNotifyClientAsync(RoundValidations roundValidations)
         {
             await _gameManager.AddRoundValidationsAsync(roundValidations);
             await Clients.Caller.SendAsync("im_send_validations");
@@ -165,11 +188,12 @@ namespace WeStop.Api.Infra.Hubs
                     {
                         await Clients.Group(gameId.ToString()).SendAsync("new_admin_setted", newAdmin.Id);
                     }
-
-                    await _lobbyHubContext.Clients.All.SendAsync("player_left_game", gameId);
                 }
                 else
                 {
+                    _gameTimer.RemoveGameTimer(gameId);
+
+                    await _lobbyHubContext.Clients.All.SendAsync("player_left_game", gameId);
                     await _lobbyHubContext.Clients.All.SendAsync("game_finished", gameId);
                 }
 

@@ -1,9 +1,6 @@
 <div ng-cloak flex="65" flex-sm="100" flex-xs="100" style="width: 700px;">
-    <div layout="row" layout-align="end center">
-        <img md-colors="{ 'border-color': 'primary' }" height="30" width="30" class="md-avatar" ng-src="{{user.imageUri}}" />
-        <span layout-padding>
-            {{user.userName}}
-        </span>
+    <div layout="row" layout-align="end end" layout-fill>
+        <div ng-include="'/views/user/info.html'"></div>
     </div>
     <md-card md-whiteframe="10">
 

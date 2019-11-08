@@ -19,7 +19,7 @@ namespace WeStop.UnitTest.GameTests
         [Test]
         public async Task ShouldReturnPontuationsOnlyForPlayersInRound()
         {
-            await GameManager.StartRoundAsync(Game.Id, async r =>
+            await GameManager.StartRoundAsync(Game.Id, async (r, pIds) =>
             {
                 var roundAnswersBuilder = new PlayerAnswersBuilder(Game);
 

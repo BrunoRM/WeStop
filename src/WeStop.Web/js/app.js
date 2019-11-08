@@ -10,21 +10,33 @@ angular.module('WeStop', [
     .value('API_SETTINGS', { uri: 'http://localhost:5000' })
 
 .config(['$routeProvider', '$locationProvider', '$mdThemingProvider', '$httpProvider', '$mdGestureProvider', '$mdAriaProvider', function ($routeProvider, $locationProvider, $mdThemingProvider, $httpProvider, $mdGestureProvider, $mdAriaProvider) {
-    // https://westopapi.azurewebsites.net
+    
     $httpProvider.interceptors.push('httpInterceptor');
 
     $locationProvider.hashPrefix('');
 
     $mdGestureProvider.skipClickHijack();
 
-    $mdThemingProvider.theme('default')
+    $mdThemingProvider.alwaysWatchTheme(true);
+    
+    $mdThemingProvider
+        .theme('light')
+        .primaryPalette('blue')
+        .accentPalette('teal')
+        .warnPalette('red')
+        .backgroundPalette('grey');
+
+    $mdThemingProvider.theme('dark')
         .dark();
 
     $mdThemingProvider
-        .theme('default')
+        .theme('dark')
         .primaryPalette('blue')
         .accentPalette('teal')
-        .warnPalette('red');
+        .warnPalette('red')
+        .dark();
+
+    $mdThemingProvider.setDefaultTheme('dark');
 
     $mdAriaProvider.disableWarnings();
 

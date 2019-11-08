@@ -60,7 +60,7 @@ namespace WeStop.Api.Controllers
             });
         }
 
-        [Route("api/games.authorize")]
+        [Route("api/games.authorize"), HttpPost]
         public async Task<IActionResult> CheckAsync([FromQuery]Guid gameId, [FromQuery]string password, [FromBody] User user)
         {
             var status = await _gameManager.AuthorizePlayerAsync(gameId, password, user);

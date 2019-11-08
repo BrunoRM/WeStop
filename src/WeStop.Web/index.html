@@ -42,6 +42,7 @@
             <script type="text/javascript" src="js/services/facebookService.js"></script>
             <script type="text/javascript" src="js/services/googleService.js"></script>
             <script type="text/javascript" src="js/services/twitterService.js"></script>
+            <script type="text/javascript" src="js/services/toatService.js"></script>
 
             <!-- Interceptors -->
             <script type="text/javascript" src="js/interceptors/httpInterceptor.js"></script>
@@ -102,12 +103,13 @@
 
 
     </head>
-    <body ng-controller="mainController">
-
-        <div ng-if="isLoading" class="loading" layout="row" layout-fill layout-align="center center" aria-label="wait">
-            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-        </div>
-
-        <ng-view layout="row" layout-align="center center" layout-fill></ng-view>
+    <body ng-controller="mainController" md-theme="{{ selectedTheme }}" md-theme-watch="true">
+        <md-content layout-fill>
+            <div ng-if="isLoading" class="loading" layout="row" layout-fill layout-align="center center" aria-label="wait">
+                <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+            </div>
+    
+            <ng-view layout="row" layout-align="center center" layout-fill></ng-view>
+        </md-content>
     </body>
 </html>

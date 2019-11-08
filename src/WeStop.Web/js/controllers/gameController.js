@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$mdToast', '$location', '$mdDialog', function ($routeParams, $scope, $game, $rootScope, $mdToast, $location, $mdDialog) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$toast', '$location', '$mdDialog', function ($routeParams, $scope, $game, $rootScope, $toast, $location, $mdDialog) {
 
     function init() {
         $scope.allPlayersReady = false;
@@ -136,15 +136,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.game.currentRoundNumber += 1;
     }
 
-    function showToast(message) {
-        $mdToast.show(
-            $mdToast.simple()
-                .textContent(message)
-                .position('bottom left')
-                .hideDelay(3500)
-        );
-    }
-
     $game.on("im_joined_game", (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);        
@@ -179,7 +170,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
         if (!player) {
             $scope.game.players.push(data.player);
-            showToast(data.player.userName + ' entrou na partida');
+            $toast.show(data.player.userName + ' entrou na partida');
         }
 
         checkAllPlayersReady();
@@ -188,13 +179,13 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     $game.on('game_join_error', (reason) => {
         switch (reason) {
             case 'GAME_NOT_FOUND':
-                showToast('Essa partida não existe mais');
+                $toast.show('Essa partida não existe mais');
                 break;
             case 'GAME_FULL':
-                showToast('Essa partida está cheia');
+                $toast.show('Essa partida está cheia');
                 break;
             case 'PLAYER_NOT_AUTHORIZED':
-                showToast('Você não está autorizado para entrar nessa partida');
+                $toast.show('Você não está autorizado para entrar nessa partida');
                 break;
 
             }
@@ -202,7 +193,6 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.changeStatus = () => {
-
         $game.invoke('player_change_status', 
             $routeParams.id,
             $rootScope.user.id,
@@ -231,7 +221,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             
             if (resp.playerId !== $scope.player.id) {
                 let playerThatCallStop = getPlayer(resp.playerId);
-                showToast(playerThatCallStop.userName + ' chamou STOP!');
+                $toast.show(playerThatCallStop.userName + ' chamou STOP!');
             }
         }
         
@@ -332,7 +322,8 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         if (player) {
             removePlayer(player);
             if (player.id !== $scope.player.id) {
-                showToast(player.userName + ' deixou a partida');
+                $toast.show(player.userName + ' deixou a partida');
+                $scope.game.numberOfPlayers--;
             }
         }
     });
@@ -355,7 +346,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             $scope.game.players[indexOfPlayer].isAdmin = true;
             if (player.id === $scope.player.id) {
                 $scope.player.isAdmin = true;
-                showToast('Você é o administrador da partida');
+                $toast.show('Você é o administrador da partida');
             }
         }
     }

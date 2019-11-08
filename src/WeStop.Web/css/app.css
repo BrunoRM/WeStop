@@ -60,8 +60,22 @@ table {
     border-style: solid;
 }
 
-th, tr, td {
+/* For dark theme */
+.md-table-dark thead tr th {
     color: white !important;
+}
+
+.md-table-dark tbody tr td {
+    color: white !important;
+}
+
+/* For light theme */
+.md-table-light thead tr th {
+    color: black !important;
+}
+
+.md-table-light tbody tr td {
+    color: black !important;
 }
 
 .loading {
