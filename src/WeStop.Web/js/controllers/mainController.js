@@ -8,11 +8,12 @@ angular.module('WeStop').controller('mainController', ['$scope', '$location', '$
         let themePreference = localStorage.getItem(themePreferenceKeyName);
         if (!themePreference || themePreference === '') {
             $scope.selectedTheme = $mdTheming.defaultTheme();
+            storeThemePreferenceInLocalStorage();
         } else {
             $scope.selectedTheme = themePreference;
         }
     
-        if ($scope.selectedTheme !== 'light') {
+        if ($scope.selectedTheme === 'dark') {
             $scope.preferences.isDarkModeSelected = true;
         }
     }

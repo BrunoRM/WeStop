@@ -26,7 +26,6 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
                 templateUrl: './views/game-password.html',
                 escapeToClose: true,
                 preserveScope: true,
-                fullscreen: true,
                 controller: ['$scope', function ($scope) {
 
                     $scope.password = '';
