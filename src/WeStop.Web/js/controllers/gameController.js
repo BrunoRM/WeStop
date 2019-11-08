@@ -323,6 +323,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
             removePlayer(player);
             if (player.id !== $scope.player.id) {
                 $toast.show(player.userName + ' deixou a partida');
+                $scope.game.numberOfPlayers--;
             }
         }
     });

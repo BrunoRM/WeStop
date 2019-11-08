@@ -7,12 +7,18 @@
         <md-button class="md-icon-button" ng-click="$mdMenu.open($event)">
             <i class="fa fa-ellipsis-v"></i>
         </md-button>
-        <md-menu-content class="md-dense">
+        <md-menu-content width="2">
+            <md-menu-item>
+                <md-switch md-invert="true" ng-model="preferences.isDarkModeSelected" ng-change="changeTheme()">
+                    Tema escuro
+                </md-switch>
+            </md-menu-item>
+            <md-menu-divider></md-menu-divider>
             <md-menu-item>
                 <md-button ng-click="logout()">
-                    <span md-menu-align-target><i class="fa fa-sign-out "></i> Sair</span>
+                    <span><i class="fa fa-sign-out "></i> Sair</span>
                 </md-button>
-            </md-menu-item>
+            </md-menu-item>            
         </md-menu-content>
     </md-menu>
 </div>

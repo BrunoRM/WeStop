@@ -48,19 +48,20 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     };
 
     function authorize(password) {
-        $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, $rootScope.user).then((result) => {
-            if (!result.data.ok) {
-                switch (result.data.error) {
-                    case 'INCORRECT_PASSWORD':
-                        $toast.show('Senha incorreta');
-                        break;
-                    case 'GAME_NOT_FOUND':
-                        $toast.show('Essa partida não existe mais');
-                        break;
+        $http.post(API_SETTINGS.uri + '/api/games.authorize?gameid=' + $scope.gameDetails.id + '&password=' + password, $rootScope.user)
+            .then((result) => {
+                if (!result.data.ok) {
+                    switch (result.data.error) {
+                        case 'INCORRECT_PASSWORD':
+                            $toast.show('Senha incorreta');
+                            break;
+                        case 'GAME_NOT_FOUND':
+                            $toast.show('Essa partida não existe mais');
+                            break;
+                    }
+                } else {
+                    $scope.joinGame();
                 }
-            } else {
-                $scope.joinGame();
-            }
         }, () => { });
     }
 

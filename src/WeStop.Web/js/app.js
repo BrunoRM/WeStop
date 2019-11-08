@@ -17,14 +17,26 @@ angular.module('WeStop', [
 
     $mdGestureProvider.skipClickHijack();
 
-    $mdThemingProvider.theme('default')
+    $mdThemingProvider.alwaysWatchTheme(true);
+    
+    $mdThemingProvider
+        .theme('light')
+        .primaryPalette('blue')
+        .accentPalette('teal')
+        .warnPalette('red')
+        .backgroundPalette('grey');
+
+    $mdThemingProvider.theme('dark')
         .dark();
 
     $mdThemingProvider
-        .theme('default')
+        .theme('dark')
         .primaryPalette('blue')
         .accentPalette('teal')
-        .warnPalette('red');
+        .warnPalette('red')
+        .dark();
+
+    $mdThemingProvider.setDefaultTheme('dark');
 
     $mdAriaProvider.disableWarnings();
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'swCache061120190023';
+const CACHE_NAME = 'swCache081120191029';
 
 let filesToCache = [
     '/css/styles.min.css',

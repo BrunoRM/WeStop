@@ -69,13 +69,13 @@
         media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
 
 </head>
-<body ng-controller="mainController">
-    
-    <div ng-if="isLoading" class="loading" layout="row" layout-fill layout-align="center center" aria-label="wait">
-        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-    </div>
+<body ng-controller="mainController" md-theme="{{ selectedTheme }}" md-theme-watch="true">
+    <md-content layout-fill>
+        <div ng-if="isLoading" class="loading" layout="row" layout-fill layout-align="center center" aria-label="wait">
+            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+        </div>
 
-    <ng-view layout="row" layout-align="center center" layout-fill></ng-view>
-
+        <ng-view layout="row" layout-align="center center" layout-fill></ng-view>
+    </md-content>
 </body>
 </html>
