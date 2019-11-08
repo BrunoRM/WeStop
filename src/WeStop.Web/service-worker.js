@@ -20,7 +20,6 @@ let filesToCache = [
     '/js/controllers/lobbyController.js',
     '/js/controllers/gameController.js',
     '/js/controllers/createGameController.js',
-    '/js/services/gameService.js',
     '/js/services/userService.js',
     '/js/services/facebookService.js',
     '/js/services/googleService.js',

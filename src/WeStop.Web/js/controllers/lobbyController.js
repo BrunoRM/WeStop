@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$toast', '$lobby', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $toast, $lobby) {
+angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '$http', 'API_SETTINGS', '$mdDialog', '$rootScope', '$toast', '$hub', function ($scope, $location, $http, API_SETTINGS, $mdDialog, $rootScope, $toast, $hub) {
 
     $http.get(API_SETTINGS.uri + '/api/games.list').then((resp) => {
         $scope.games = resp.data.games;
@@ -70,23 +70,37 @@ angular.module('WeStop').controller('lobbyController', ['$scope', '$location', '
     $scope.newGame = () =>
         $location.path('/game/create');
 
-    $lobby.on('game_created', (resp) => {
-        console.log(resp);
+    
+    let hubConnection = $hub.createConnection('/lobby');
+
+    $hub.on(hubConnection, 'game_created', (resp) => {
+        $scope.games.push(resp);
     });
 
-    $lobby.on('player_joined_game', (resp) => {
-        console.log(resp);
+    $hub.on(hubConnection, 'player_joined_game', (resp) => {
+        let game = getGameWithId(resp);
+        game.numberOfPlayers++;
     });
 
-    $lobby.on('round_started', (resp) => {
-        console.log(resp);
+    $hub.on(hubConnection, 'round_started', (resp) => {
+        let game = getGameWithId(resp);
+        game.currentRoundNumber++;
     });
     
-    $lobby.on('player_left_game', (resp) => {
-        console.log(resp);
+    $hub.on(hubConnection, 'player_left_game', (resp) => {
+        let game = getGameWithId(resp);
+        game.numberOfPlayers--;
     });
 
-    $lobby.on('game_finished', (resp) => {
-        console.log(resp);
+    $hub.on(hubConnection, 'game_finished', (resp) => {
+        let game = getGameWithId(resp);
+        let indexOfGame = $scope.games.indexOf(game);
+        $scope.games.splice(indexOfGame, 1);
     });
+
+    function getGameWithId(id) {
+        return $scope.games.find((g) => g.id == id);
+    }
+
+    $hub.connect(hubConnection);
 }]);

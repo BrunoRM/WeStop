@@ -1,4 +1,6 @@
-angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$game', '$rootScope', '$toast', '$location', '$mdDialog', function ($routeParams, $scope, $game, $rootScope, $toast, $location, $mdDialog) {
+angular.module('WeStop').controller('gameController', ['$routeParams', '$scope', '$hub', '$rootScope', '$toast', '$location', '$mdDialog', function ($routeParams, $scope, $hub, $rootScope, $toast, $location, $mdDialog) {
+
+    let hubConnection = $hub.createConnection('/game');    
 
     function init() {
         $scope.allPlayersReady = false;
@@ -13,11 +15,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.currentAnswersTimePercentage = 0;
         $scope.currentValidationTime = 0;
         $scope.currentValidationTimePercentage = 0;
-        $scope.themeValidations = null;        
+        $scope.themeValidations = null;
     }
 
     function joinGame() {
-        $game.invoke("join", $routeParams.id, $rootScope.user);
+        $hub.invoke(hubConnection, "join", $routeParams.id, $rootScope.user);
     }
 
     function setGame(game) {
@@ -136,7 +138,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.game.currentRoundNumber += 1;
     }
 
-    $game.on("im_joined_game", (resp) => {
+    $hub.on(hubConnection, "im_joined_game", (resp) => {
         setGame(resp.game);
         setPlayer(resp.player);        
         refreshGamescoreboard(resp.lastRoundScoreboard);
@@ -152,10 +154,10 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     $scope.startRound = () => {
         $scope.changeStatus();
-        $game.invoke('start_round', $routeParams.id);
+        $hub.invoke(hubConnection, 'start_round', $routeParams.id);
     };    
 
-    $game.on('round_started', data => {
+    $hub.on(hubConnection, 'round_started', data => {
         setSortedLetter(data.sortedLetter);
         let indexOfLetter = $scope.game.availableLetters.indexOf(data.sortedLetter);
         $scope.game.availableLetters.splice(indexOfLetter, 1);
@@ -163,7 +165,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         startRound();
     });
 
-    $game.on('player_joined_game', data => {
+    $hub.on(hubConnection, 'player_joined_game', data => {
         let player = $scope.game.players.find((player) => {
             return player.id === data.player.id;
         });
@@ -176,7 +178,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         checkAllPlayersReady();
     });
 
-    $game.on('game_join_error', (reason) => {
+    $hub.on(hubConnection, 'game_join_error', (reason) => {
         switch (reason) {
             case 'GAME_NOT_FOUND':
                 $toast.show('Essa partida não existe mais');
@@ -193,29 +195,29 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.changeStatus = () => {
-        $game.invoke('player_change_status', 
+        $hub.invoke(hubConnection, 'player_change_status', 
             $routeParams.id,
             $rootScope.user.id,
             !$scope.player.isReady
         );
     };
 
-    $game.on('im_change_status', (resp) => {
+    $hub.on(hubConnection, 'im_change_status', (resp) => {
         let player = getPlayer($scope.player.id);
         $scope.player.isReady = player.isReady = resp.isReady;
     });
     
-    $game.on('player_changed_status', resp => {
+    $hub.on(hubConnection, 'player_changed_status', resp => {
         let player = getPlayer(resp.id);
         player.isReady = resp.isReady;
         checkAllPlayersReady();
     });
 
     $scope.stop = () => {
-        $game.invoke('stop_round', $routeParams.id, $rootScope.user.id);
+        $hub.invoke(hubConnection, 'stop_round', $routeParams.id, $rootScope.user.id);
     };
     
-    $game.on('round_stoped', (resp) => {
+    $hub.on(hubConnection, 'round_stoped', (resp) => {
         
         if (resp.reason === 'player_call_stop') {
             
@@ -226,7 +228,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         }
         
         stop();
-        $game.invoke('send_answers', {
+        $hub.invoke(hubConnection, 'send_answers', {
             playerId: $rootScope.user.id,
             gameId: $routeParams.id,
             roundNumber: $scope.game.currentRoundNumber,
@@ -235,11 +237,11 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
 
     });
     
-    $game.on('im_send_validations', data => {
+    $hub.on(hubConnection, 'im_send_validations', data => {
         cleanThemeValidations();
     });    
 
-    $game.on('round_finished', resp => {
+    $hub.on(hubConnection, 'round_finished', resp => {
         init();
         refreshGamescoreboard(resp.scoreboard);
         updateGamePontuation();
@@ -248,7 +250,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         $scope.changeStatus();
     });
 
-    $game.on('game_finished', resp => {
+    $hub.on(hubConnection, 'game_finished', resp => {
         init();
         finishGame();
         refreshGamescoreboard(resp.lastRoundScoreboard);
@@ -257,7 +259,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
     });
 
     $scope.roundPontuations = [];
-    $game.on('receive_my_pontuations_in_round', resp => {
+    $hub.on(hubConnection, 'receive_my_pontuations_in_round', resp => {
         $scope.roundPontuations.push(resp);
     });
 
@@ -265,7 +267,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         return (time * 100) / limitTime;
     }
 
-    $game.on('round_time_elapsed', resp => {
+    $hub.on(hubConnection, 'round_time_elapsed', resp => {
         $scope.currentAnswersTimePercentage = calculateTimePercentage($scope.game.time, resp);
         refreshCurrentAnswersTime(resp);        
     });
@@ -282,12 +284,12 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         }
     }
     
-    $game.on('validation_started', resp => {
+    $hub.on(hubConnection, 'validation_started', resp => {
         setCurrentValidation(resp);
         startValidation();
     });    
 
-    $game.on('validation_time_elapsed', resp => {
+    $hub.on(hubConnection, 'validation_time_elapsed', resp => {
         $scope.currentValidationTimePercentage = calculateTimePercentage(10, resp.currentTime);
         refreshCurrentValidationTime(resp.currentTime);
     });
@@ -302,22 +304,22 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         };
     }
 
-    $game.on('validation_time_over', () => {
+    $hub.on(hubConnection, 'validation_time_over', () => {
         $scope.validationTimeOver = true;
         sendValidationsAfterTimeOver();
     });
     
     function sendValidationsAfterTimeOver() {
         let data = buildValidationData();
-        $game.invoke('send_validations_after_time_over', data);
+        $hub.invoke(hubConnection, 'send_validations_after_time_over', data);
     }
 
     $scope.finishValidation = function () {
         let data = buildValidationData();
-        $game.invoke('send_validations', data);
+        $hub.invoke(hubConnection, 'send_validations', data);
     };
 
-    $game.on('player_left', (data) => {
+    $hub.on(hubConnection, 'player_left', (data) => {
         let player = getPlayer(data);
         if (player) {
             removePlayer(player);
@@ -335,7 +337,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         }
     }
 
-    $game.on('new_admin_setted', (data) => {
+    $hub.on(hubConnection, 'new_admin_setted', (data) => {
         let player = getPlayer(data);
         setAdminTo(player);
     });
@@ -367,7 +369,7 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
                 $scope.goToLobby();
             } else {
                 $rootScope.isLoading = true;
-                $game.invoke('leave', $routeParams.id, $rootScope.user.id).then(function () {
+                $hub.invoke(hubConnection, 'leave', $routeParams.id, $rootScope.user.id).then(function () {
                     $rootScope.isLoading = false;
                     $scope.goToLobby();
                 }, () => $rootScope.isLoading = false);
@@ -376,14 +378,16 @@ angular.module('WeStop').controller('gameController', ['$routeParams', '$scope',
         });
     };
 
-    $game.on('im_left', () => $scope.goToLobby());
+    $hub.on(hubConnection, 'im_left', () => $scope.goToLobby());
 
     $scope.goToLobby = () => {
-        $game.leave();
+        $hub.stop(hubConnection);
         $location.path('/lobby');
     };
 
     init();
-    joinGame();
+    $hub.connect(hubConnection, () => {
+        joinGame();
+    });
     
 }]);

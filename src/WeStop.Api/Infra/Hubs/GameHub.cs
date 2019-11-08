@@ -192,13 +192,12 @@ namespace WeStop.Api.Infra.Hubs
                 else
                 {
                     _gameTimer.RemoveGameTimer(gameId);
-
-                    await _lobbyHubContext.Clients.All.SendAsync("player_left_game", gameId);
                     await _lobbyHubContext.Clients.All.SendAsync("game_finished", gameId);
                 }
 
                 await Clients.Caller.SendAsync("im_left");
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId.ToString());
+                await _lobbyHubContext.Clients.All.SendAsync("player_left_game", gameId);
             });
         }
     }

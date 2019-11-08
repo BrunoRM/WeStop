@@ -1,4 +1,4 @@
-angular.module('WeStop').controller('createGameController', ['$game', '$scope', '$location', '$rootScope', '$http', 'API_SETTINGS', function ($game, $scope, $location, $rootScope, $http, API_SETTINGS) {
+angular.module('WeStop').controller('createGameController', ['$scope', '$location', '$rootScope', '$http', 'API_SETTINGS', function ($scope, $location, $rootScope, $http, API_SETTINGS) {
     
     let availableThemes = [];
 

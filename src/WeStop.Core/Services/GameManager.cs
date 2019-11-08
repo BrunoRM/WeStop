@@ -35,7 +35,6 @@ namespace WeStop.Core.Services
 
             var player = Player.CreateAsAdmin(game.Id, user);
             await _playerStorage.AddAsync(player);
-            game.Players.Add(player);
             
             return game;
         }
