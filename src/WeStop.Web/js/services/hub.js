@@ -1,9 +1,13 @@
 angular.module('WeStop').factory('$hub', ['$rootScope', 'API_SETTINGS', function ($rootScope, API_SETTINGS) {
-
+    
+    let connections = [];
     function createConnection(uri) {
-        return new signalR.HubConnectionBuilder()
+        let hub = new signalR.HubConnectionBuilder()
             .withUrl(API_SETTINGS.uri + uri)
             .build();
+
+        connections.push(hub);
+        return hub;
     }
     
     function on(hubConnection, eventName, sCallback) {
@@ -46,11 +50,23 @@ angular.module('WeStop').factory('$hub', ['$rootScope', 'API_SETTINGS', function
         }
     }
 
+    function stopAllHubConnections() {
+        for (let i = 0; i < connections.length; i++) {
+            hubConnection = connections[i];
+            if (hubConnection.connectionState === 'Connected') {
+                hubConnection.connection.stop();
+            }
+        }
+
+        connections = [];
+    }
+
     return {
         createConnection: createConnection,
         on: on,
         invoke: invoke,
         connect: connect,
-        stop: stop
+        stop: stop,
+        stopAllHubConnections: stopAllHubConnections
     };
 }]);
